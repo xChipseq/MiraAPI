@@ -84,6 +84,7 @@ public static class ModifierManager
 
             var num = Math.Clamp(mod.GetAmountPerGame(), 0, maxCount);
             var chance = mod.GetAssignmentChance();
+            Logger<MiraApiPlugin>.Warning($"{mod}:{modifier.Key}:{mod.Priority()}:{mod.GetAssignmentChance()}");
 
             for (var i = 0; i < num; i++)
             {
@@ -108,6 +109,7 @@ public static class ModifierManager
             }
 
             map[id] = mod.Priority();
+            Logger<MiraApiPlugin>.Warning($"{mod}:{id}:{mod.Priority()}:{mod.GetAssignmentChance()}");
         }
 
         shuffledModifiers = map.OrderByDescending(x => x.Value).Select(x => x.Key).ToList();
