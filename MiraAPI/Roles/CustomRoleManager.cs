@@ -93,7 +93,7 @@ public static class CustomRoleManager
         roleBehaviour.MaxCount = customRole.Configuration.MaxRoleCount;
         roleBehaviour.RoleScreenshot = customRole.Configuration.OptionsScreenshot.LoadAsset();
 
-        if (customRole.Configuration.IsGhostRole)
+        if (roleBehaviour.IsDead)
         {
             RoleManager.GhostRoles.Add(roleBehaviour.Role);
         }

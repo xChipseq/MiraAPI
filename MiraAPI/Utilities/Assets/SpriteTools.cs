@@ -13,26 +13,6 @@ namespace MiraAPI.Utilities.Assets;
 /// </summary>
 public static class SpriteTools
 {
-    private delegate bool DLoadImage(IntPtr tex, IntPtr data, bool markNonReadable);
-
-    private static DLoadImage? _iCallLoadImage;
-
-    /// <summary>
-    /// Load an image into a texture.
-    /// </summary>
-    /// <param name="tex">The texture.</param>
-    /// <param name="data">Byte data of image.</param>
-    /// <param name="markNonReadable">Mark nonreadable.</param>
-    /// <returns>True if succeeded.</returns>
-    public static bool LoadImage(Texture2D tex, byte[] data, bool markNonReadable)
-    {
-        _iCallLoadImage ??= IL2CPP.ResolveICall<DLoadImage>("UnityEngine.ImageConversion::LoadImage");
-
-        var il2CPPArray = (Il2CppStructArray<byte>)data;
-
-        return _iCallLoadImage.Invoke(tex.Pointer, il2CPPArray.Pointer, markNonReadable);
-    }
-
     /// <summary>
     /// Load a sprite from a resource path.
     /// </summary>
@@ -46,7 +26,7 @@ public static class SpriteTools
         if (myStream != null)
         {
             var buttonTexture = myStream.ReadFully();
-            LoadImage(tex, buttonTexture, false);
+            tex.LoadImage(buttonTexture, false);
         }
         else
         {

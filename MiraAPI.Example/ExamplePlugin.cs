@@ -2,6 +2,8 @@
 using BepInEx.Configuration;
 using BepInEx.Unity.IL2CPP;
 using HarmonyLib;
+using MiraAPI.Events;
+using MiraAPI.Events.Vanilla;
 using MiraAPI.PluginLoading;
 using Reactor;
 using Reactor.Networking;
@@ -21,6 +23,14 @@ public partial class ExamplePlugin : BasePlugin, IMiraPlugin
     public ConfigFile GetConfigFile() => Config;
     public override void Load()
     {
+        MiraEventManager.RegisterEventHandler<BeforeMurderEvent>(
+            e =>
+            {
+                if (e.Source.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                {
+                    e.Cancel();
+                }
+            });
         Harmony.PatchAll();
     }
 }
