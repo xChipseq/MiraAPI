@@ -3,11 +3,13 @@ using BepInEx.Configuration;
 using BepInEx.Unity.IL2CPP;
 using HarmonyLib;
 using MiraAPI.Events;
-using MiraAPI.Events.Vanilla;
+using MiraAPI.Events.Mira;
+using MiraAPI.Example.Buttons.Freezer;
 using MiraAPI.PluginLoading;
 using Reactor;
 using Reactor.Networking;
 using Reactor.Networking.Attributes;
+using Reactor.Utilities;
 
 namespace MiraAPI.Example;
 
@@ -23,14 +25,18 @@ public partial class ExamplePlugin : BasePlugin, IMiraPlugin
     public ConfigFile GetConfigFile() => Config;
     public override void Load()
     {
-        MiraEventManager.RegisterEventHandler<BeforeMurderEvent>(
-            e =>
-            {
-                if (e.Source.PlayerId == PlayerControl.LocalPlayer.PlayerId)
-                {
-                    e.Cancel();
-                }
-            });
+        MiraEventManager.RegisterEventHandler<MiraButtonClickEvent<FreezeButton>>(e=> 
+        {
+            Logger<ExamplePlugin>.Warning("Freeze button clicked!");
+            e.Cancel();
+            e.Button.SetTimer(5f);
+        });
+
+        MiraEventManager.RegisterEventHandler<MiraButtonCancelledEvent<FreezeButton>>(e=>
+        {
+            Logger<ExamplePlugin>.Warning("Freeze button cancelled!");
+            e.Button.OverrideName("Freeze Canceled");
+        });
         Harmony.PatchAll();
     }
 }

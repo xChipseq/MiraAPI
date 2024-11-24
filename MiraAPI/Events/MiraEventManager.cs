@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Reactor.Utilities;
 
 namespace MiraAPI.Events;
 
@@ -17,7 +18,14 @@ public static class MiraEventManager
     /// <typeparam name="T">Type of Event.</typeparam>
     public static void InvokeEvent<T>(T eventInstance) where T : MiraEvent
     {
-        foreach (var handler in EventHandlers[typeof(T)])
+        EventHandlers.TryGetValue(typeof(T), out var handlers);
+        if (handlers == null)
+        {
+            Logger<MiraApiPlugin>.Warning("No handlers for event " + typeof(T).Name);
+            return;
+        }
+
+        foreach (var handler in handlers)
         {
             ((Action<T>)handler).Invoke(eventInstance);
         }
@@ -35,5 +43,6 @@ public static class MiraEventManager
             EventHandlers.Add(typeof(T), []);
         }
         EventHandlers[typeof(T)].Add(handler);
+        Logger<MiraApiPlugin>.Info("Registered event handler for " + typeof(T).Name);
     }
 }

@@ -1,18 +1,6 @@
 ﻿namespace MiraAPI.Events;
 
+/// <summary>
+/// Abstract class for Mira Events.
+/// </summary>
 public abstract class MiraEvent;
-
-public abstract class MiraCancelableEvent : MiraEvent
-{
-    public bool IsCancelled { get; private set; }
-
-    public void Cancel()
-    {
-        IsCancelled = true;
-    }
-
-    public void UnCancel()
-    {
-        IsCancelled = false;
-    }
-}

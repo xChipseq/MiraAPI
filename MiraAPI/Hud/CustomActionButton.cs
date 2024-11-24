@@ -1,9 +1,11 @@
-﻿using MiraAPI.Events;
+﻿using System;
+using MiraAPI.Events;
 using MiraAPI.Events.Mira;
 using MiraAPI.Utilities.Assets;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
+using Object = UnityEngine.Object;
 
 namespace MiraAPI.Hud;
 
@@ -99,16 +101,17 @@ public abstract class CustomActionButton
         pb.OnClick = new Button.ButtonClickedEvent();
         pb.OnClick.AddListener((UnityAction)(() =>
         {
-            var @event = new MiraButtonClickEvent<CustomActionButton>(this);
+            var eventType = typeof(MiraButtonClickEvent<>).MakeGenericType(GetType());
+            var @event = (MiraCancelableEvent)Activator.CreateInstance(eventType, this)!;
             MiraEventManager.InvokeEvent(@event);
-            if (!@event.IsCancelled)
-            {
-                ClickHandler();
-            }
-            else
+            if (@event.IsCancelled)
             {
                 var cancelledEvent = new MiraButtonCancelledEvent<CustomActionButton>(this);
                 MiraEventManager.InvokeEvent(cancelledEvent);
+            }
+            else
+            {
+                ClickHandler();
             }
         }));
     }
