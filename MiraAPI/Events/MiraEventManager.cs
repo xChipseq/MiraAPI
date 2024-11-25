@@ -32,6 +32,26 @@ public static class MiraEventManager
     }
 
     /// <summary>
+    /// Invoke an event and use a specific type to find the handlers.
+    /// </summary>
+    /// <param name="eventInstance">The event instance.</param>
+    /// <param name="type">The type to use for handler lookup.</param>
+    public static void InvokeEvent(MiraEvent eventInstance, Type type)
+    {
+        EventHandlers.TryGetValue(type, out var handlers);
+        if (handlers == null)
+        {
+            Logger<MiraApiPlugin>.Warning("No handlers for event " + type.Name);
+            return;
+        }
+
+        foreach (var handler in handlers)
+        {
+            handler.DynamicInvoke(eventInstance);
+        }
+    }
+
+    /// <summary>
     /// Register an event.
     /// </summary>
     /// <param name="handler">The callback method/handler for the event.</param>

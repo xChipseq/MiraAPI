@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using MiraAPI.Events.Mira;
 using MiraAPI.PluginLoading;
 using Reactor.Utilities;
 
@@ -9,6 +10,8 @@ namespace MiraAPI.Hud;
 internal static class CustomButtonManager
 {
     internal static readonly List<CustomActionButton> CustomButtons = [];
+    internal static readonly Dictionary<Type, Type> ButtonEventTypes = [];
+    internal static readonly Dictionary<Type, Type> ButtonCancelledEventTypes = [];
 
     internal static void RegisterButton(Type buttonType, MiraPluginInfo pluginInfo)
     {
@@ -29,5 +32,8 @@ internal static class CustomButtonManager
         typeof(CustomButtonSingleton<>).MakeGenericType(buttonType)
             .GetField("_instance", BindingFlags.Static | BindingFlags.NonPublic)!
             .SetValue(null, button);
+
+        ButtonEventTypes.Add(buttonType, typeof(MiraButtonClickEvent<>).MakeGenericType(buttonType));
+        ButtonCancelledEventTypes.Add(buttonType, typeof(MiraButtonCancelledEvent<>).MakeGenericType(buttonType));
     }
 }

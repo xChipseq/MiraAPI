@@ -29,7 +29,7 @@ public partial class ExamplePlugin : BasePlugin, IMiraPlugin
         {
             Logger<ExamplePlugin>.Warning("Freeze button clicked!");
             e.Cancel();
-            e.Button.SetTimer(5f);
+            e.Button.SetTimer(15f);
         });
 
         MiraEventManager.RegisterEventHandler<MiraButtonCancelledEvent<FreezeButton>>(e=>
