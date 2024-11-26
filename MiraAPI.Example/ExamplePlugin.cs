@@ -25,11 +25,15 @@ public partial class ExamplePlugin : BasePlugin, IMiraPlugin
     public ConfigFile GetConfigFile() => Config;
     public override void Load()
     {
-        MiraEventManager.RegisterEventHandler<MiraButtonClickEvent<FreezeButton>>(e=> 
+        MiraEventManager.RegisterEventHandler<MiraButtonClickEvent<FreezeButton>>(e=>
         {
             Logger<ExamplePlugin>.Warning("Freeze button clicked!");
-            e.Cancel();
-            e.Button.SetTimer(15f);
+
+            if (PlayerControl.LocalPlayer.Data.PlayerName == "stupid")
+            {
+                e.Cancel();
+                e.Button.SetTimer(15f);
+            }
         });
 
         MiraEventManager.RegisterEventHandler<MiraButtonCancelledEvent<FreezeButton>>(e=>

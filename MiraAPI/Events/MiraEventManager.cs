@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using BepInEx.Unity.IL2CPP;
 using Reactor.Utilities;
 
 namespace MiraAPI.Events;
@@ -9,26 +10,29 @@ namespace MiraAPI.Events;
 /// </summary>
 public static class MiraEventManager
 {
-    private static readonly Dictionary<Type, List<Delegate>> EventHandlers = [];
+    private static readonly Dictionary<Type, List<MiraEventWrapper>> EventWrappers = [];
 
     /// <summary>
     /// Invoke an event.
     /// </summary>
     /// <param name="eventInstance">The event instance.</param>
     /// <typeparam name="T">Type of Event.</typeparam>
-    public static void InvokeEvent<T>(T eventInstance) where T : MiraEvent
+    /// <returns>If there was an event handler invoked for this event, return true. Otherwise, return false.</returns>
+    public static bool InvokeEvent<T>(T eventInstance) where T : MiraEvent
     {
-        EventHandlers.TryGetValue(typeof(T), out var handlers);
+        EventWrappers.TryGetValue(typeof(T), out var handlers);
         if (handlers == null)
         {
             Logger<MiraApiPlugin>.Warning("No handlers for event " + typeof(T).Name);
-            return;
+            return false;
         }
 
         foreach (var handler in handlers)
         {
-            ((Action<T>)handler).Invoke(eventInstance);
+            ((Action<T>)handler.EventHandler).Invoke(eventInstance);
         }
+
+        return true;
     }
 
     /// <summary>
@@ -36,33 +40,48 @@ public static class MiraEventManager
     /// </summary>
     /// <param name="eventInstance">The event instance.</param>
     /// <param name="type">The type to use for handler lookup.</param>
-    public static void InvokeEvent(MiraEvent eventInstance, Type type)
+    /// <returns>If there was an event handler invoked for this event, return true. Otherwise, return false.</returns>
+    public static bool InvokeEvent(MiraEvent eventInstance, Type type)
     {
-        EventHandlers.TryGetValue(type, out var handlers);
+        EventWrappers.TryGetValue(type, out var handlers);
         if (handlers == null)
         {
             Logger<MiraApiPlugin>.Warning("No handlers for event " + type.Name);
-            return;
+            return false;
         }
 
         foreach (var handler in handlers)
         {
-            handler.DynamicInvoke(eventInstance);
+            handler.EventHandler.DynamicInvoke(eventInstance);
         }
+
+        return true;
     }
 
     /// <summary>
     /// Register an event.
     /// </summary>
     /// <param name="handler">The callback method/handler for the event.</param>
+    /// <param name="priority">The priority of the event handler. Higher values are called first.</param>
     /// <typeparam name="T">Type of event.</typeparam>
-    public static void RegisterEventHandler<T>(Action<T> handler) where T : MiraEvent
+    public static void RegisterEventHandler<T>(Action<T> handler, int priority = 0) where T : MiraEvent
     {
-        if (!EventHandlers.ContainsKey(typeof(T)))
+        if (!EventWrappers.ContainsKey(typeof(T)))
         {
-            EventHandlers.Add(typeof(T), []);
+            EventWrappers.Add(typeof(T), []);
         }
-        EventHandlers[typeof(T)].Add(handler);
+
+        var handlers = EventWrappers[typeof(T)];
+        handlers.Add(new MiraEventWrapper(handler, priority));
+
         Logger<MiraApiPlugin>.Info("Registered event handler for " + typeof(T).Name);
+    }
+
+    internal static void SortAllHandlers()
+    {
+        foreach (var handlers in EventWrappers.Values)
+        {
+            handlers.Sort((a, b) => a.Priority.CompareTo(b.Priority));
+        }
     }
 }

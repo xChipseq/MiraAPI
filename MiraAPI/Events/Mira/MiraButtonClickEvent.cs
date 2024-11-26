@@ -14,11 +14,18 @@ public sealed class MiraButtonClickEvent<T> : MiraCancelableEvent where T : Cust
     public T Button { get; }
 
     /// <summary>
+    /// Gets the generic click event that is invoked before this button-specific event.
+    /// </summary>
+    public MiraButtonClickEvent GenericClickEvent { get; }
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="MiraButtonClickEvent{T}"/> class.
     /// </summary>
     /// <param name="button">The Mira Button that was clicked.</param>
-    public MiraButtonClickEvent(T button)
+    /// <param name="genericClickEvent">The generic click event invoked before button-specific events.</param>
+    public MiraButtonClickEvent(T button, MiraButtonClickEvent genericClickEvent)
     {
+        GenericClickEvent = genericClickEvent;
         Button = button;
     }
 }
