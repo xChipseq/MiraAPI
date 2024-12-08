@@ -1,6 +1,10 @@
-﻿using HarmonyLib;
+﻿using System.Linq;
+using BepInEx.Unity.IL2CPP.Utils.Collections;
+using HarmonyLib;
 using MiraAPI.Events;
 using MiraAPI.Events.Vanilla;
+using MiraAPI.Utilities;
+using Reactor.Utilities;
 
 namespace MiraAPI.Patches.Events;
 
@@ -10,19 +14,58 @@ namespace MiraAPI.Patches.Events;
 [HarmonyPatch]
 public static class VentEventPatches
 {
-    [HarmonyPrefix]
-    [HarmonyPatch(typeof(Vent), nameof(Vent.EnterVent))]
-    public static void EnterVentPrefix(Vent __instance, PlayerControl pc)
+    private static bool _showButtons;
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(VentButton), nameof(VentButton.DoClick))]
+    public static void VentUsePostfix(VentButton __instance)
     {
-        var @event = new EnterVentEvent(pc, __instance);
-        MiraEventManager.InvokeEvent(@event);
+        __instance.currentTarget?.SetButtons(_showButtons);
     }
 
     [HarmonyPrefix]
-    [HarmonyPatch(typeof(Vent), nameof(Vent.ExitVent))]
-    public static void ExitVentPrefix(Vent __instance, PlayerControl pc)
+    [HarmonyPatch(typeof(PlayerPhysics), nameof(PlayerPhysics.CoEnterVent))]
+    public static bool EnterVentPrefix(PlayerPhysics __instance, int id, ref Il2CppSystem.Collections.IEnumerator __result)
     {
-        var @event = new ExitVentEvent(pc, __instance);
+        var pc = __instance.myPlayer;
+        var vent = ShipStatus.Instance.AllVents.FirstOrDefault(v => v.Id == id);
+
+        var @event = new EnterVentEvent(pc, vent);
         MiraEventManager.InvokeEvent(@event);
+
+        if (@event.IsCancelled)
+        {
+            Logger<MiraApiPlugin>.Error("Enter vent event cancelled!");
+            __result = Helpers.EmptyCoroutine().WrapToIl2Cpp();
+        }
+
+        if (pc.AmOwner)
+        {
+            _showButtons = !@event.IsCancelled;
+        }
+        return !@event.IsCancelled;
+    }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(PlayerPhysics), nameof(PlayerPhysics.CoExitVent))]
+    public static bool ExitVentPrefix(PlayerPhysics __instance, int id, ref Il2CppSystem.Collections.IEnumerator __result)
+    {
+        var pc = __instance.myPlayer;
+        var vent = ShipStatus.Instance.AllVents.First(v => v.Id == id);
+
+        var @event = new ExitVentEvent(pc, vent);
+        MiraEventManager.InvokeEvent(@event);
+
+        if (@event.IsCancelled)
+        {
+            Logger<MiraApiPlugin>.Error("Exit vent event cancelled!");
+            __result = Helpers.EmptyCoroutine().WrapToIl2Cpp();
+        }
+
+        if (pc.AmOwner)
+        {
+            _showButtons = @event.IsCancelled;
+        }
+        return !@event.IsCancelled;
     }
 }

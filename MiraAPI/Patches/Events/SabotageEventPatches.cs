@@ -11,10 +11,10 @@ namespace MiraAPI.Patches.Events;
 public static class SabotageEventPatches
 {
     [HarmonyPrefix]
-    [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.UpdateSystem), typeof(SystemTypes), typeof(byte))]
-    public static bool ShipStatusUpdateSystemPrefix(ShipStatus __instance, SystemTypes systemType, byte amount)
+    [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.UpdateSystem), typeof(SystemTypes), typeof(PlayerControl), typeof(byte))]
+    public static bool ShipStatusUpdateSystemPrefix(ShipStatus __instance, SystemTypes systemType, PlayerControl player, byte amount)
     {
-        var @event = new UpdateSystemEvent(systemType, amount);
+        var @event = new UpdateSystemEvent(systemType, player, amount);
         MiraEventManager.InvokeEvent(@event);
         return !@event.IsCancelled;
     }

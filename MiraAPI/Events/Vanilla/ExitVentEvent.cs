@@ -13,14 +13,14 @@ public class ExitVentEvent : MiraCancelableEvent
     /// <summary>
     /// Gets the vent that the player is exiting.
     /// </summary>
-    public Vent Vent { get; }
+    public Vent? Vent { get; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ExitVentEvent"/> class.
     /// </summary>
     /// <param name="player">The player who is exiting the vent.</param>
     /// <param name="vent">The vent being exited from.</param>
-    public ExitVentEvent(PlayerControl player, Vent vent)
+    public ExitVentEvent(PlayerControl player, Vent? vent)
     {
         Player = player;
         Vent = vent;

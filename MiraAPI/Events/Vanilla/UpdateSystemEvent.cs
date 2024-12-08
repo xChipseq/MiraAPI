@@ -11,6 +11,11 @@ public class UpdateSystemEvent : MiraCancelableEvent
     public SystemTypes SystemType { get; }
 
     /// <summary>
+    /// Gets the player that is updating the system.
+    /// </summary>
+    public PlayerControl Player { get; }
+
+    /// <summary>
     /// Gets the byte amount the system is being updated by.
     /// </summary>
     public byte Amount { get; }
@@ -20,9 +25,10 @@ public class UpdateSystemEvent : MiraCancelableEvent
     /// </summary>
     /// <param name="systemType">The SystemType being updated.</param>
     /// <param name="amount">Amount to update System to.</param>
-    public UpdateSystemEvent(SystemTypes systemType, byte amount)
+    public UpdateSystemEvent(SystemTypes systemType, PlayerControl player, byte amount)
     {
         SystemType = systemType;
+        Player = player;
         Amount = amount;
     }
 }

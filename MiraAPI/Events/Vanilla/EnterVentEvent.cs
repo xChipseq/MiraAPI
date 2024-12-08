@@ -13,14 +13,14 @@ public class EnterVentEvent : MiraCancelableEvent
     /// <summary>
     /// Gets the vent that the player is entering.
     /// </summary>
-    public Vent Vent { get; }
+    public Vent? Vent { get; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="EnterVentEvent"/> class.
     /// </summary>
     /// <param name="player">The player that is entering the vent.</param>
     /// <param name="vent">The vent being entered.</param>
-    public EnterVentEvent(PlayerControl player, Vent vent)
+    public EnterVentEvent(PlayerControl player, Vent? vent)
     {
         Player = player;
         Vent = vent;
