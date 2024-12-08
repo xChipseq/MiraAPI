@@ -25,22 +25,6 @@ public partial class ExamplePlugin : BasePlugin, IMiraPlugin
     public ConfigFile GetConfigFile() => Config;
     public override void Load()
     {
-        MiraEventManager.RegisterEventHandler<MiraButtonClickEvent<FreezeButton>>(e=>
-        {
-            Logger<ExamplePlugin>.Warning("Freeze button clicked!");
-
-            if (PlayerControl.LocalPlayer.Data.PlayerName == "stupid")
-            {
-                e.Cancel();
-                e.Button.SetTimer(15f);
-            }
-        });
-
-        MiraEventManager.RegisterEventHandler<MiraButtonCancelledEvent<FreezeButton>>(e=>
-        {
-            Logger<ExamplePlugin>.Warning("Freeze button cancelled!");
-            e.Button.OverrideName("Freeze Canceled");
-        });
         Harmony.PatchAll();
     }
 }

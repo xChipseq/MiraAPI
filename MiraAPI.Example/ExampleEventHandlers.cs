@@ -11,6 +11,7 @@ public static class ExampleEventHandlers
     {
         // Register event handlers here
         MiraEventManager.RegisterEventHandler<MiraButtonClickEvent<FreezeButton>>(FreezeButtonClickHandler, 1);
+        MiraEventManager.RegisterEventHandler<MiraButtonCancelledEvent<FreezeButton>>(FreezeButtonCancelledHandler);
     }
 
     // Example event handler
@@ -23,5 +24,12 @@ public static class ExampleEventHandlers
             @event.Cancel();
             @event.Button.SetTimer(15f);
         }
+    }
+
+    // Example event handler
+    public static void FreezeButtonCancelledHandler(MiraButtonCancelledEvent<FreezeButton> @event)
+    {
+        Logger<ExamplePlugin>.Warning("Freeze button cancelled!");
+        @event.Button.OverrideName("Freeze Canceled");
     }
 }
