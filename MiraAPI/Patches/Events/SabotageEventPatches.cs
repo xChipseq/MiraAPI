@@ -11,8 +11,8 @@ namespace MiraAPI.Patches.Events;
 public static class SabotageEventPatches
 {
     [HarmonyPrefix]
-    [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.RpcUpdateSystem), typeof(SystemTypes), typeof(byte))]
-    public static bool ShipStatusRpcUpdateSystemPrefix(ShipStatus __instance, SystemTypes systemType, byte amount)
+    [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.UpdateSystem), typeof(SystemTypes), typeof(byte))]
+    public static bool ShipStatusUpdateSystemPrefix(ShipStatus __instance, SystemTypes systemType, byte amount)
     {
         var @event = new UpdateSystemEvent(systemType, amount);
         MiraEventManager.InvokeEvent(@event);
