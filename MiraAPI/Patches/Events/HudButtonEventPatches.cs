@@ -20,15 +20,6 @@ public static class HudButtonEventPatches
     }
 
     [HarmonyPrefix]
-    [HarmonyPatch(typeof(ReportButton), nameof(ReportButton.DoClick))]
-    public static bool ReportButtonDoClickPrefix(ReportButton __instance)
-    {
-        var @event = new ReportButtonClickEvent(__instance);
-        MiraEventManager.InvokeEvent(@event);
-        return !@event.IsCancelled;
-    }
-
-    [HarmonyPrefix]
     [HarmonyPatch(typeof(SabotageButton), nameof(SabotageButton.DoClick))]
     public static bool SabotageButtonDoClickPrefix(SabotageButton __instance)
     {
