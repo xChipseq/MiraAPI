@@ -6,14 +6,14 @@ using MiraAPI.Utilities;
 namespace MiraAPI.Patches.Events;
 
 [HarmonyPatch]
-public static class ReportDeadBodyEventPatch
+public static class StartMeetingEventPatch
 {
     [HarmonyPrefix]
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.ReportDeadBody))]
-    public static bool PlayerControlReportDeadBodyPrefix(PlayerControl __instance, NetworkedPlayerInfo target)
+    public static bool PlayerControlReportDeadBodyPrefix(PlayerControl __instance, NetworkedPlayerInfo? target)
     {
-        var body = Helpers.GetBodyById(target.PlayerId);
-        var @event = new ReportDeadBodyEvent(__instance, target, body);
+        var body = target != null ? Helpers.GetBodyById(target.PlayerId) : null;
+        var @event = new StartMeetingEvent(__instance, target, body);
         MiraEventManager.InvokeEvent(@event);
         return !@event.IsCancelled;
     }
