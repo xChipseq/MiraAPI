@@ -7,6 +7,7 @@ namespace MiraAPI.Patches.Events;
 /// <summary>
 /// Patch for button related MiraEvents.
 /// </summary>
+[HarmonyPatch]
 public static class HudButtonEventPatches
 {
     [HarmonyPrefix]
