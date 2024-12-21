@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using MiraAPI.Modifiers.Types;
 using MiraAPI.Networking;
-using MiraAPI.PluginLoading;
 using MiraAPI.Roles;
 using MiraAPI.Utilities;
 using Reactor.Networking.Rpc;
@@ -88,18 +87,18 @@ public static class ModifierManager
             {
                 var mod = Activator.CreateInstance(IdToTypeModifierMap[id]) as GameModifier;
                 var chance = Math.Clamp(mod!.GetAssignmentChance(), 0, 100);
-                var count = mod!.GetAmountPerGame();
+                var count = mod.GetAmountPerGame();
 
                 if (chance == 0 || count == 0)
                 {
                     continue;
                 }
 
-                var maxCount = plrs.Count(x => IsGameModifierValid(x, mod!, id));
+                var maxCount = plrs.Count(x => IsGameModifierValid(x, mod, id));
 
                 if (maxCount == 0)
                 {
-                    Logger<MiraApiPlugin>.Warning($"No players are valid for {mod!.ModifierName}");
+                    Logger<MiraApiPlugin>.Warning($"No players are valid for {mod.ModifierName}");
                     continue;
                 }
 
@@ -126,7 +125,7 @@ public static class ModifierManager
 
             if (shuffledList.Count > plrs.Count)
             {
-                shuffledList = shuffledList.GetRange(0, plrs.Count)!;
+                shuffledList = shuffledList.GetRange(0, plrs.Count);
             }
 
             foreach (var id in shuffledList)

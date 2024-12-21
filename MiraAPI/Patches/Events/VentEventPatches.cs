@@ -1,10 +1,7 @@
 ﻿using System.Linq;
-using BepInEx.Unity.IL2CPP.Utils.Collections;
 using HarmonyLib;
 using MiraAPI.Events;
 using MiraAPI.Events.Vanilla;
-using MiraAPI.Utilities;
-using Reactor.Utilities;
 
 namespace MiraAPI.Patches.Events;
 
