@@ -1,7 +1,11 @@
-﻿using MiraAPI.Utilities.Assets;
+﻿using System;
+using MiraAPI.Events;
+using MiraAPI.Events.Mira;
+using MiraAPI.Utilities.Assets;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
+using Object = UnityEngine.Object;
 
 namespace MiraAPI.Hud;
 
@@ -95,7 +99,42 @@ public abstract class CustomActionButton
 
         var pb = Button.GetComponent<PassiveButton>();
         pb.OnClick = new Button.ButtonClickedEvent();
-        pb.OnClick.AddListener((UnityAction)ClickHandler);
+        pb.OnClick.AddListener((UnityAction)(() =>
+        {
+            // Invoke the generic button click event.
+            var genericEvent = new MiraButtonClickEvent(this);
+            MiraEventManager.InvokeEvent(genericEvent);
+            if (genericEvent.IsCancelled)
+            {
+                MiraEventManager.InvokeEvent(new MiraButtonCancelledEvent(this));
+            }
+
+            // Invoke the button click event for specific button.
+            var eventType = CustomButtonManager.ButtonEventTypes[GetType()];
+            var @event = (MiraCancelableEvent)Activator.CreateInstance(eventType, this)!;
+            var specificInvoked = MiraEventManager.InvokeEvent(@event, eventType);
+            if (@event.IsCancelled)
+            {
+                var cancelEventType = CustomButtonManager.ButtonCancelledEventTypes[GetType()];
+                var cancelEvent = (MiraEvent)Activator.CreateInstance(cancelEventType, this)!;
+                MiraEventManager.InvokeEvent(cancelEvent, cancelEventType);
+            }
+
+            if (specificInvoked)
+            {
+                if (!@event.IsCancelled)
+                {
+                    ClickHandler();
+                }
+            }
+            else
+            {
+                if (!genericEvent.IsCancelled)
+                {
+                    ClickHandler();
+                }
+            }
+        }));
     }
 
     /// <summary>

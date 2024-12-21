@@ -15,6 +15,8 @@ public struct CustomRoleConfiguration
     /// <param name="role">The role in which you are configuring.</param>
     public CustomRoleConfiguration(ICustomRole role)
     {
+        var roleBehaviour = role as RoleBehaviour;
+
         MaxRoleCount = 15;
         DefaultRoleCount = 0;
         DefaultChance = 0;
@@ -29,13 +31,12 @@ public struct CustomRoleConfiguration
         };
         RoleHintType = RoleHintType.RoleTab;
         GhostRole = role.Team is ModdedRoleTeams.Impostor ? RoleTypes.ImpostorGhost : RoleTypes.CrewmateGhost;
-        CanGetKilled = !IsGhostRole && role.Team is not ModdedRoleTeams.Impostor;
+        CanGetKilled = roleBehaviour?.IsDead == false && role.Team is not ModdedRoleTeams.Impostor;
         UseVanillaKillButton = role.Team is ModdedRoleTeams.Impostor;
         CanUseVent = role.Team is ModdedRoleTeams.Impostor;
         CanUseSabotage = role.Team is ModdedRoleTeams.Impostor;
         TasksCountForProgress = role.Team is ModdedRoleTeams.Crewmate;
-        IsGhostRole = false;
-        HideSettings = IsGhostRole;
+        HideSettings = roleBehaviour?.IsDead == true;
         CanModifyChance = true;
     }
 
@@ -98,11 +99,6 @@ public struct CustomRoleConfiguration
     /// Gets a value indicating whether the role's tasks count towards task progress.
     /// </summary>
     public bool TasksCountForProgress;
-
-    /// <summary>
-    /// Gets a value indicating whether the role is a Ghost.
-    /// </summary>
-    public bool IsGhostRole;
 
     /// <summary>
     /// Gets a value indicating whether the role should show up in the Role Options menu.

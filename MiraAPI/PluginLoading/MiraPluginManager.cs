@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using BepInEx.Unity.IL2CPP;
 using MiraAPI.Colors;
+using MiraAPI.Events;
 using MiraAPI.GameOptions;
 using MiraAPI.GameOptions.Attributes;
 using MiraAPI.Hud;
@@ -51,6 +52,7 @@ public sealed class MiraPluginManager
             Logger<MiraApiPlugin>.Info($"Registering mod {pluginInfo.Metadata.GUID} with Mira API.");
         };
         IL2CPPChainloader.Instance.Finished += PaletteManager.RegisterAllColors;
+        IL2CPPChainloader.Instance.Finished += MiraEventManager.SortAllHandlers;
     }
 
     /// <summary>

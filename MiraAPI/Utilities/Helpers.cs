@@ -1,4 +1,5 @@
-﻿using MiraAPI.Roles;
+﻿using System.Collections;
+using MiraAPI.Roles;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -14,6 +15,15 @@ namespace MiraAPI.Utilities;
 /// </summary>
 public static class Helpers
 {
+    /// <summary>
+    /// Returns an empty coroutine.
+    /// </summary>
+    /// <returns>Empty coroutine.</returns>
+    public static IEnumerator EmptyCoroutine()
+    {
+        yield break;
+    }
+
     /// <summary>
     /// Creates a ContactFilter2D from a layer mask.
     /// </summary>
