@@ -14,6 +14,7 @@ namespace MiraAPI.Patches.Events;
 [HarmonyPatch]
 public static class VentEventPatches
 {
+    // necessary because Vent.Use is inlined in il2cpp.
     private static bool _showButtons;
 
     [HarmonyPostfix]
@@ -24,20 +25,14 @@ public static class VentEventPatches
     }
 
     [HarmonyPrefix]
-    [HarmonyPatch(typeof(PlayerPhysics), nameof(PlayerPhysics.CoEnterVent))]
-    public static bool EnterVentPrefix(PlayerPhysics __instance, int id, ref Il2CppSystem.Collections.IEnumerator __result)
+    [HarmonyPatch(typeof(PlayerPhysics), nameof(PlayerPhysics.RpcEnterVent))]
+    public static bool PlayerPhysicsRpcEnterVentPrefix(PlayerPhysics __instance, int id)
     {
         var pc = __instance.myPlayer;
         var vent = ShipStatus.Instance.AllVents.FirstOrDefault(v => v.Id == id);
 
         var @event = new EnterVentEvent(pc, vent);
         MiraEventManager.InvokeEvent(@event);
-
-        if (@event.IsCancelled)
-        {
-            Logger<MiraApiPlugin>.Error("Enter vent event cancelled!");
-            __result = Helpers.EmptyCoroutine().WrapToIl2Cpp();
-        }
 
         if (pc.AmOwner)
         {
@@ -47,20 +42,14 @@ public static class VentEventPatches
     }
 
     [HarmonyPrefix]
-    [HarmonyPatch(typeof(PlayerPhysics), nameof(PlayerPhysics.CoExitVent))]
-    public static bool ExitVentPrefix(PlayerPhysics __instance, int id, ref Il2CppSystem.Collections.IEnumerator __result)
+    [HarmonyPatch(typeof(PlayerPhysics), nameof(PlayerPhysics.RpcExitVent))]
+    public static bool PlayerPhysicsRpcExitVentPrefix(PlayerPhysics __instance, int id)
     {
         var pc = __instance.myPlayer;
         var vent = ShipStatus.Instance.AllVents.First(v => v.Id == id);
 
         var @event = new ExitVentEvent(pc, vent);
         MiraEventManager.InvokeEvent(@event);
-
-        if (@event.IsCancelled)
-        {
-            Logger<MiraApiPlugin>.Error("Exit vent event cancelled!");
-            __result = Helpers.EmptyCoroutine().WrapToIl2Cpp();
-        }
 
         if (pc.AmOwner)
         {

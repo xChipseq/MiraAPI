@@ -9,10 +9,11 @@ namespace MiraAPI.Patches.Events;
 public static class StartMeetingEventPatch
 {
     [HarmonyPrefix]
-    [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.ReportDeadBody))]
-    public static bool PlayerControlReportDeadBodyPrefix(PlayerControl __instance, NetworkedPlayerInfo? target)
+    [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CmdReportDeadBody))]
+    public static bool PlayerControlCmdReportDeadBodyPrefix(PlayerControl __instance, NetworkedPlayerInfo? target)
     {
         var body = target != null ? Helpers.GetBodyById(target.PlayerId) : null;
+
         var @event = new StartMeetingEvent(__instance, target, body);
         MiraEventManager.InvokeEvent(@event);
         return !@event.IsCancelled;

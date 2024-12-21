@@ -13,28 +13,12 @@ public static class ExampleEventHandlers
         // Register event handlers here
         MiraEventManager.RegisterEventHandler<MiraButtonClickEvent<FreezeButton>>(FreezeButtonClickHandler, 1);
         MiraEventManager.RegisterEventHandler<MiraButtonCancelledEvent<FreezeButton>>(FreezeButtonCancelledHandler);
-        MiraEventManager.RegisterEventHandler<EnterVentEvent>(EnterVentHandler);
-        MiraEventManager.RegisterEventHandler<ExitVentEvent>(ExitVentHandler);
+        MiraEventManager.RegisterEventHandler<UpdateSystemEvent>(UpdateSystemEventHandler);
     }
 
-    public static void EnterVentHandler(EnterVentEvent @event)
+    public static void UpdateSystemEventHandler(UpdateSystemEvent @event)
     {
-        Logger<ExamplePlugin>.Warning("Entering vent!");
-        var random = new System.Random();
-        if (random.Next(0, 2) == 0)
-        {
-            @event.Cancel();
-        }
-    }
-
-    public static void ExitVentHandler(ExitVentEvent @event)
-    {
-        Logger<ExamplePlugin>.Warning("Exiting vent!");
-        var random = new System.Random();
-        if (random.Next(0, 2) == 0)
-        {
-            @event.Cancel();
-        }
+        Logger<ExamplePlugin>.Error(@event.SystemType.ToString());
     }
 
     // Example event handler
