@@ -73,8 +73,6 @@ public static class MiraEventManager
 
         var handlers = EventWrappers[typeof(T)];
         handlers.Add(new MiraEventWrapper(handler, priority));
-
-        Logger<MiraApiPlugin>.Info("Registered event handler for " + typeof(T).Name);
     }
 
     internal static void SortAllHandlers()
