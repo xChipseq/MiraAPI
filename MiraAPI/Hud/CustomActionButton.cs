@@ -111,7 +111,7 @@ public abstract class CustomActionButton
 
             // Invoke the button click event for specific button.
             var eventType = CustomButtonManager.ButtonEventTypes[GetType()];
-            var @event = (MiraCancelableEvent)Activator.CreateInstance(eventType, this)!;
+            var @event = (MiraCancelableEvent)Activator.CreateInstance(eventType, this, genericEvent)!;
             var specificInvoked = MiraEventManager.InvokeEvent(@event, eventType);
             if (@event.IsCancelled)
             {
