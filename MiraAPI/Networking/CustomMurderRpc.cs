@@ -3,7 +3,6 @@ using System.Linq;
 using AmongUs.GameOptions;
 using Assets.CoreScripts;
 using BepInEx.Unity.IL2CPP.Utils;
-using Discord;
 using MiraAPI.Events;
 using MiraAPI.Events.Vanilla;
 using Reactor.Networking.Attributes;
