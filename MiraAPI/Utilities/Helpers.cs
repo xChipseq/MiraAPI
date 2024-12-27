@@ -41,7 +41,7 @@ public static class Helpers
     /// <returns>The ship room if its found.</returns>
     public static PlainShipRoom? GetRoom(Vector3 pos)
     {
-        return ShipStatus.Instance.AllRooms.ToList().Find(room => room.roomArea.OverlapPoint(pos));
+        return ShipStatus.Instance.AllRooms.FirstOrDefault(room => room.roomArea.OverlapPoint(pos));
     }
 
     /// <summary>
