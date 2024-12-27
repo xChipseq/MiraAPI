@@ -13,8 +13,6 @@ public class MeetingButton : CustomActionButton
 
     public override float Cooldown => 15;
 
-    public override float EffectDuration => 0;
-
     public override int MaxUses => 3;
 
     public override LoadableAsset<Sprite> Sprite => ExampleAssets.ExampleButton;

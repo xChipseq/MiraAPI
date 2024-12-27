@@ -8,6 +8,7 @@ using System.Collections;
 using UnityEngine;
 
 namespace MiraAPI.Example.Buttons.Teleporter;
+
 [RegisterButton]
 public class TeleportButton : CustomActionButton
 {
@@ -17,15 +18,15 @@ public class TeleportButton : CustomActionButton
 
     public override float EffectDuration => OptionGroupSingleton<TeleporterOptions>.Instance.TeleportDuration;
 
-    public override int MaxUses => 0;
-
     public override LoadableAsset<Sprite> Sprite => ExampleAssets.TeleportButton;
+
     public static bool IsZoom { get; private set; }
 
     public override bool Enabled(RoleBehaviour? role)
     {
         return role is TeleporterRole;
     }
+
     protected override void OnClick()
     {
         Coroutines.Start(ZoomOutCoroutine());

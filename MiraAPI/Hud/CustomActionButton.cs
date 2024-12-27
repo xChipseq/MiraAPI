@@ -25,19 +25,19 @@ public abstract class CustomActionButton
     public abstract float Cooldown { get; }
 
     /// <summary>
+    /// Gets the sprite of the button. Use <see cref="LoadableResourceAsset"/> to load a sprite from a resource path. Use <see cref="LoadableBundleAsset{T}"/> to load a sprite from an asset bundle.
+    /// </summary>
+    public abstract LoadableAsset<Sprite> Sprite { get; }
+
+    /// <summary>
     /// Gets the button's effect duration in seconds. If the button has no effect, set to 0.
     /// </summary>
-    public abstract float EffectDuration { get; }
+    public virtual float EffectDuration => 0;
 
     /// <summary>
     /// Gets the maximum amount of uses the button has. If the button has infinite uses, set to 0.
     /// </summary>
-    public abstract int MaxUses { get; }
-
-    /// <summary>
-    /// Gets the sprite of the button. Use <see cref="LoadableResourceAsset"/> to load a sprite from a resource path. Use <see cref="LoadableBundleAsset{T}"/> to load a sprite from an asset bundle.
-    /// </summary>
-    public abstract LoadableAsset<Sprite> Sprite { get; }
+    public virtual int MaxUses => 0;
 
     /// <summary>
     /// Gets the location of the button on the screen.
@@ -206,7 +206,7 @@ public abstract class CustomActionButton
     public void SetUses(int amount)
     {
         UsesLeft = Mathf.Clamp(amount, 0, int.MaxValue);
-        Button?.SetUsesRemaining(MaxUses);
+        Button?.SetUsesRemaining(UsesLeft);
     }
 
     /// <summary>
