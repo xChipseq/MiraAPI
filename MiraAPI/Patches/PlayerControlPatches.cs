@@ -16,7 +16,7 @@ public static class PlayerControlPatches
     /// Adds the modifier component to the player on start.
     /// </summary>
     /// <param name="__instance">PlayerControl instance.</param>
-    [HarmonyPrefix]
+    [HarmonyPostfix]
     [HarmonyPatch(nameof(PlayerControl.Start))]
     public static void PlayerControlStartPostfix(PlayerControl __instance)
     {
