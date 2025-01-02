@@ -31,7 +31,7 @@ public static class ModdedOptionsManager
     {
         if (Activator.CreateInstance(type) is not AbstractOptionGroup group)
         {
-            Logger<MiraApiPlugin>.Error($"Failed to create group from {type.Name}");
+            Logger<MiraApiPlugin>.Error($"Skipping option group {type.Name}. Does not inherit AbstractOptionGroup.");
             return false;
         }
 

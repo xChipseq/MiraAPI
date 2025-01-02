@@ -97,7 +97,7 @@ public static class Extensions
 
             if (length > chunkSize)
             {
-                Logger<MiraApiPlugin>.Error($"NetData length is greater than chunk size: {length} > {chunkSize}");
+                Logger<MiraApiPlugin>.Info($"NetData length is greater than chunk size: {length} > {chunkSize}");
                 continue;
             }
 

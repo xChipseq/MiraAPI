@@ -17,7 +17,7 @@ internal static class CustomButtonManager
     {
         if (!typeof(CustomActionButton).IsAssignableFrom(buttonType))
         {
-            Logger<MiraApiPlugin>.Error($"{buttonType?.Name} does not inherit from CustomActionButton.");
+            Logger<MiraApiPlugin>.Error($"Skipping button {buttonType.Name}. Does not inherit CustomActionButton!");
             return;
         }
 
