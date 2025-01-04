@@ -20,6 +20,11 @@ public abstract class CustomActionButton
     public abstract string Name { get; }
 
     /// <summary>
+    /// Gets the initial cooldown duration in seconds.
+    /// </summary>
+    public virtual float InitialCooldown => Cooldown;
+
+    /// <summary>
     /// Gets the button's cooldown duration in seconds.
     /// </summary>
     public abstract float Cooldown { get; }
@@ -82,7 +87,7 @@ public abstract class CustomActionButton
         }
 
         UsesLeft = MaxUses;
-        Timer = Cooldown;
+        Timer = InitialCooldown;
         EffectActive = false;
 
         Button = Object.Instantiate(HudManager.Instance.AbilityButton, parent);
