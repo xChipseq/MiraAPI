@@ -7,7 +7,10 @@ using Reactor.Utilities;
 
 namespace MiraAPI.Hud;
 
-internal static class CustomButtonManager
+/// <summary>
+/// Custom button manager for handling custom buttons.
+/// </summary>
+public static class CustomButtonManager
 {
     internal static readonly List<CustomActionButton> CustomButtons = [];
     internal static readonly Dictionary<Type, Type> ButtonEventTypes = [];
