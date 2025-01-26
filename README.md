@@ -1,4 +1,4 @@
-[![](https://dcbadge.limes.pink/api/server/TQeQdCCcx8)](https://discord.gg/TQeQdCCcx8)
+[![](https://dcbadge.limes.pink/api/server/FYYqJU2bvp)](https://discord.gg/FYYqJU2bvp)
 
 # Mira API
 
@@ -14,7 +14,7 @@ A thorough, but simple, Among Us modding API and utility library that covers:
 
 Mira API strives to be simple and easy to use, while also using as many base game elements as possible. The result is a less intrusive, better modding API that covers general use cases.
 
-**Join the [Discord](https://discord.gg/TQeQdCCcx8) for support and to stay updated on the latest releases**
+**Join the [Discord](https://discord.gg/FYYqJU2bvp) for support and to stay updated on the latest releases**
 
 # Usage
 
