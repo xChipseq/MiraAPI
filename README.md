@@ -1,4 +1,4 @@
-[![](https://dcbadge.limes.pink/api/server/all-of-us-launchpad-794950428756410429)](https://discord.gg/all-of-us-launchpad-794950428756410429)
+[![](https://dcbadge.limes.pink/api/server/TQeQdCCcx8)](https://discord.gg/TQeQdCCcx8)
 
 # Mira API
 
