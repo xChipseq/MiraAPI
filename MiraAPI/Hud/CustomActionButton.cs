@@ -87,7 +87,7 @@ public abstract class CustomActionButton
         }
 
         UsesLeft = MaxUses;
-        Timer = InitialCooldown;
+        Timer = AmongUsClient.Instance?.NetworkMode == NetworkModes.FreePlay ? 0 : InitialCooldown;
         EffectActive = false;
 
         Button = Object.Instantiate(HudManager.Instance.AbilityButton, parent);
