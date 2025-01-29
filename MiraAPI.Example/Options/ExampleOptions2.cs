@@ -14,7 +14,7 @@ public class ExampleOptions2 : AbstractOptionGroup
 
     public ModdedToggleOption ToggleOpt2 { get; } = new("Toggle Option 2", false)
     {
-        Visible = () => OptionGroupSingleton<ExampleOptions2>.Instance.ToggleOpt1.Value,
+        Visible = () => OptionGroupSingleton<ExampleOptions2>.Instance.ToggleOpt1, // implicit cast from ModdedToggleOption to bool
     };
 
     public ModdedEnumOption EnumOpt { get; } = new("Enum Opt", 0, typeof(TestingData))

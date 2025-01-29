@@ -194,4 +194,14 @@ public abstract class ModdedOption<T> : IModdedOption
         NumberOption numberOpt,
         StringOption stringOpt,
         Transform container);
+
+    /// <summary>
+    /// Implicitly converts the option to type of <typeparamref name="T"/>.
+    /// </summary>
+    /// <param name="option">The option.</param>
+    /// <returns>Value of type <typeparamref name="T"/>.</returns>
+    public static implicit operator T(ModdedOption<T> option)
+    {
+        return option.Value;
+    }
 }

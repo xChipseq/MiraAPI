@@ -27,10 +27,8 @@ public class ModdedEnumOptionAttribute(string title, Type enumType, string[]? va
     /// <inheritdoc />
     public override object GetValue()
     {
-        if (HolderOption is ModdedEnumOption opt)
-        {
-            return Enum.ToObject(enumType, opt.Value);
-        }
-        throw new InvalidOperationException($"HolderOption for option \"{Title}\" with EnumType ${enumType.FullName} is not a ModdedEnumOption");
+        return HolderOption is ModdedEnumOption opt
+            ? Enum.ToObject(enumType, opt.Value)
+            : throw new InvalidOperationException($"HolderOption for option \"{Title}\" with EnumType ${enumType.FullName} is not a ModdedEnumOption");
     }
 }

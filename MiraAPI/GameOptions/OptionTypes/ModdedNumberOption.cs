@@ -144,4 +144,14 @@ public class ModdedNumberOption : ModdedOption<float>
             opt.Value = Value;
         }
     }
+
+    /// <summary>
+    /// Implicitly converts the option to an int.
+    /// </summary>
+    /// <param name="option">The option.</param>
+    /// <returns>Integer value.</returns>
+    public static implicit operator int(ModdedNumberOption option)
+    {
+        return (int)option.Value;
+    }
 }
