@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using HarmonyLib;
+using MiraAPI.Modifiers;
 using MiraAPI.Modifiers.Types;
-using MiraAPI.Utilities;
 
 namespace MiraAPI.Patches.Modifiers;
 

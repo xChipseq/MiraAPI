@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Globalization;
 using System.Linq;
 using System.Text;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;

@@ -3,6 +3,7 @@ using MiraAPI.Example.Options.Roles;
 using MiraAPI.Example.Roles;
 using MiraAPI.GameOptions;
 using MiraAPI.Hud;
+using MiraAPI.Modifiers;
 using MiraAPI.Utilities;
 using MiraAPI.Utilities.Assets;
 using UnityEngine;
