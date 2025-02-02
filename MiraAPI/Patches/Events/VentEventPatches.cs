@@ -1,7 +1,7 @@
-﻿using System.Linq;
-using HarmonyLib;
+﻿using HarmonyLib;
 using MiraAPI.Events;
 using MiraAPI.Events.Vanilla;
+using System.Linq;
 
 namespace MiraAPI.Patches.Events;
 

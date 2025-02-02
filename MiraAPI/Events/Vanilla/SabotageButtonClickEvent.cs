@@ -1,8 +1,11 @@
-﻿namespace MiraAPI.Events.Vanilla;
+﻿using System;
+
+namespace MiraAPI.Events.Vanilla;
 
 /// <summary>
 /// Button click event for <see cref="SabotageButton"/> from Vanilla Among Us.
 /// </summary>
+[Obsolete("This class is deprecated. Use PlayerOpenSabotageEvent instead.")]
 public class SabotageButtonClickEvent : MiraCancelableEvent
 {
     /// <summary>

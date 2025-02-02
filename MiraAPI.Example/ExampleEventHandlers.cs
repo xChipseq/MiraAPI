@@ -1,6 +1,7 @@
 ﻿using MiraAPI.Events;
 using MiraAPI.Events.Mira;
 using MiraAPI.Events.Vanilla;
+using MiraAPI.Events.Vanilla.Usables;
 using MiraAPI.Example.Buttons.Freezer;
 using Reactor.Utilities;
 
@@ -14,6 +15,16 @@ public static class ExampleEventHandlers
         MiraEventManager.RegisterEventHandler<MiraButtonClickEvent<FreezeButton>>(FreezeButtonClickHandler, 1);
         MiraEventManager.RegisterEventHandler<MiraButtonCancelledEvent<FreezeButton>>(FreezeButtonCancelledHandler);
         MiraEventManager.RegisterEventHandler<UpdateSystemEvent>(UpdateSystemEventHandler);
+        MiraEventManager.RegisterEventHandler<PlayerCanUseEvent>(PlayerControlCanUse);
+        MiraEventManager.RegisterEventHandler<PlayerUseEvent>(PlayerControlUse);
+    }
+
+    public static void PlayerControlCanUse(PlayerCanUseEvent @event)
+    {
+    }
+
+    public static void PlayerControlUse(PlayerUseEvent @event)
+    {
     }
 
     public static void UpdateSystemEventHandler(UpdateSystemEvent @event)
