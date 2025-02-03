@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using MiraAPI.Networking;
 using Reactor.Networking.Attributes;
+using Reactor.Networking.Rpc;
 using Reactor.Utilities;
 
 namespace MiraAPI.Modifiers;
@@ -104,7 +105,7 @@ public static class ModifierExtensions
     /// </summary>
     /// <param name="target">The player to add the modifier to.</param>
     /// <param name="modifierId">The modifier ID.</param>
-    [MethodRpc((uint)MiraRpc.AddModifier)]
+    /// <param name="args">The arguments to initialize the modifier constructor with.</param>
     public static void RpcAddModifier(this PlayerControl target, uint modifierId, params object[] args)
     {
         var type = ModifierManager.GetModifierType(modifierId);
@@ -114,8 +115,7 @@ public static class ModifierExtensions
             return;
         }
 
-        var modifier = ModifierFactory.CreateInstance(type, args);
-        target.GetModifierComponent()?.AddModifier(modifier);
+        Rpc<AddModifierRpc>.Instance.Send(target, new ModifierData(type, args));
     }
 
     /// <summary>
@@ -133,7 +133,6 @@ public static class ModifierExtensions
             return;
         }
 
-        var modifier = ModifierFactory<T>.CreateInstance(args);
-        player.GetModifierComponent()!.AddModifier(modifier);
+        player.RpcAddModifier(id.Value, args);
     }
 }
