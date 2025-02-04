@@ -42,7 +42,12 @@ public sealed class MiraPluginManager
 
             foreach (var type in assembly.GetTypes())
             {
-                RegisterModifierAttribute(type);
+                if (type.GetCustomAttribute<MiraDisableAttribute>() != null)
+                {
+                    continue;
+                }
+
+                RegisterModifier(type);
                 RegisterOptions(type, info);
 
                 if (RegisterRoleAttribute(type, info, out var role))
@@ -108,12 +113,6 @@ public sealed class MiraPluginManager
     {
         role = null;
 
-        var attribute = type.GetCustomAttribute<RegisterCustomRoleAttribute>();
-        if (attribute == null)
-        {
-            return false;
-        }
-
         if (!(typeof(RoleBehaviour).IsAssignableFrom(type) && typeof(ICustomRole).IsAssignableFrom(type)))
         {
             Logger<MiraApiPlugin>.Error($"{type.Name} does not inherit from RoleBehaviour or ICustomRole.");
@@ -160,10 +159,9 @@ public sealed class MiraPluginManager
         }
     }
 
-    private static void RegisterModifierAttribute(Type type)
+    private static void RegisterModifier(Type type)
     {
-        var attribute = type.GetCustomAttribute<RegisterModifierAttribute>();
-        if (attribute != null)
+        if (type.IsAssignableTo(typeof(BaseModifier)))
         {
             ModifierManager.RegisterModifier(type);
         }
@@ -171,8 +169,7 @@ public sealed class MiraPluginManager
 
     private static void RegisterButtonAttribute(Type type, MiraPluginInfo pluginInfo)
     {
-        var attribute = type.GetCustomAttribute<RegisterButtonAttribute>();
-        if (attribute != null)
+        if (type.IsAssignableTo(typeof(CustomActionButton)) || type.IsAssignableTo(typeof(CustomActionButton<>)))
         {
             CustomButtonManager.RegisterButton(type, pluginInfo);
         }

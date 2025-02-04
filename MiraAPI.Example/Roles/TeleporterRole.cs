@@ -3,7 +3,6 @@ using UnityEngine;
 
 namespace MiraAPI.Example.Roles;
 
-[RegisterCustomRole]
 public class TeleporterRole : CrewmateRole, ICustomRole
 {
     public string RoleName => "Teleporter";

@@ -9,7 +9,6 @@ using UnityEngine;
 
 namespace MiraAPI.Example.Buttons.Teleporter;
 
-[RegisterButton]
 public class TeleportButton : CustomActionButton
 {
     public override string Name => "Teleport";
