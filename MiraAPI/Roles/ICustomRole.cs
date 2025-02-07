@@ -2,8 +2,8 @@
 using MiraAPI.Modifiers;
 using MiraAPI.PluginLoading;
 using MiraAPI.Utilities;
-using System.Text;
 using Reactor.Utilities;
+using System.Text;
 using UnityEngine;
 
 namespace MiraAPI.Roles;
@@ -63,7 +63,7 @@ public interface ICustomRole
     /// Gets the role chance option.
     /// </summary>
     /// <returns>The role chance option.</returns>
-    public int? GetChance()
+    public virtual int? GetChance()
     {
         if (!Configuration.CanModifyChance)
         {
@@ -82,7 +82,7 @@ public interface ICustomRole
     /// Gets the role count option.
     /// </summary>
     /// <returns>The role count option.</returns>
-    public int? GetCount()
+    public virtual int? GetCount()
     {
         if (ParentMod.PluginConfig.TryGetEntry(NumConfigDefinition, out ConfigEntry<int> entry))
         {
@@ -96,7 +96,7 @@ public interface ICustomRole
     /// Sets the role chance option.
     /// </summary>
     /// <param name="chance">The chance between 0 and 100.</param>
-    public void SetChance(int chance)
+    public virtual void SetChance(int chance)
     {
         if (!Configuration.CanModifyChance)
         {
@@ -117,7 +117,7 @@ public interface ICustomRole
     /// Sets the role count option.
     /// </summary>
     /// <param name="count">The amount of this role between zero and its MaxRoleCount in the Configuration.</param>
-    public void SetCount(int count)
+    public virtual void SetCount(int count)
     {
         if (ParentMod.PluginConfig.TryGetEntry(NumConfigDefinition, out ConfigEntry<int> entry))
         {

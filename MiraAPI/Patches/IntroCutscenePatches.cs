@@ -1,4 +1,6 @@
 ﻿using HarmonyLib;
+using MiraAPI.Events;
+using MiraAPI.Events.Vanilla.Meeting;
 using MiraAPI.Roles;
 using MiraAPI.Utilities;
 using UnityEngine;
@@ -19,6 +21,14 @@ public static class IntroCutscenePatches
             __instance.TeamTitle.text = $"<size=70%>{mode.Name}</size>\n<size=20%>{mode.Description}</size>";
         }
     }*/
+
+    [HarmonyPostfix]
+    [HarmonyPatch(nameof(IntroCutscene.CoBegin))]
+    public static void IntroBeginPatch(IntroCutscene __instance)
+    {
+        var @event = new IntroBeginEvent(__instance);
+        MiraEventManager.InvokeEvent(@event);
+    }
 
     [HarmonyPrefix]
     [HarmonyPatch(nameof(IntroCutscene.BeginCrewmate))]

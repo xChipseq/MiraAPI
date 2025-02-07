@@ -1,4 +1,6 @@
 ﻿using HarmonyLib;
+using MiraAPI.Events;
+using MiraAPI.Events.Vanilla.Meeting;
 using MiraAPI.Roles;
 
 namespace MiraAPI.Patches.Roles;
@@ -13,6 +15,13 @@ public static class EjectionPatches
     [HarmonyPatch(nameof(ExileController.Begin))]
     public static void BeginPostfix(ExileController __instance)
     {
+        var @event = new EjectionEvent(__instance.initData.networkedPlayer.Object, __instance);
+        MiraEventManager.InvokeEvent(@event);
+
+        if (@event.IsCancelled)
+        {
+            return;
+        }
         if (!__instance.initData.networkedPlayer || !__instance.initData.networkedPlayer.Role ||
             __instance.initData.networkedPlayer.Role is not ICustomRole role)
         {

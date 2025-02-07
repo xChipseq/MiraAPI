@@ -1,7 +1,7 @@
-﻿namespace MiraAPI.Events.Vanilla;
+﻿namespace MiraAPI.Events.Vanilla.Meeting;
 
 /// <summary>
-/// The event that is invoked when a meeting is called
+/// The event that is invoked when a meeting is called.
 /// </summary>
 public class StartMeetingEvent : MiraCancelableEvent
 {
