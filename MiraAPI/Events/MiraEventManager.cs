@@ -22,7 +22,6 @@ public static class MiraEventManager
         EventWrappers.TryGetValue(typeof(T), out var handlers);
         if (handlers == null)
         {
-            Logger<MiraApiPlugin>.Warning("No handlers for event " + typeof(T).Name);
             return false;
         }
 
@@ -45,7 +44,6 @@ public static class MiraEventManager
         EventWrappers.TryGetValue(type, out var handlers);
         if (handlers == null)
         {
-            Logger<MiraApiPlugin>.Warning("No handlers for event " + type.Name);
             return false;
         }
 
