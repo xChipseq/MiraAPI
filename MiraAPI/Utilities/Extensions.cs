@@ -347,6 +347,16 @@ public static class Extensions
     }
 
     /// <summary>
+    /// Get all living players.
+    /// </summary>
+    /// <returns>A list of alive players.</returns>
+    public static List<PlayerControl> GetAlivePlayers()
+    {
+        return PlayerControl.AllPlayerControls.ToArray().Where(x => !x.Data.IsDead).ToList();
+    }
+
+
+    /// <summary>
     /// Finds the nearest object of a specified type to a player. It will only work if the object has a collider.
     /// </summary>
     /// <param name="playerControl">The player object.</param>
@@ -392,5 +402,21 @@ public static class Extensions
             .ToList();
 
         return predicate != null ? filteredPlayers.Find(predicate) : filteredPlayers.FirstOrDefault();
+    }
+
+    private static readonly int _outline = Shader.PropertyToID("_Outline");
+    private static readonly int _outlineColor = Shader.PropertyToID("_OutlineColor");
+    private static readonly int _addColor = Shader.PropertyToID("_AddColor");
+
+    /// <summary>
+    /// Fixed version of Reactor's SetOutline.
+    /// </summary>
+    /// <param name="renderer">The renderer you want to update the outline for.</param>
+    /// <param name="color">The outline color.</param>
+    public static void UpdateOutline(this Renderer renderer, Color? color)
+    {
+        renderer.material.SetFloat(_outline, color.HasValue ? 1 : 0);
+        renderer.material.SetColor(_outlineColor, color.HasValue ? color.Value : Color.clear);
+        renderer.material.SetColor(_addColor, color.HasValue ? color.Value : Color.clear);
     }
 }

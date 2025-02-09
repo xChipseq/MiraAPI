@@ -1,14 +1,14 @@
-﻿using System.Collections;
-using System.Linq;
-using AmongUs.GameOptions;
+﻿using AmongUs.GameOptions;
 using Assets.CoreScripts;
 using BepInEx.Unity.IL2CPP.Utils;
 using MiraAPI.Events;
-using MiraAPI.Events.Vanilla;
+using MiraAPI.Events.Vanilla.Gameplay;
 using Reactor.Networking.Attributes;
 using Reactor.Networking.Rpc;
 using Reactor.Utilities;
 using Reactor.Utilities.Extensions;
+using System.Collections;
+using System.Linq;
 using UnityEngine;
 
 namespace MiraAPI.Networking;
@@ -84,7 +84,6 @@ public static class CustomMurderRpc
         bool playKillSound = true)
     {
         source.isKilling = false;
-        Logger<MiraApiPlugin>.Error($"{source.PlayerId} trying to murder {target.PlayerId}");
         var data = target.Data;
         if (resultFlags.HasFlag(MurderResultFlags.FailedError))
         {

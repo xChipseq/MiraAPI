@@ -1,7 +1,8 @@
 ﻿using MiraAPI.Events;
 using MiraAPI.Events.Mira;
-using MiraAPI.Events.Vanilla;
-using MiraAPI.Events.Vanilla.Usables;
+using MiraAPI.Events.Vanilla.Gameplay;
+using MiraAPI.Events.Vanilla.Map;
+using MiraAPI.Events.Vanilla.Player;
 using MiraAPI.Example.Buttons.Freezer;
 using Reactor.Utilities;
 
@@ -15,16 +16,21 @@ public static class ExampleEventHandlers
         MiraEventManager.RegisterEventHandler<MiraButtonClickEvent<FreezeButton>>(FreezeButtonClickHandler, 1);
         MiraEventManager.RegisterEventHandler<MiraButtonCancelledEvent<FreezeButton>>(FreezeButtonCancelledHandler);
         MiraEventManager.RegisterEventHandler<UpdateSystemEvent>(UpdateSystemEventHandler);
-        MiraEventManager.RegisterEventHandler<PlayerCanUseEvent>(PlayerControlCanUse);
-        MiraEventManager.RegisterEventHandler<PlayerUseEvent>(PlayerControlUse);
-    }
 
-    public static void PlayerControlCanUse(PlayerCanUseEvent @event)
-    {
-    }
+        MiraEventManager.RegisterEventHandler<BeforeMurderEvent>(@event =>
+        {
+            Logger<ExamplePlugin>.Info($"{@event.Source.Data.PlayerName} is about to kill {@event.Target.Data.PlayerName}");
+        });
 
-    public static void PlayerControlUse(PlayerUseEvent @event)
-    {
+        MiraEventManager.RegisterEventHandler<AfterMurderEvent>(@event =>
+        {
+            Logger<ExamplePlugin>.Info($"{@event.Source.Data.PlayerName} has killed {@event.Target.Data.PlayerName}");
+        });
+
+        MiraEventManager.RegisterEventHandler<CompleteTaskEvent>(@event =>
+        {
+            Logger<ExamplePlugin>.Info($"{@event.Player.Data.PlayerName} completed {@event.Task.TaskType.ToString()}");
+        });
     }
 
     public static void UpdateSystemEventHandler(UpdateSystemEvent @event)

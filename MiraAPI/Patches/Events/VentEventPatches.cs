@@ -1,6 +1,6 @@
 ﻿using HarmonyLib;
 using MiraAPI.Events;
-using MiraAPI.Events.Vanilla;
+using MiraAPI.Events.Vanilla.Usables;
 using System.Linq;
 
 namespace MiraAPI.Patches.Events;

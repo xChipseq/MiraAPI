@@ -1,6 +1,6 @@
 ﻿using HarmonyLib;
 using MiraAPI.Events;
-using MiraAPI.Events.Vanilla.Meeting;
+using MiraAPI.Events.Vanilla.Gameplay;
 using MiraAPI.Roles;
 using MiraAPI.Utilities;
 using UnityEngine;

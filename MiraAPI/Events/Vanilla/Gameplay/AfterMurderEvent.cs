@@ -1,4 +1,4 @@
-﻿namespace MiraAPI.Events.Vanilla;
+﻿namespace MiraAPI.Events.Vanilla.Gameplay;
 
 /// <summary>
 /// Event that is invoked after a player is murdered. Only called after a successful murder. This event is not cancelable.

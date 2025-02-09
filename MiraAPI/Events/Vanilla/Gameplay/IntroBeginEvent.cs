@@ -1,7 +1,7 @@
-﻿namespace MiraAPI.Events.Vanilla.Meeting;
+﻿namespace MiraAPI.Events.Vanilla.Gameplay;
 
 /// <summary>
-/// The event that is invoked when the intro cutscene is shown. Non cancellable.
+/// The event that is invoked when the intro cutscene is shown. Non cancelable.
 /// </summary>
 public class IntroBeginEvent : MiraEvent
 {
@@ -13,7 +13,7 @@ public class IntroBeginEvent : MiraEvent
     /// <summary>
     /// Initializes a new instance of the <see cref="IntroBeginEvent"/> class.
     /// </summary>
-    /// <param name="controller">The exile controller.</param>
+    /// <param name="introCutscene">The intro cutscene.</param>
     public IntroBeginEvent(IntroCutscene introCutscene)
     {
         IntroCutscene = introCutscene;

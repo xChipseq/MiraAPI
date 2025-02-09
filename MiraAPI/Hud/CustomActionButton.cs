@@ -445,4 +445,13 @@ public abstract class CustomActionButton<T> : CustomActionButton where T : MonoB
 
         return base.CanUse() && Target != null;
     }
+
+    /// <summary>
+    /// Use this to reset the button's target after used.
+    /// </summary>
+    public virtual void ResetTarget()
+    {
+        Target = null;
+        SetOutline(false);
+    }
 }
