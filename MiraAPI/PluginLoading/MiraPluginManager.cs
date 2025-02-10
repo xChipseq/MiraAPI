@@ -115,7 +115,6 @@ public sealed class MiraPluginManager
 
         if (!(typeof(RoleBehaviour).IsAssignableFrom(type) && typeof(ICustomRole).IsAssignableFrom(type)))
         {
-            Logger<MiraApiPlugin>.Error($"{type.Name} does not inherit from RoleBehaviour or ICustomRole.");
             return false;
         }
 
