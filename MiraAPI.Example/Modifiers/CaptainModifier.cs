@@ -3,7 +3,6 @@ using MiraAPI.Modifiers.Types;
 
 namespace MiraAPI.Example.Modifiers;
 
-[RegisterModifier]
 public class CaptainModifier : GameModifier
 {
     public override string ModifierName => "Captain";

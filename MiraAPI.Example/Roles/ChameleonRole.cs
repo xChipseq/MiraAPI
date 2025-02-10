@@ -4,7 +4,6 @@ using UnityEngine;
 
 namespace MiraAPI.Example.Roles;
 
-[RegisterCustomRole]
 public class ChameloenRole : CrewmateRole, ICustomRole
 {
     public string RoleName => "Chamelon";

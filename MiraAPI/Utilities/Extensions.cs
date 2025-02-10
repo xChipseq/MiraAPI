@@ -8,7 +8,6 @@ using Reactor.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using UnityEngine;
 
 namespace MiraAPI.Utilities;
@@ -18,22 +17,6 @@ namespace MiraAPI.Utilities;
 /// </summary>
 public static class Extensions
 {
-    public static IEnumerable<Type> GetTypesSafe(this Assembly assembly)
-    {
-        try
-        {
-            return assembly.GetTypes();
-        }
-        catch (ReflectionTypeLoadException ex)
-        {
-            return ex.Types.Where(t => t != null);
-        }
-        catch
-        {
-            return Enumerable.Empty<Type>();
-        }
-    }
-
     internal static NetData GetNetData(this ICustomRole role)
     {
         var count = role.GetCount();

@@ -6,7 +6,6 @@ using UnityEngine;
 
 namespace MiraAPI.Example.Buttons;
 
-[RegisterButton]
 public class MeetingButton : CustomActionButton
 {
     public override string Name => "Call Meeting";

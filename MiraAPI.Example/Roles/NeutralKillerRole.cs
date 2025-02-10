@@ -3,7 +3,6 @@ using UnityEngine;
 
 namespace MiraAPI.Example.Roles;
 
-[RegisterCustomRole]
 public class NeutralKillerRole : ImpostorRole, ICustomRole
 {
     public string RoleName => "Neutral Killer";
