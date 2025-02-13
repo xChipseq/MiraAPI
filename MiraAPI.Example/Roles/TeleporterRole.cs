@@ -18,4 +18,9 @@ public class TeleporterRole : CrewmateRole, ICustomRole
         DefaultChance = 73,
         DefaultRoleCount = 4,
     };
+
+    public bool CanLocalPlayerSeeRole(PlayerControl player)
+    {
+        return true;
+    }
 }

@@ -129,6 +129,16 @@ public interface ICustomRole
     }
 
     /// <summary>
+    /// Whether the local player can see this role.
+    /// </summary>
+    /// <param name="player">The player with the role.</param>
+    /// <returns>Whether they can see the role (name color) or not.</returns>
+    public virtual bool CanLocalPlayerSeeRole(PlayerControl player)
+    {
+        return (Team == ModdedRoleTeams.Impostor && player.Data.Role.IsImpostor) || PlayerControl.LocalPlayer.Data.IsDead;
+    }
+
+    /// <summary>
     /// This method runs on the HudManager.Update method ONLY when the LOCAL player has this role.
     /// </summary>
     /// <param name="hudManager">Reference to HudManager instance.</param>
