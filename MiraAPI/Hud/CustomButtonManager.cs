@@ -2,6 +2,7 @@
 using MiraAPI.PluginLoading;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Reflection;
 
 namespace MiraAPI.Hud;
@@ -11,6 +12,11 @@ namespace MiraAPI.Hud;
 /// </summary>
 public static class CustomButtonManager
 {
+    /// <summary>
+    /// Gets a list of all registered custom buttons.
+    /// </summary>
+    public static ReadOnlyCollection<CustomActionButton> Buttons { get; internal set; } = new([]);
+
     internal static readonly List<CustomActionButton> CustomButtons = [];
     internal static readonly Dictionary<Type, Type> ButtonEventTypes = [];
     internal static readonly Dictionary<Type, Type> ButtonCancelledEventTypes = [];

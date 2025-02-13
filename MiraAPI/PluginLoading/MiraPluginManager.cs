@@ -11,6 +11,7 @@ using Reactor.Networking;
 using Reactor.Utilities;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 
@@ -79,6 +80,10 @@ public sealed class MiraPluginManager
         };
         IL2CPPChainloader.Instance.Finished += PaletteManager.RegisterAllColors;
         IL2CPPChainloader.Instance.Finished += MiraEventManager.SortAllHandlers;
+        IL2CPPChainloader.Instance.Finished += () =>
+        {
+            CustomButtonManager.Buttons = new ReadOnlyCollection<CustomActionButton>(CustomButtonManager.CustomButtons);
+        };
     }
 
     /// <summary>
