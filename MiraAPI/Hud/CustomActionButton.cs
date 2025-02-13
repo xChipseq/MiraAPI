@@ -154,7 +154,7 @@ public abstract class CustomActionButton
     /// <param name="moveButton">Whether the button's position should change ingame.</param>
     public virtual void SetButtonLocation(ButtonLocation location, bool moveButton = true)
     {
-        if (HudManager.Instance == null || Button == null)
+        if (!HudManager.InstanceExists || Button == null)
         {
             return;
         }
