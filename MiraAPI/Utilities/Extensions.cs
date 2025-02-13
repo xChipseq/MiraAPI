@@ -328,17 +328,6 @@ public static class Extensions
             .GetNearestDeadBodies(playerControl.GetTruePosition(), radius, Helpers.CreateFilter(Constants.NotShipMask))
             .Find(component => component && !component.Reported);
     }
-
-    /// <summary>
-    /// Get all living players.
-    /// </summary>
-    /// <returns>A list of alive players.</returns>
-    public static List<PlayerControl> GetAlivePlayers()
-    {
-        return PlayerControl.AllPlayerControls.ToArray().Where(x => !x.Data.IsDead).ToList();
-    }
-
-
     /// <summary>
     /// Finds the nearest object of a specified type to a player. It will only work if the object has a collider.
     /// </summary>

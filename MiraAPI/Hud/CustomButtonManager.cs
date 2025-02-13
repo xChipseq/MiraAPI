@@ -1,6 +1,5 @@
 ﻿using MiraAPI.Events.Mira;
 using MiraAPI.PluginLoading;
-using Reactor.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Reflection;

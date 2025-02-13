@@ -344,6 +344,11 @@ public abstract class CustomActionButton
         {
             UsesLeft--;
             Button?.SetUsesRemaining(UsesLeft);
+
+            if (Button != null)
+            {
+                Button.usesRemainingSprite.color = UsesLeft == 0 ? Color.red : Color.white;
+            }
         }
 
         OnClick();
