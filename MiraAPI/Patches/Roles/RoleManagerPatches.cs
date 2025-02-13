@@ -1,5 +1,7 @@
 ﻿using AmongUs.GameOptions;
 using HarmonyLib;
+using MiraAPI.Events;
+using MiraAPI.Events.Vanilla.Gameplay;
 using MiraAPI.Modifiers;
 using MiraAPI.Roles;
 using System.Linq;
@@ -9,6 +11,14 @@ namespace MiraAPI.Patches.Roles;
 [HarmonyPatch(typeof(RoleManager))]
 public static class RoleManagerPatches
 {
+    [HarmonyPostfix]
+    [HarmonyPatch(nameof(RoleManager.SetRole))]
+    public static void SetRolePatch(RoleManager __instance, PlayerControl targetPlayer, RoleTypes roleType)
+    {
+        var @event = new SetRoleEvent(targetPlayer, roleType);
+        MiraEventManager.InvokeEvent(@event);
+    }
+
     [HarmonyPostfix]
     [HarmonyPatch(nameof(RoleManager.SelectRoles))]
     public static void ModifierSelectionPatches(RoleManager __instance)
