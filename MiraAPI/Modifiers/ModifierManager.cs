@@ -49,11 +49,11 @@ public static class ModifierManager
         return TypeToIdModifierMap.GetValueOrDefault(type);
     }
 
-    internal static void RegisterModifier(Type modifierType)
+    internal static bool RegisterModifier(Type modifierType)
     {
         if (!typeof(BaseModifier).IsAssignableFrom(modifierType))
         {
-            return;
+            return false;
         }
 
         IdToTypeModifierMap.Add(GetNextId(), modifierType);
@@ -61,7 +61,7 @@ public static class ModifierManager
 
         if (!typeof(GameModifier).IsAssignableFrom(modifierType))
         {
-            return;
+            return true;
         }
 
         var mod = Activator.CreateInstance(modifierType) as GameModifier;
@@ -73,6 +73,7 @@ public static class ModifierManager
         }
 
         list.Add(_nextId);
+        return true;
     }
 
     internal static void AssignModifiers(List<PlayerControl> plrs)
