@@ -6,4 +6,4 @@ namespace MiraAPI.PluginLoading;
 /// Skip an element during plugin loading.
 /// </summary>
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Property, Inherited = false)]
-public class MiraDisableAttribute : Attribute;
+public class MiraIgnoreAttribute : Attribute;

@@ -42,7 +42,7 @@ public sealed class MiraPluginManager
 
             foreach (var type in assembly.GetTypes())
             {
-                if (type.GetCustomAttribute<MiraDisableAttribute>() != null)
+                if (type.GetCustomAttribute<MiraIgnoreAttribute>() != null)
                 {
                     continue;
                 }
