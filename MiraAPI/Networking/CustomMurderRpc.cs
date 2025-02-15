@@ -250,11 +250,11 @@ public static class CustomMurderRpc
         }
 
         target.Die(DeathReason.Kill, true);
-        yield return source.MyPhysics.Animations.CoPlayCustomAnimation(anim.BlurAnim);
-        sourcePhys.Animations.PlayIdleAnimation();
 
         if (teleportMurderer)
         {
+            yield return source.MyPhysics.Animations.CoPlayCustomAnimation(anim.BlurAnim);
+            sourcePhys.Animations.PlayIdleAnimation();
             source.NetTransform.SnapTo(target.transform.position);
             KillAnimation.SetMovement(source, true);
         }
