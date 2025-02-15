@@ -135,7 +135,7 @@ public interface ICustomRole
     /// <returns>Whether they can see the role (name color) or not.</returns>
     public virtual bool CanLocalPlayerSeeRole(PlayerControl player)
     {
-        return (Team == ModdedRoleTeams.Impostor && player.Data.Role.IsImpostor) || PlayerControl.LocalPlayer.Data.IsDead;
+        return (PlayerControl.LocalPlayer.Data.Role.IsImpostor && player.Data.Role.IsImpostor) || PlayerControl.LocalPlayer.Data.IsDead;
     }
 
     /// <summary>
