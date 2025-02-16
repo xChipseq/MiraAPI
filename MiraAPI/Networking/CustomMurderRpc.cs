@@ -5,7 +5,6 @@ using MiraAPI.Events;
 using MiraAPI.Events.Vanilla.Gameplay;
 using Reactor.Networking.Attributes;
 using Reactor.Networking.Rpc;
-using Reactor.Utilities;
 using Reactor.Utilities.Extensions;
 using System.Collections;
 using System.Linq;
@@ -116,7 +115,6 @@ public static class CustomMurderRpc
                 target.RemoveProtection();
             }
 
-            Logger<MiraApiPlugin>.Error($"{source.PlayerId} failed to murder {target.PlayerId} due to guardian angel protection");
             return;
         }
 
@@ -184,7 +182,6 @@ public static class CustomMurderRpc
             source.shapeshiftTargetPlayerId,
             target.PlayerId);
         source.MyPhysics.StartCoroutine(source.KillAnimations.Random()?.CoPerformCustomKill(source, target, createDeadBody, teleportMurderer));
-        Logger<MiraApiPlugin>.Error($"{source.PlayerId} succeeded in murdering {target.PlayerId}");
     }
 
     /// <summary>
