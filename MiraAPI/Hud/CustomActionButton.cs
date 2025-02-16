@@ -66,6 +66,11 @@ public abstract class CustomActionButton
     public bool EffectActive { get; protected set; }
 
     /// <summary>
+    /// Gets or sets a value indicating whether the timer is currently active.
+    /// </summary>
+    public bool TimerPaused { get; protected set; }
+
+    /// <summary>
     /// Gets or sets the amount of uses left.
     /// </summary>
     public int UsesLeft { get; protected set; }
@@ -94,6 +99,7 @@ public abstract class CustomActionButton
         UsesLeft = MaxUses;
         Timer = AmongUsClient.Instance?.NetworkMode == NetworkModes.FreePlay ? 0 : InitialCooldown;
         EffectActive = false;
+        TimerPaused = false;
 
         Button = Object.Instantiate(HudManager.Instance.AbilityButton, parent);
         Button.name = Name + "Button";
@@ -249,6 +255,15 @@ public abstract class CustomActionButton
     }
 
     /// <summary>
+    /// Sets whether the timer is paused or not.
+    /// </summary>
+    /// <param name="val">Whether you want to pause/resume the timer.</param>
+    public virtual void SetTimerPaused(bool val)
+    {
+        TimerPaused = val;
+    }
+
+    /// <summary>
     /// Set the amount of uses this button has left.
     /// </summary>
     /// <param name="amount">The amount you want to set to.</param>
@@ -256,6 +271,11 @@ public abstract class CustomActionButton
     {
         UsesLeft = Mathf.Clamp(amount, 0, int.MaxValue);
         Button?.SetUsesRemaining(UsesLeft);
+
+        if (Button != null)
+        {
+            Button.usesRemainingSprite.color = UsesLeft == 0 ? Color.red : Color.white;
+        }
     }
 
     /// <summary>
@@ -306,14 +326,24 @@ public abstract class CustomActionButton
     }
 
     /// <summary>
-    /// When the button is enabled, this method is called to determine if the button can be used.
+    /// When the button is usable, this method is called to determine if the button can be clicked.
     /// By default, it takes into account the timer, effect, and uses.
     /// You can override it to change the behavior.
     /// </summary>
-    /// <returns>A value that represents whether the button can be used or not.</returns>
+    /// <returns>A value that represents whether the button can be clicked or not.</returns>
+    public virtual bool CanClick()
+    {
+        return Timer <= 0 && !EffectActive && CanUse();
+    }
+
+    /// <summary>
+    /// Whether the button should light up or not. This is also the base for CanClick.
+    /// You can override it to change the behaviour. Do not include timer in here, that is for CanClick.
+    /// </summary>
+    /// <returns>A value that represents whether the button should light up or not.</returns>
     public virtual bool CanUse()
     {
-        return Timer <= 0 && !EffectActive && (!LimitedUses || UsesLeft > 0);
+        return !LimitedUses || UsesLeft > 0;
     }
 
     /// <summary>
@@ -335,7 +365,7 @@ public abstract class CustomActionButton
     /// </summary>
     public virtual void ClickHandler()
     {
-        if (!CanUse())
+        if (!CanClick())
         {
             return;
         }
@@ -344,15 +374,10 @@ public abstract class CustomActionButton
         {
             UsesLeft--;
             Button?.SetUsesRemaining(UsesLeft);
-
-            if (Button != null)
-            {
-                Button.usesRemainingSprite.color = UsesLeft == 0 ? Color.red : Color.white;
-            }
         }
 
         OnClick();
-        Button?.SetDisabled();
+
         if (HasEffect)
         {
             EffectActive = true;
@@ -372,7 +397,7 @@ public abstract class CustomActionButton
     /// <param name="playerControl">The local PlayerControl.</param>
     public virtual void FixedUpdateHandler(PlayerControl playerControl)
     {
-        if (Timer >= 0)
+        if (Timer >= 0 && !TimerPaused)
         {
             Timer -= Time.deltaTime;
         }
@@ -392,7 +417,17 @@ public abstract class CustomActionButton
             Button?.SetDisabled();
         }
 
-        Button?.SetCoolDown(Timer, EffectActive ? EffectDuration : Cooldown);
+        if (EffectActive)
+        {
+            Button?.SetFillUp(Timer, EffectDuration);
+
+            Button!.cooldownTimerText.text = Mathf.CeilToInt(Timer).ToString();
+            Button!.cooldownTimerText.gameObject.SetActive(true);
+        }
+        else
+        {
+            Button?.SetCoolDown(Timer, Cooldown);
+        }
 
         FixedUpdate(playerControl);
     }
@@ -449,6 +484,12 @@ public abstract class CustomActionButton<T> : CustomActionButton where T : MonoB
         SetOutline(true);
 
         return base.CanUse() && Target != null;
+    }
+
+    /// <inheritdoc />
+    public override bool CanClick()
+    {
+        return base.CanClick() && Target != null;
     }
 
     /// <summary>
