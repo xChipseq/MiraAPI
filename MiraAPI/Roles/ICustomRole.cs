@@ -56,7 +56,7 @@ public interface ICustomRole
     };
 
     /// <summary>
-    /// Gets the role's IntroCutscene configuration.
+    /// Gets the role's TeamIntroCutscene configuration.
     /// </summary>
     public TeamIntroConfiguration? IntroConfiguration => Team switch
     {
