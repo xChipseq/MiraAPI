@@ -90,9 +90,9 @@ public static class TaskAdderPatch
     [HarmonyPatch(typeof(TaskAddButton), "Role", MethodType.Setter)]
     public static void RoleGetterPatch(TaskAddButton __instance)
     {
-        if (__instance.role is ICustomRole { Team: ModdedRoleTeams.Neutral })
+        if (__instance.role is ICustomRole { Team: ModdedRoleTeams.Custom } customRole)
         {
-            __instance.FileImage.color = Color.gray;
+            __instance.FileImage.color = customRole.Configuration.IntroTeamColor ?? Color.gray;
         }
 
         __instance.RolloverHandler.OutColor = __instance.FileImage.color;

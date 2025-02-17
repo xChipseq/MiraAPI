@@ -79,7 +79,7 @@ public static class CustomRoleManager
         var roleId = RoleIds[roleType];
 
         roleBehaviour.Role = (RoleTypes)roleId;
-        roleBehaviour.TeamType = customRole.Team == ModdedRoleTeams.Neutral ? RoleTeamTypes.Crewmate : (RoleTeamTypes)customRole.Team;
+        roleBehaviour.TeamType = customRole.Team == ModdedRoleTeams.Custom ? RoleTeamTypes.Crewmate : (RoleTeamTypes)customRole.Team;
         roleBehaviour.NameColor = customRole.RoleColor;
         roleBehaviour.StringName = CustomStringName.CreateAndRegister(customRole.RoleName);
         roleBehaviour.BlurbName = CustomStringName.CreateAndRegister(customRole.RoleDescription);

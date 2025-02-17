@@ -5,17 +5,18 @@ namespace MiraAPI.Example.Roles;
 
 public class NeutralKillerRole : ImpostorRole, ICustomRole
 {
-    public string RoleName => "Neutral Killer";
-    public string RoleDescription => "Neutral who can kill.";
+    public string RoleName => "Outcast Killer";
+    public string RoleDescription => "Outcast who can kill.";
     public string RoleLongDescription => RoleDescription;
     public Color RoleColor => Color.magenta;
-    public ModdedRoleTeams Team => ModdedRoleTeams.Neutral;
+    public ModdedRoleTeams Team => ModdedRoleTeams.Custom;
 
-    public CustomRoleConfiguration Configuration => new CustomRoleConfiguration(this)
+    public CustomRoleConfiguration Configuration => new(this)
     {
         UseVanillaKillButton = true,
         CanGetKilled = true,
         CanUseVent = true,
+        RoleGroup = new RoleGroup("Outcast", Color.gray),
     };
 
     public override void SpawnTaskHeader(PlayerControl playerControl)

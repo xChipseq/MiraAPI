@@ -31,6 +31,32 @@ public static class IntroCutscenePatches
     }
 
     [HarmonyPrefix]
+    [HarmonyPatch(nameof(IntroCutscene.BeginImpostor))]
+    public static void BeginImpostorPatch(IntroCutscene __instance)
+    {
+        if (PlayerControl.LocalPlayer.Data.Role is not ICustomRole customRole)
+        {
+            return;
+        }
+
+        if (customRole.Configuration.IntroTeamColor is { } color)
+        {
+            __instance.BackgroundBar.material.SetColor(ShaderID.Color, color);
+            __instance.TeamTitle.color = color;
+        }
+
+        if (customRole.Configuration.IntroTeamTitle is { } title)
+        {
+            __instance.TeamTitle.text = title;
+        }
+
+        if (customRole.Configuration.IntroTeamDescription is { } description)
+        {
+            __instance.ImpostorText.text = description;
+        }
+    }
+
+    [HarmonyPrefix]
     [HarmonyPatch(nameof(IntroCutscene.BeginCrewmate))]
     public static bool BeginCrewmatePatch(IntroCutscene __instance)
     {
@@ -39,7 +65,23 @@ public static class IntroCutscenePatches
             return true;
         }
 
-        if (customRole.Team is not ModdedRoleTeams.Neutral)
+        if (customRole.Configuration.IntroTeamColor is { } color)
+        {
+            __instance.BackgroundBar.material.SetColor(ShaderID.Color, color);
+            __instance.TeamTitle.color = color;
+        }
+
+        if (customRole.Configuration.IntroTeamTitle is { } title)
+        {
+            __instance.TeamTitle.text = title;
+        }
+
+        if (customRole.Configuration.IntroTeamDescription is { } description)
+        {
+            __instance.ImpostorText.text = description;
+        }
+
+        if (customRole.Team is not ModdedRoleTeams.Custom)
         {
             return true;
         }
@@ -49,11 +91,7 @@ public static class IntroCutscenePatches
         position.y -= 0.25f;
         barTransform.position = position;
 
-        __instance.BackgroundBar.material.SetColor(ShaderID.Color, Color.gray);
-        __instance.TeamTitle.text = "NEUTRAL";
         __instance.impostorScale = 1f;
-        __instance.ImpostorText.text = "You are Neutral. You do not have a team.";
-        __instance.TeamTitle.color = Color.gray;
 
         __instance.ourCrewmate = __instance.CreatePlayer(
             0,
