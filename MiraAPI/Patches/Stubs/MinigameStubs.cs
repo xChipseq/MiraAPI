@@ -21,4 +21,16 @@ public static class MinigameStubs
     {
         // nothing needed
     }
+
+    /// <summary>
+    /// Reverse patch for Minigame.Close.
+    /// </summary>
+    /// <param name="instance">The Minigame instance.</param>
+    [HarmonyReversePatch]
+    [HarmonyPatch(typeof(Minigame), nameof(Minigame.Close), [])]
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    public static void Close(Minigame instance)
+    {
+        // nothing needed
+    }
 }
