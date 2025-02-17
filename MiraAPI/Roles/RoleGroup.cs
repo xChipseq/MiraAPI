@@ -12,5 +12,5 @@ public record struct RoleGroup(string Name, Color Color, int Priority = 0)
 {
     public static RoleGroup Crewmate { get; } = new("Crewmate", Palette.CrewmateBlue, -2);
     public static RoleGroup Impostor { get; } = new("Impostor", Palette.ImpostorRed, -1);
-    public static RoleGroup Neutral { get; } = new("Neutral", Color.gray);
+    public static RoleGroup Neutral { get; } = new("Neutral Roles", Color.gray);
 }
