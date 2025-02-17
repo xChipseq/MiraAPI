@@ -11,10 +11,11 @@ public static class RoleBehaviourStubs
     /// Stub method for RoleBehaviour.Initialize.
     /// </summary>
     /// <param name="instance">The RoleBehaviour object.</param>
+    /// <param name="player">The PlayerControl to initialize.</param>
     [HarmonyReversePatch]
     [HarmonyPatch(typeof(RoleBehaviour), nameof(RoleBehaviour.Initialize))]
     [MethodImpl(MethodImplOptions.NoInlining)]
-    public static void Initialize(RoleBehaviour instance)
+    public static void Initialize(RoleBehaviour instance, PlayerControl player)
     {
         // nothing needed
     }
@@ -38,7 +39,7 @@ public static class RoleBehaviourStubs
     /// <param name="instance">The RoleBehaviour object.</param>
     /// <param name="taskStringBuilder">The StringBuilder to append the task hint to.</param>
     [HarmonyReversePatch]
-    [HarmonyPatch(typeof(RoleBehaviour), nameof(RoleBehaviour.AppendTaskHint))]
+    [HarmonyPatch(typeof(RoleBehaviour), nameof(RoleBehaviour.AppendTaskHint), typeof(StringBuilder))]
     [MethodImpl(MethodImplOptions.NoInlining)]
     public static void AppendTaskHint(RoleBehaviour instance, StringBuilder taskStringBuilder)
     {
