@@ -39,30 +39,7 @@ public struct CustomRoleConfiguration
         HideSettings = roleBehaviour?.IsDead == true;
         ShowInFreeplay = roleBehaviour?.IsDead == false;
         CanModifyChance = true;
-        IntroTeamColor = role.Team switch
-        {
-            ModdedRoleTeams.Custom => Color.gray,
-            _ => null,
-        };
-        IntroTeamTitle = role.Team switch
-        {
-            ModdedRoleTeams.Custom => "NEUTRAL",
-            _ => null,
-        };
-        IntroTeamDescription = role.Team switch
-        {
-            ModdedRoleTeams.Custom => "You are Neutral. You do not have a team.",
-            _ => null,
-        };
-        RoleGroup = role.Team switch
-        {
-            ModdedRoleTeams.Crewmate => RoleGroup.Crewmate,
-            ModdedRoleTeams.Impostor => RoleGroup.Impostor,
-            ModdedRoleTeams.Custom => RoleGroup.Neutral,
-        };
     }
-
-    public RoleGroup RoleGroup;
 
     /// <summary>
     /// Gets the hard limit of players that can have this role. This property is used to set a limit in the Role Options menu. If set to 0, the role will not be assigned at start.
@@ -133,21 +110,6 @@ public struct CustomRoleConfiguration
     /// Gets a value indicating whether the role should show up in the Freeplay Role Selection menu.
     /// </summary>
     public bool ShowInFreeplay;
-
-    /// <summary>
-    /// Gets the color to show during the "Team" part of the intro cutscene.
-    /// </summary>
-    public Color? IntroTeamColor;
-
-    /// <summary>
-    /// Gets the title text to show during the "Team" part of the intro cutscene.
-    /// </summary>
-    public string? IntroTeamTitle;
-
-    /// <summary>
-    /// Gets the description text to show during the "Team" part of the intro cutscene.
-    /// </summary>
-    public string? IntroTeamDescription;
 
     /// <summary>
     /// Gets the outline color for the KillButton if <see cref="UseVanillaKillButton"/> is true.

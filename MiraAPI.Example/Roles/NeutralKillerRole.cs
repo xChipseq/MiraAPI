@@ -16,8 +16,9 @@ public class NeutralKillerRole : ImpostorRole, ICustomRole
         UseVanillaKillButton = true,
         CanGetKilled = true,
         CanUseVent = true,
-        RoleGroup = new RoleGroup("Outcast", Color.gray),
     };
+
+    public RoleOptionsGroup RoleOptionsGroup { get; } = new("Outcast", Color.gray);
 
     public override void SpawnTaskHeader(PlayerControl playerControl)
     {

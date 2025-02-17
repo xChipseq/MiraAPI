@@ -21,6 +21,10 @@ public static class TaskAdderPatch
     private static readonly Dictionary<string, string> ModsFolders = [];
     private static Scroller? _scroller;
 
+    /// <summary>
+    /// Adds custom roles to the TaskAdder.
+    /// </summary>
+    /// <param name="__instance">TaskAdder instance.</param>
     [HarmonyPostfix]
     [HarmonyPatch(typeof(TaskAdderGame), nameof(TaskAdderGame.Begin))]
     public static void AddRolesFolder(TaskAdderGame __instance)
@@ -86,13 +90,17 @@ public static class TaskAdderPatch
         __instance.GoToRoot();
     }
 
+    /// <summary>
+    /// Sets the color of the role button based on the role.
+    /// </summary>
+    /// <param name="__instance">TaskAddButton instance.</param>
     [HarmonyPostfix]
-    [HarmonyPatch(typeof(TaskAddButton), "Role", MethodType.Setter)]
+    [HarmonyPatch(typeof(TaskAddButton), nameof(TaskAddButton.Role), MethodType.Setter)]
     public static void RoleGetterPatch(TaskAddButton __instance)
     {
         if (__instance.role is ICustomRole { Team: ModdedRoleTeams.Custom } customRole)
         {
-            __instance.FileImage.color = customRole.Configuration.IntroTeamColor ?? Color.gray;
+            __instance.FileImage.color = customRole.IntroConfiguration?.IntroTeamColor ?? Color.gray;
         }
 
         __instance.RolloverHandler.OutColor = __instance.FileImage.color;

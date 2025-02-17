@@ -39,20 +39,12 @@ public static class IntroCutscenePatches
             return;
         }
 
-        if (customRole.Configuration.IntroTeamColor is { } color)
+        if (customRole.IntroConfiguration is { } introConfig)
         {
-            __instance.BackgroundBar.material.SetColor(ShaderID.Color, color);
-            __instance.TeamTitle.color = color;
-        }
-
-        if (customRole.Configuration.IntroTeamTitle is { } title)
-        {
-            __instance.TeamTitle.text = title;
-        }
-
-        if (customRole.Configuration.IntroTeamDescription is { } description)
-        {
-            __instance.ImpostorText.text = description;
+            __instance.BackgroundBar.material.SetColor(ShaderID.Color, introConfig.IntroTeamColor);
+            __instance.TeamTitle.color = introConfig.IntroTeamColor;
+            __instance.TeamTitle.text = introConfig.IntroTeamTitle;
+            __instance.ImpostorText.text = introConfig.IntroTeamDescription;
         }
     }
 
@@ -65,20 +57,12 @@ public static class IntroCutscenePatches
             return true;
         }
 
-        if (customRole.Configuration.IntroTeamColor is { } color)
+        if (customRole.IntroConfiguration is { } introConfig)
         {
-            __instance.BackgroundBar.material.SetColor(ShaderID.Color, color);
-            __instance.TeamTitle.color = color;
-        }
-
-        if (customRole.Configuration.IntroTeamTitle is { } title)
-        {
-            __instance.TeamTitle.text = title;
-        }
-
-        if (customRole.Configuration.IntroTeamDescription is { } description)
-        {
-            __instance.ImpostorText.text = description;
+            __instance.BackgroundBar.material.SetColor(ShaderID.Color, introConfig.IntroTeamColor);
+            __instance.TeamTitle.color = introConfig.IntroTeamColor;
+            __instance.TeamTitle.text = introConfig.IntroTeamTitle;
+            __instance.ImpostorText.text = introConfig.IntroTeamDescription;
         }
 
         if (customRole.Team is not ModdedRoleTeams.Custom)

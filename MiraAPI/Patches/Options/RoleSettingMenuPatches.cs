@@ -22,7 +22,7 @@ namespace MiraAPI.Patches.Options;
 [HarmonyPatch(typeof(RolesSettingsMenu))]
 public static class RoleSettingMenuPatches
 {
-    private static Dictionary<RoleGroup, bool> RoleGroupHidden { get; } = [];
+    private static Dictionary<RoleOptionsGroup, bool> RoleGroupHidden { get; } = [];
     private static List<CategoryHeaderEditRole> CategoryHeaderEditRoles { get; } = [];
     private static List<RoleOptionSetting> RoleOptionSettings { get; } = [];
 
@@ -61,7 +61,7 @@ public static class RoleSettingMenuPatches
         var num3 = 0;
 
         var roleGroups = GameSettingMenuPatches.SelectedMod?.CustomRoles.Values.OfType<ICustomRole>()
-            .ToLookup(x => x.Configuration.RoleGroup);
+            .ToLookup(x => x.RoleOptionsGroup);
 
         if (roleGroups is null)
         {
