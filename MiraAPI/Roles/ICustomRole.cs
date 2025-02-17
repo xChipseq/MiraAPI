@@ -58,9 +58,9 @@ public interface ICustomRole
     /// <summary>
     /// Gets the role's IntroCutscene configuration.
     /// </summary>
-    public RoleIntroConfiguration? IntroConfiguration => Team switch
+    public TeamIntroConfiguration? IntroConfiguration => Team switch
     {
-        ModdedRoleTeams.Custom => RoleIntroConfiguration.Neutral,
+        ModdedRoleTeams.Custom => TeamIntroConfiguration.Neutral,
         _ => null,
     };
 
