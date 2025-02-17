@@ -37,6 +37,7 @@ public struct CustomRoleConfiguration
         CanUseSabotage = role.Team is ModdedRoleTeams.Impostor;
         TasksCountForProgress = role.Team is ModdedRoleTeams.Crewmate;
         HideSettings = roleBehaviour?.IsDead == true;
+        ShowInFreeplay = roleBehaviour?.IsDead == false;
         CanModifyChance = true;
         IntroTeamColor = role.Team switch
         {
@@ -127,6 +128,11 @@ public struct CustomRoleConfiguration
     /// Gets a value indicating whether the role should show up in the Role Options menu.
     /// </summary>
     public bool HideSettings;
+
+    /// <summary>
+    /// Gets a value indicating whether the role should show up in the Freeplay Role Selection menu.
+    /// </summary>
+    public bool ShowInFreeplay;
 
     /// <summary>
     /// Gets the color to show during the "Team" part of the intro cutscene.

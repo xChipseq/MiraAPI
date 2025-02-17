@@ -1,10 +1,10 @@
 ﻿using AmongUs.GameOptions;
 using HarmonyLib;
-using System;
-using System.Collections.Generic;
 using MiraAPI.PluginLoading;
 using MiraAPI.Roles;
 using MiraAPI.Utilities.Assets;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
@@ -186,23 +186,23 @@ public static class TaskAdderPatch
             switch (taskAddButton.MyTask.TaskType)
             {
                 case TaskTypes.DivertPower:
-                {
-                    var targetSystem = taskAddButton.MyTask.Cast<DivertPowerTask>().TargetSystem;
-                    taskAddButton.Text.text = TranslationController.Instance.GetString(
-                        StringNames.DivertPowerTo,
-                        TranslationController.Instance.GetString(targetSystem));
-                    break;
-                }
+                    {
+                        var targetSystem = taskAddButton.MyTask.Cast<DivertPowerTask>().TargetSystem;
+                        taskAddButton.Text.text = TranslationController.Instance.GetString(
+                            StringNames.DivertPowerTo,
+                            TranslationController.Instance.GetString(targetSystem));
+                        break;
+                    }
                 case TaskTypes.FixWeatherNode:
-                {
-                    var nodeId = taskAddButton.MyTask.Cast<WeatherNodeTask>().NodeId;
-                    taskAddButton.Text.text =
-                        TranslationController.Instance.GetString(
-                            StringNames.FixWeatherNode) + " " +
-                        TranslationController.Instance.GetString(
-                            WeatherSwitchGame.ControlNames[nodeId]);
-                    break;
-                }
+                    {
+                        var nodeId = taskAddButton.MyTask.Cast<WeatherNodeTask>().NodeId;
+                        taskAddButton.Text.text =
+                            TranslationController.Instance.GetString(
+                                StringNames.FixWeatherNode) + " " +
+                            TranslationController.Instance.GetString(
+                                WeatherSwitchGame.ControlNames[nodeId]);
+                        break;
+                    }
                 default:
                     taskAddButton.Text.text =
                         TranslationController.Instance.GetString(taskAddButton.MyTask.TaskType);
@@ -276,7 +276,7 @@ public static class TaskAdderPatch
             {
                 var roleBehaviour = plugin.CustomRoles.ElementAt(m).Value;
                 if (roleBehaviour.Role == RoleTypes.ImpostorGhost || roleBehaviour.Role == RoleTypes.CrewmateGhost ||
-                    roleBehaviour.IsDead)
+                    (roleBehaviour is ICustomRole customRole && !customRole.Configuration.ShowInFreeplay))
                 {
                     continue;
                 }
