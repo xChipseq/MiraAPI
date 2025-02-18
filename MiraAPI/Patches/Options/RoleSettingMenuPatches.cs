@@ -32,6 +32,10 @@ public static class RoleSettingMenuPatches
     [HarmonyPatch(nameof(RolesSettingsMenu.SetQuotaTab))]
     public static bool PatchStart(RolesSettingsMenu __instance)
     {
+        CategoryHeaderEditRoles.ForEach(Object.Destroy);
+        CategoryHeaderEditRoles.Clear();
+        RoleOptionSettings.ForEach(Object.Destroy);
+        RoleOptionSettings.Clear();
         __instance.roleChances = new Il2CppSystem.Collections.Generic.List<RoleOptionSetting>();
         __instance.advancedSettingChildren = new Il2CppSystem.Collections.Generic.List<OptionBehaviour>();
 

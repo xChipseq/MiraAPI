@@ -157,8 +157,6 @@ public static class GameSettingMenuPatches
             roles.AdvancedRolesSettings.gameObject.SetActive(false);
             roles.RoleChancesSettings.gameObject.SetActive(true);
             roles.SetQuotaTab();
-
-            roles.scrollBar.CalculateAndSetYBounds(roles.roleChances.Count + 5, 1f, 6f, 0.43f);
             roles.scrollBar.ScrollToTop();
         }
 
