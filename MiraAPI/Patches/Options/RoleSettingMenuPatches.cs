@@ -26,6 +26,8 @@ public static class RoleSettingMenuPatches
     private static List<CategoryHeaderEditRole> CategoryHeaderEditRoles { get; } = [];
     private static List<RoleOptionSetting> RoleOptionSettings { get; } = [];
 
+    private static float ScrollerNum { get; set; } = 0.522f;
+
     [HarmonyPrefix]
     [HarmonyPatch(nameof(RolesSettingsMenu.SetQuotaTab))]
     public static bool PatchStart(RolesSettingsMenu __instance)
@@ -48,7 +50,7 @@ public static class RoleSettingMenuPatches
             return true;
         }
 
-        var num = 0.522f;
+        ScrollerNum = 0.522f;
 
         __instance.AllButton.transform.parent.gameObject.SetActive(false);
         __instance.AllButton.gameObject.SetActive(false);
@@ -108,13 +110,13 @@ public static class RoleSettingMenuPatches
                 categoryHeaderEditRole.countLabel.color = darkColor;
             }
 
-            categoryHeaderEditRole.transform.localPosition = new Vector3(4.986f, num, -2f);
+            categoryHeaderEditRole.transform.localPosition = new Vector3(4.986f, ScrollerNum, -2f);
             categoryHeaderEditRole.transform.Find("LabelSprite").transform.localScale = new Vector3(1.3f, 1, 0.5529f);
             categoryHeaderEditRole.transform.Find("QuotaHeader").gameObject.SetActive(!RoleGroupHidden[group]);
 
             CategoryHeaderEditRoles.Add(categoryHeaderEditRole);
 
-            num -= 0.522f;
+            ScrollerNum -= 0.522f;
 
             var label = RoleGroupHidden[group]
                 ? "(Click to open)"
@@ -133,7 +135,7 @@ public static class RoleSettingMenuPatches
                         continue;
                     }
 
-                    var option = CreateQuotaOption(__instance, roleBehaviour, ref num, num3);
+                    var option = CreateQuotaOption(__instance, roleBehaviour, num3);
                     if (option is not null)
                     {
                         RoleOptionSettings.Add(option);
@@ -173,11 +175,16 @@ public static class RoleSettingMenuPatches
 
             if (!RoleGroupHidden[group])
             {
-                num -= 0.4f;
+                ScrollerNum -= 0.4f;
             }
         }
-        __instance.scrollBar.CalculateAndSetYBounds(__instance.roleChances.Count + 5, 1f, 6f, 0.43f);
+        __instance.scrollBar.SetScrollBounds();
         return false;
+    }
+
+    private static void SetScrollBounds(this Scroller scroller)
+    {
+        scroller.CalculateAndSetYBounds(1 + 1.5f * CategoryHeaderEditRoles.Count + RoleOptionSettings.Count, 1f, 6f, 0.43f);
     }
 
     [HarmonyPrefix]
@@ -191,7 +198,12 @@ public static class RoleSettingMenuPatches
     [HarmonyPatch(nameof(RolesSettingsMenu.OpenChancesTab))]
     public static void OpenChancesTabPostfix(RolesSettingsMenu __instance)
     {
-        __instance.scrollBar.CalculateAndSetYBounds(__instance.roleChances.Count + 5, 1f, 6f, 0.43f);
+        if (GameSettingMenuPatches.SelectedModIdx == 0)
+        {
+            return;
+        }
+
+        __instance.scrollBar.SetScrollBounds();
         __instance.scrollBar.ScrollToTop();
     }
 
@@ -335,7 +347,7 @@ public static class RoleSettingMenuPatches
         __instance.RefreshChildren();
     }
 
-    private static RoleOptionSetting? CreateQuotaOption(RolesSettingsMenu __instance, RoleBehaviour role, ref float yPos, int index)
+    private static RoleOptionSetting? CreateQuotaOption(RolesSettingsMenu __instance, RoleBehaviour role, int index)
     {
         if (role is not ICustomRole customRole)
         {
@@ -353,7 +365,7 @@ public static class RoleSettingMenuPatches
             Vector3.zero,
             Quaternion.identity,
             __instance.RoleChancesSettings.transform);
-        roleOptionSetting.transform.localPosition = new Vector3(-0.15f, yPos, -2f);
+        roleOptionSetting.transform.localPosition = new Vector3(-0.15f, ScrollerNum, -2f);
 
         roleOptionSetting.SetRole(GameOptionsManager.Instance.CurrentGameOptions.RoleOptions, role, 20);
         roleOptionSetting.labelSprite.color = customRole.RoleColor;
@@ -400,7 +412,7 @@ public static class RoleSettingMenuPatches
 
         if (index < GameSettingMenuPatches.SelectedMod?.CustomRoles.Count - 1)
         {
-            yPos += -0.43f;
+            ScrollerNum += -0.43f;
         }
 
         return roleOptionSetting;
