@@ -6,6 +6,7 @@ using MiraAPI.Utilities.Assets;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Reactor.Localization.Utilities;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -211,34 +212,43 @@ public static class LobbyViewPanePatches
 
         var list = new List<Type>();
 
-        foreach (var team in Enum.GetValues<ModdedRoleTeams>())
-        {
-            var filteredRoles = SelectedMod.CustomRoles.Values
-                .OfType<ICustomRole>()
-                .Where(x => !x.Configuration.HideSettings && x.Team == team).ToList();
+        var roleGroups = GameSettingMenuPatches.SelectedMod?.CustomRoles.Values.OfType<ICustomRole>()
+            .ToLookup(x => x.RoleOptionsGroup);
 
-            if (filteredRoles.Count == 0)
+        if (roleGroups is null)
+        {
+            return;
+        }
+
+        // sort the groups by priority
+        var sortedRoleGroups = roleGroups
+            .OrderBy(x => x.Key.Priority)
+            .ThenBy(x => x.Key.Name);
+
+        foreach (var grouping in sortedRoleGroups)
+        {
+            if (!grouping.Any())
             {
                 continue;
             }
 
-            var categoryHeaderRoleVariant =
-                Object.Instantiate(instance.categoryHeaderRoleOrigin, instance.settingsContainer, true);
+            var group = grouping.Key;
 
-            switch (team)
+            var name = group.Name switch
             {
-                case ModdedRoleTeams.Crewmate:
-                    categoryHeaderRoleVariant.SetHeader(StringNames.CrewmateRolesHeader, 61);
-                    break;
-                case ModdedRoleTeams.Impostor:
-                    categoryHeaderRoleVariant.SetHeader(StringNames.ImpostorRolesHeader, 61);
-                    break;
-                default:
-                    categoryHeaderRoleVariant.SetHeader(StringNames.CrewmateRolesHeader, 61);
-                    categoryHeaderRoleVariant.Title.text = team + " Roles";
-                    categoryHeaderRoleVariant.Background.color = Color.gray;
-                    categoryHeaderRoleVariant.Title.color = Color.white;
-                    break;
+                "Crewmate" => StringNames.CrewmateRolesHeader,
+                "Impostor" => StringNames.ImpostorRolesHeader,
+                _ => CustomStringName.CreateAndRegister(group.Name),
+            };
+
+            var categoryHeaderRoleVariant = Object.Instantiate(instance.categoryHeaderRoleOrigin, instance.settingsContainer, true);
+            categoryHeaderRoleVariant.SetHeader(name, 61);
+
+            if (name is not (StringNames.CrewmateRolesHeader or StringNames.ImpostorRolesHeader))
+            {
+                var veryDarkColor = group.Color.DarkenColor(.35f);
+                categoryHeaderRoleVariant.Title.color = veryDarkColor;
+                categoryHeaderRoleVariant.Background.color = group.Color;
             }
 
             categoryHeaderRoleVariant.transform.localScale = Vector3.one;
@@ -246,7 +256,7 @@ public static class LobbyViewPanePatches
             instance.settingsInfo.Add(categoryHeaderRoleVariant.gameObject);
             num -= 0.696f;
 
-            foreach (var customRole in filteredRoles)
+            foreach (var customRole in grouping)
             {
                 var roleBehaviour = customRole as RoleBehaviour;
                 if (roleBehaviour == null)
@@ -258,8 +268,6 @@ public static class LobbyViewPanePatches
                     GameOptionsManager.Instance.CurrentGameOptions.RoleOptions.GetChancePerGame(roleBehaviour.Role);
                 var numPerGame =
                     GameOptionsManager.Instance.CurrentGameOptions.RoleOptions.GetNumPerGame(roleBehaviour.Role);
-
-                var flag = numPerGame == 0;
 
                 var viewSettingsInfoPanelRoleVariant =
                     Object.Instantiate(
@@ -273,7 +281,7 @@ public static class LobbyViewPanePatches
                     .Where(x => x.AdvancedRole == customRole.GetType())
                     .ToList();
 
-                if (!flag && advancedRoleOptions.Count > 0)
+                if (numPerGame > 0 && advancedRoleOptions.Count > 0)
                 {
                     list.Add(customRole.GetType());
                 }
@@ -286,6 +294,8 @@ public static class LobbyViewPanePatches
                     customRole.RoleColor,
                     customRole.Configuration.Icon.LoadAsset(),
                     true);
+                viewSettingsInfoPanelRoleVariant.iconSprite.transform.localScale = new Vector3(0.365f, 0.365f, 1f);
+                viewSettingsInfoPanelRoleVariant.iconSprite.transform.localPosition = new Vector3(0.7144f, -0.028f, -2);
 
                 viewSettingsInfoPanelRoleVariant.titleText.color =
                     viewSettingsInfoPanelRoleVariant.chanceTitle.color =
@@ -370,6 +380,7 @@ public static class LobbyViewPanePatches
             maskLayer,
             role.TeamType == RoleTeamTypes.Crewmate,
             customRole.Configuration.Icon.LoadAsset());
+        viewPanel.header.icon.transform.localScale = new Vector3(0.465f, 0.465f, 1f);
         viewPanel.divider.material.SetInt(PlayerMaterial.MaskLayer, maskLayer);
 
         var num = viewPanel.yPosStart;
