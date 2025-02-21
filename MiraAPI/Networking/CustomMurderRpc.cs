@@ -263,6 +263,9 @@ public static class CustomMurderRpc
             deadBody.enabled = true;
         }
 
+        var afterMurderEvent = new AfterMurderEvent(source, target);
+        MiraEventManager.InvokeEvent(afterMurderEvent);
+
         if (!isParticipant)
         {
             yield break;
@@ -275,8 +278,5 @@ public static class CustomMurderRpc
 
         PlayerControl.LocalPlayer.isKilling = false;
         source.isKilling = false;
-
-        var afterMurderEvent = new AfterMurderEvent(source, target);
-        MiraEventManager.InvokeEvent(afterMurderEvent);
     }
 }
