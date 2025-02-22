@@ -23,6 +23,15 @@ public class MiraPluginInfo
     }
 
     /// <summary>
+    /// Get a read only collection of this plugin's modifiers. This is probably not safe because they are uninitialized.
+    /// </summary>
+    /// <returns>Readonly collection of modifiers.</returns>
+    public IReadOnlyCollection<BaseModifier> GetModifiers()
+    {
+        return Modifiers.AsReadOnly();
+    }
+
+    /// <summary>
     /// Get a read only collection of this plugin's Option Groups.
     /// </summary>
     /// <returns>Readonly collection of option groups.</returns>
