@@ -1,5 +1,4 @@
-﻿using System;
-using BepInEx.Configuration;
+﻿using BepInEx.Configuration;
 using MiraAPI.Modifiers;
 using MiraAPI.PluginLoading;
 using MiraAPI.Utilities;

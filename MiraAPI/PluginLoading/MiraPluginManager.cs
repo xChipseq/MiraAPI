@@ -48,7 +48,7 @@ public sealed class MiraPluginManager
                     continue;
                 }
 
-                if (RegisterModifier(type))
+                if (RegisterModifier(type, info))
                 {
                     continue;
                 }
@@ -91,9 +91,9 @@ public sealed class MiraPluginManager
     /// </summary>
     /// <param name="pluginId">The plugin GUID.</param>
     /// <returns>A MiraPluginInfo.</returns>
-    public static MiraPluginInfo GetPluginByGuid(string pluginId)
+    public static MiraPluginInfo? GetPluginByGuid(string pluginId)
     {
-        return Instance._registeredPlugins.Values.First(plugin => plugin.PluginId == pluginId);
+        return Instance._registeredPlugins.Values.FirstOrDefault(plugin => plugin.PluginId == pluginId);
     }
 
     private static bool RegisterOptions(Type type, MiraPluginInfo pluginInfo)
@@ -199,11 +199,11 @@ public sealed class MiraPluginManager
         }
     }
 
-    private static bool RegisterModifier(Type type)
+    private static bool RegisterModifier(Type type, MiraPluginInfo info)
     {
         try
         {
-            return ModifierManager.RegisterModifier(type);
+            return ModifierManager.RegisterModifier(type, info);
         }
         catch (Exception e)
         {

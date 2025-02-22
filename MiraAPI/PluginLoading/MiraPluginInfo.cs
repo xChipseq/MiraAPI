@@ -5,6 +5,7 @@ using MiraAPI.GameOptions;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using MiraAPI.Hud;
+using MiraAPI.Modifiers;
 
 namespace MiraAPI.PluginLoading;
 
@@ -60,6 +61,8 @@ public class MiraPluginInfo
     internal List<AbstractOptionGroup> OptionGroups { get; } = [];
 
     internal List<IModdedOption> Options { get; } = [];
+
+    internal List<BaseModifier> Modifiers { get; } = [];
 
     internal Dictionary<ushort, RoleBehaviour> CustomRoles { get; } = [];
 

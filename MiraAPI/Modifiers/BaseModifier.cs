@@ -31,6 +31,11 @@ public abstract class BaseModifier
     public virtual bool HideOnUi => false;
 
     /// <summary>
+    /// Gets a value indicating whether the modifier is shown in the freeplay menu.
+    /// </summary>
+    public virtual bool ShowInFreeplay => false;
+
+    /// <summary>
     /// Gets the HUD information for this modifier. Defaults to the modifier name. Does nothing if <see cref="HideOnUi"/> is true.
     /// </summary>
     /// <returns>The information string for the HUD.</returns>
