@@ -1,6 +1,5 @@
 ﻿using Il2CppSystem;
 using MiraAPI.Example.Roles;
-using MiraAPI.Modifiers;
 using MiraAPI.Modifiers.Types;
 using UnityEngine;
 

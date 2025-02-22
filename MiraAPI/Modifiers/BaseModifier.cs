@@ -31,6 +31,11 @@ public abstract class BaseModifier
     public virtual bool HideOnUi => false;
 
     /// <summary>
+    /// Gets a value indicating whether the modifier is shown in the freeplay menu.
+    /// </summary>
+    public virtual bool ShowInFreeplay => false;
+
+    /// <summary>
     /// Gets a value indicating whether the modifier can be added multiple times.
     /// </summary>
     public virtual bool Stackable => false;

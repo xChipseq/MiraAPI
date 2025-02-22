@@ -4,7 +4,6 @@ using MiraAPI.PluginLoading;
 using MiraAPI.Roles;
 using MiraAPI.Utilities.Assets;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
@@ -18,7 +17,6 @@ namespace MiraAPI.Patches.Roles;
 [HarmonyPatch]
 public static class TaskAdderPatch
 {
-    private static readonly Dictionary<string, string> ModsFolders = [];
     private static Scroller? _scroller;
 
     /// <summary>
@@ -67,25 +65,34 @@ public static class TaskAdderPatch
         rolesFolder.FolderName = "Roles";
         rolesFolder.name = "RolesFolder";
 
+        var modifiersFolder = Object.Instantiate(__instance.RootFolderPrefab, _scroller.Inner);
+        modifiersFolder.gameObject.SetActive(false);
+        modifiersFolder.FolderName = "Modifiers";
+        modifiersFolder.name = "ModifiersFolder";
+
         foreach (var plugin in MiraPluginManager.Instance.RegisteredPlugins())
         {
-            if (plugin.CustomRoles.Count == 0)
+            if (plugin.CustomRoles.Any(x => x.Value is ICustomRole { Configuration.ShowInFreeplay: true }))
             {
-                continue;
+                var newFolder = Object.Instantiate(__instance.RootFolderPrefab, _scroller.Inner);
+                newFolder.name = plugin.PluginId+":Roles";
+                newFolder.FolderName = plugin.PluginInfo.Metadata.Name;
+                newFolder.gameObject.SetActive(false);
+                rolesFolder.SubFolders.Add(newFolder);
             }
 
-            var newFolder = Object.Instantiate(__instance.RootFolderPrefab, _scroller.Inner);
-            newFolder.FolderName = newFolder.name = plugin.PluginInfo.Metadata.Name;
-            newFolder.gameObject.SetActive(false);
-            rolesFolder.SubFolders.Add(newFolder);
-
-            if (!ModsFolders.ContainsKey(plugin.PluginInfo.Metadata.Name))
+            if (plugin.Modifiers.Exists(x => x.ShowInFreeplay))
             {
-                ModsFolders.Add(plugin.PluginInfo.Metadata.Name, plugin.PluginId);
+                var newFolder = Object.Instantiate(__instance.RootFolderPrefab, _scroller.Inner);
+                newFolder.name = plugin.PluginId+":Modifiers";
+                newFolder.FolderName = plugin.PluginInfo.Metadata.Name;
+                newFolder.gameObject.SetActive(false);
+                modifiersFolder.SubFolders.Add(newFolder);
             }
         }
 
         __instance.Root.SubFolders.Add(rolesFolder);
+        __instance.Root.SubFolders.Add(modifiersFolder);
 
         __instance.GoToRoot();
     }
@@ -277,39 +284,21 @@ public static class TaskAdderPatch
             }
         }
 
-        if (ModsFolders.TryGetValue(taskFolder.FolderName, out var guid))
+        var split = taskFolder.name.Split(':');
+        if (split.Length == 2)
         {
-            var plugin = MiraPluginManager.GetPluginByGuid(guid);
-            for (var m = 0; m < plugin.CustomRoles.Count; m++)
+            var pluginId = split[0];
+            var folderName = split[1];
+
+            if (MiraPluginManager.GetPluginByGuid(pluginId) is { } plugin)
             {
-                var roleBehaviour = plugin.CustomRoles.ElementAt(m).Value;
-                if (roleBehaviour.Role == RoleTypes.ImpostorGhost || roleBehaviour.Role == RoleTypes.CrewmateGhost ||
-                    (roleBehaviour is ICustomRole customRole && !customRole.Configuration.ShowInFreeplay))
+                if (folderName == "Roles(Clone)")
                 {
-                    continue;
+                    PluginRoles(__instance, plugin, ref num, ref num2, ref num3);
                 }
-
-                var taskAddButton2 = Object.Instantiate(__instance.RoleButton);
-                taskAddButton2.SafePositionWorld = __instance.SafePositionWorld;
-                taskAddButton2.Text.text = "Be_" + roleBehaviour.NiceName + ".exe";
-                __instance.AddFileAsChildCustom(taskAddButton2, ref num, ref num2, ref num3);
-                taskAddButton2.Role = roleBehaviour;
-                if (taskAddButton2.Button == null)
+                else if (folderName == "Modifiers(Clone)")
                 {
-                    continue;
-                }
-
-                ControllerManager.Instance.AddSelectableUiElement(taskAddButton2.Button);
-                switch (m)
-                {
-                    case 0 when __instance.restorePreviousSelectionFound != null:
-                        ControllerManager.Instance.SetDefaultSelection(__instance.restorePreviousSelectionFound);
-                        __instance.restorePreviousSelectionByFolderName = string.Empty;
-                        __instance.restorePreviousSelectionFound = null;
-                        break;
-                    case 0:
-                        ControllerManager.Instance.SetDefaultSelection(taskAddButton2.Button);
-                        break;
+                    PluginModifiers(__instance, plugin, ref num, ref num2, ref num3);
                 }
             }
         }
@@ -335,5 +324,79 @@ public static class TaskAdderPatch
 
         ControllerManager.Instance.SetBackButton(__instance.FolderBackButton);
         return false;
+    }
+
+    private static void PluginModifiers(
+        TaskAdderGame instance,
+        MiraPluginInfo plugin,
+        ref float num,
+        ref float num2,
+        ref float num3)
+    {
+        for (var m = 0; m < plugin.Modifiers.Count; m++)
+        {
+            var modifier = plugin.Modifiers[m];
+            if (!modifier.ShowInFreeplay)
+            {
+                continue;
+            }
+
+            var taskAddButton = Object.Instantiate(instance.RoleButton);
+            taskAddButton.name = modifier.ModifierId.ToString();
+            taskAddButton.role = null;
+            taskAddButton.MyTask = null;
+            taskAddButton.SafePositionWorld = instance.SafePositionWorld;
+            taskAddButton.Text.text = modifier.ModifierName;
+            instance.AddFileAsChildCustom(taskAddButton, ref num, ref num2, ref num3);
+
+            ControllerManager.Instance.AddSelectableUiElement(taskAddButton.Button);
+            switch (m)
+            {
+                case 0 when instance.restorePreviousSelectionFound != null:
+                    ControllerManager.Instance.SetDefaultSelection(instance.restorePreviousSelectionFound);
+                    instance.restorePreviousSelectionByFolderName = string.Empty;
+                    instance.restorePreviousSelectionFound = null;
+                    break;
+                case 0:
+                    ControllerManager.Instance.SetDefaultSelection(taskAddButton.Button);
+                    break;
+            }
+        }
+    }
+
+    private static void PluginRoles(TaskAdderGame instance, MiraPluginInfo plugin, ref float num, ref float num2, ref float num3)
+    {
+        for (var m = 0; m < plugin.CustomRoles.Count; m++)
+        {
+            var roleBehaviour = plugin.CustomRoles.ElementAt(m).Value;
+            if (roleBehaviour.Role == RoleTypes.ImpostorGhost || roleBehaviour.Role == RoleTypes.CrewmateGhost ||
+                roleBehaviour is ICustomRole { Configuration.ShowInFreeplay: false })
+            {
+                continue;
+            }
+
+            var taskAddButton2 = Object.Instantiate(instance.RoleButton);
+            taskAddButton2.SafePositionWorld = instance.SafePositionWorld;
+            taskAddButton2.Text.text = "Be_" + roleBehaviour.NiceName + ".exe";
+            instance.AddFileAsChildCustom(taskAddButton2, ref num, ref num2, ref num3);
+            taskAddButton2.Role = roleBehaviour;
+            if (taskAddButton2.Button == null)
+            {
+                continue;
+            }
+
+            ControllerManager.Instance.AddSelectableUiElement(taskAddButton2.Button);
+            switch (m)
+            {
+                case 0 when instance.restorePreviousSelectionFound != null:
+                    ControllerManager.Instance.SetDefaultSelection(instance.restorePreviousSelectionFound);
+                    instance.restorePreviousSelectionByFolderName = string.Empty;
+                    instance.restorePreviousSelectionFound = null;
+                    break;
+                case 0:
+                    ControllerManager.Instance.SetDefaultSelection(taskAddButton2.Button);
+                    break;
+            }
+        }
     }
 }
