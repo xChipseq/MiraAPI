@@ -91,7 +91,7 @@ public static class CustomRoleManager
         roleBehaviour.CanVent = customRole.Configuration.CanUseVent;
         roleBehaviour.DefaultGhostRole = customRole.Configuration.GhostRole;
         roleBehaviour.MaxCount = customRole.Configuration.MaxRoleCount;
-        roleBehaviour.RoleScreenshot = customRole.Configuration.OptionsScreenshot.LoadAsset();
+        roleBehaviour.RoleScreenshot = customRole.Configuration.OptionsScreenshot?.LoadAsset();
 
         if (roleBehaviour.IsDead)
         {
