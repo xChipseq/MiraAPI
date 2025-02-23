@@ -3,7 +3,7 @@ using MiraAPI.Roles;
 using MiraAPI.Utilities;
 using UnityEngine;
 
-namespace MiraAPI.Patches.Roles;
+namespace MiraAPI.Patches.Freeplay;
 
 [HarmonyPatch(typeof(TaskAddButton))]
 internal static class TaskAddButtonPatches
