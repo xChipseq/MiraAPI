@@ -13,7 +13,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
 
-namespace MiraAPI.Patches.Roles;
+namespace MiraAPI.Patches.Freeplay;
 
 [HarmonyPatch(typeof(TaskAdderGame))]
 internal static class TaskAdderPatches
