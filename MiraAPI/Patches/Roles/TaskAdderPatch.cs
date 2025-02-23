@@ -138,7 +138,7 @@ public static class TaskAdderPatch
     // yes it might be crazy patching the entire method, but i tried so many other methods and only this works :cry:
     [HarmonyPrefix]
     [HarmonyPatch(typeof(TaskAdderGame), nameof(TaskAdderGame.ShowFolder))]
-    public static bool ShowPatch(TaskAdderGame __instance, [HarmonyArgument(0)] TaskFolder taskFolder)
+    public static bool ShowPatch(TaskAdderGame __instance, TaskFolder taskFolder)
     {
         var stringBuilder = new Il2CppSystem.Text.StringBuilder(64);
         __instance.Hierarchy.Add(taskFolder);
@@ -284,21 +284,24 @@ public static class TaskAdderPatch
             }
         }
 
-        var split = taskFolder.name.Split(':');
-        if (split.Length == 2)
+        if (taskFolder)
         {
-            var pluginId = split[0];
-            var folderName = split[1];
-
-            if (MiraPluginManager.GetPluginByGuid(pluginId) is { } plugin)
+            var split = taskFolder.name.Split(':');
+            if (split.Length == 2)
             {
-                if (folderName == "Roles(Clone)")
+                var pluginId = split[0];
+                var folderName = split[1];
+
+                if (MiraPluginManager.GetPluginByGuid(pluginId) is { } plugin)
                 {
-                    PluginRoles(__instance, plugin, ref num, ref num2, ref num3);
-                }
-                else if (folderName == "Modifiers(Clone)")
-                {
-                    PluginModifiers(__instance, plugin, ref num, ref num2, ref num3);
+                    if (folderName == "Roles(Clone)")
+                    {
+                        PluginRoles(__instance, plugin, ref num, ref num2, ref num3);
+                    }
+                    else if (folderName == "Modifiers(Clone)")
+                    {
+                        PluginModifiers(__instance, plugin, ref num, ref num2, ref num3);
+                    }
                 }
             }
         }
