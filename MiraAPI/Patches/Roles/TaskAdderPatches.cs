@@ -1,31 +1,27 @@
-﻿using AmongUs.GameOptions;
+﻿using System;
+using System.Globalization;
+using System.Linq;
+using AmongUs.GameOptions;
 using HarmonyLib;
+using MiraAPI.Modifiers;
 using MiraAPI.PluginLoading;
 using MiraAPI.Roles;
-using MiraAPI.Utilities.Assets;
-using System;
-using System.Linq;
 using MiraAPI.Utilities;
+using MiraAPI.Utilities.Assets;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 using Object = UnityEngine.Object;
 
 namespace MiraAPI.Patches.Roles;
 
-/// <summary>
-/// Patch TaskAdder for organizing Roles and adding scroller.
-/// </summary>
-[HarmonyPatch]
-public static class TaskAdderPatch
+[HarmonyPatch(typeof(TaskAdderGame))]
+internal static class TaskAdderPatches
 {
     private static Scroller? _scroller;
 
-    /// <summary>
-    /// Adds custom roles to the TaskAdder.
-    /// </summary>
-    /// <param name="__instance">TaskAdder instance.</param>
     [HarmonyPostfix]
-    [HarmonyPatch(typeof(TaskAdderGame), nameof(TaskAdderGame.Begin))]
+    [HarmonyPatch(nameof(TaskAdderGame.Begin))]
     public static void AddRolesFolder(TaskAdderGame __instance)
     {
         GameObject inner = new("Inner");
@@ -98,22 +94,6 @@ public static class TaskAdderPatch
         __instance.GoToRoot();
     }
 
-    /// <summary>
-    /// Sets the color of the role button based on the role.
-    /// </summary>
-    /// <param name="__instance">TaskAddButton instance.</param>
-    [HarmonyPostfix]
-    [HarmonyPatch(typeof(TaskAddButton), nameof(TaskAddButton.Role), MethodType.Setter)]
-    public static void RoleGetterPatch(TaskAddButton __instance)
-    {
-        if (__instance.role is ICustomRole { Team: ModdedRoleTeams.Custom } customRole)
-        {
-            __instance.FileImage.color = customRole.IntroConfiguration?.IntroTeamColor ?? Color.gray;
-        }
-
-        __instance.RolloverHandler.OutColor = __instance.FileImage.color;
-    }
-
     private static void AddFileAsChildCustom(
         this TaskAdderGame instance,
         TaskAddButton item,
@@ -138,7 +118,7 @@ public static class TaskAdderPatch
 
     // yes it might be crazy patching the entire method, but i tried so many other methods and only this works :cry:
     [HarmonyPrefix]
-    [HarmonyPatch(typeof(TaskAdderGame), nameof(TaskAdderGame.ShowFolder))]
+    [HarmonyPatch(nameof(TaskAdderGame.ShowFolder))]
     public static bool ShowPatch(TaskAdderGame __instance, TaskFolder taskFolder)
     {
         var stringBuilder = new Il2CppSystem.Text.StringBuilder(64);
@@ -262,7 +242,6 @@ public static class TaskAdderPatch
                 var taskAddButton2 = Object.Instantiate(__instance.RoleButton);
                 taskAddButton2.SafePositionWorld = __instance.SafePositionWorld;
                 taskAddButton2.Text.text = "Be_" + roleBehaviour.NiceName + ".exe";
-                taskAddButton2.Text.EnableMasking();
                 __instance.AddFileAsChildCustom(taskAddButton2, ref num, ref num2, ref num3);
                 taskAddButton2.Role = roleBehaviour;
 
@@ -310,7 +289,7 @@ public static class TaskAdderPatch
 
         foreach (var chip in __instance.ActiveItems)
         {
-            chip.GetComponentInChildren<TextMeshPro>().EnableMasking();
+            chip.GetComponentInChildren<TextMeshPro>().EnableStencilMasking();
             chip.GetComponent<SpriteRenderer>().maskInteraction = SpriteMaskInteraction.VisibleInsideMask;
         }
 
@@ -347,12 +326,28 @@ public static class TaskAdderPatch
             }
 
             var taskAddButton = Object.Instantiate(instance.RoleButton);
-            taskAddButton.name = modifier.ModifierId.ToString();
+            taskAddButton.name = modifier.ModifierId.ToString(CultureInfo.InvariantCulture);
             taskAddButton.role = null;
             taskAddButton.MyTask = null;
             taskAddButton.SafePositionWorld = instance.SafePositionWorld;
             taskAddButton.Text.text = modifier.ModifierName;
             taskAddButton.Text.EnableMasking();
+
+            taskAddButton.Button.OnClick = new Button.ButtonClickedEvent();
+            taskAddButton.Button.OnClick.AddListener((UnityEngine.Events.UnityAction)(() =>
+            {
+                if (PlayerControl.LocalPlayer.HasModifier(modifier.ModifierId))
+                {
+                    PlayerControl.LocalPlayer.GetModifierComponent()!.RemoveModifier(modifier.ModifierId);
+                    taskAddButton.Overlay.enabled = false;
+                }
+                else
+                {
+                    PlayerControl.LocalPlayer.GetModifierComponent()!.AddModifier(ModifierManager.GetModifierType(modifier.ModifierId)!);
+                    taskAddButton.Overlay.enabled = true;
+                }
+            }));
+
             instance.AddFileAsChildCustom(taskAddButton, ref num, ref num2, ref num3);
 
             ControllerManager.Instance.AddSelectableUiElement(taskAddButton.Button);

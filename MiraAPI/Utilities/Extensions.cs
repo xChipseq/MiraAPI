@@ -44,7 +44,7 @@ public static class Extensions
     /// Enables Among Us style masking on a TMP text object.
     /// </summary>
     /// <param name="text">The TMP text.</param>
-    public static void EnableMasking(this TMP_Text text)
+    public static void EnableStencilMasking(this TMP_Text text)
     {
         text.fontMaterial.SetFloat(ShaderID.Get("_Stencil"), 1);
         text.fontMaterial.SetFloat(ShaderID.Get("_StencilComp"), 4);
