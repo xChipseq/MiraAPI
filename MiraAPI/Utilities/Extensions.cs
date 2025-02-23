@@ -40,6 +40,16 @@ public static class Extensions
     }
 
     /// <summary>
+    /// Sets masking on a TMP MATERIAL! Do not use this on other materials.
+    /// </summary>
+    /// <param name="material">The TMP material.</param>
+    public static void EnableMasking(this Material material)
+    {
+        material.SetFloat(ShaderID.Get("_Stencil"), 1);
+        material.SetFloat(ShaderID.Get("_StencilComp"), 4);
+    }
+
+    /// <summary>
     /// Checks if a type is static.
     /// </summary>
     /// <param name="type">The type being checked.</param>

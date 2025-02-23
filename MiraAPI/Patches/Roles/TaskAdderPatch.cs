@@ -5,6 +5,7 @@ using MiraAPI.Roles;
 using MiraAPI.Utilities.Assets;
 using System;
 using System.Linq;
+using MiraAPI.Utilities;
 using TMPro;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -261,6 +262,7 @@ public static class TaskAdderPatch
                 var taskAddButton2 = Object.Instantiate(__instance.RoleButton);
                 taskAddButton2.SafePositionWorld = __instance.SafePositionWorld;
                 taskAddButton2.Text.text = "Be_" + roleBehaviour.NiceName + ".exe";
+                taskAddButton2.Text.fontMaterial.EnableMasking();
                 __instance.AddFileAsChildCustom(taskAddButton2, ref num, ref num2, ref num3);
                 taskAddButton2.Role = roleBehaviour;
 
@@ -350,6 +352,7 @@ public static class TaskAdderPatch
             taskAddButton.MyTask = null;
             taskAddButton.SafePositionWorld = instance.SafePositionWorld;
             taskAddButton.Text.text = modifier.ModifierName;
+            taskAddButton.Text.fontMaterial.EnableMasking();
             instance.AddFileAsChildCustom(taskAddButton, ref num, ref num2, ref num3);
 
             ControllerManager.Instance.AddSelectableUiElement(taskAddButton.Button);
@@ -381,6 +384,8 @@ public static class TaskAdderPatch
             var taskAddButton2 = Object.Instantiate(instance.RoleButton);
             taskAddButton2.SafePositionWorld = instance.SafePositionWorld;
             taskAddButton2.Text.text = "Be_" + roleBehaviour.NiceName + ".exe";
+            taskAddButton2.Text.fontMaterial.EnableMasking();
+
             instance.AddFileAsChildCustom(taskAddButton2, ref num, ref num2, ref num3);
             taskAddButton2.Role = roleBehaviour;
             if (taskAddButton2.Button == null)
