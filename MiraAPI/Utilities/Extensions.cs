@@ -8,6 +8,7 @@ using Reactor.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 
 namespace MiraAPI.Utilities;
@@ -42,11 +43,11 @@ public static class Extensions
     /// <summary>
     /// Sets masking on a TMP MATERIAL! Do not use this on other materials.
     /// </summary>
-    /// <param name="material">The TMP material.</param>
-    public static void EnableMasking(this Material material)
+    /// <param name="text">The TMP text.</param>
+    public static void EnableMasking(this TMP_Text text)
     {
-        material.SetFloat(ShaderID.Get("_Stencil"), 1);
-        material.SetFloat(ShaderID.Get("_StencilComp"), 4);
+        text.fontMaterial.SetFloat(ShaderID.Get("_Stencil"), 1);
+        text.fontMaterial.SetFloat(ShaderID.Get("_StencilComp"), 4);
     }
 
     /// <summary>

@@ -262,7 +262,7 @@ public static class TaskAdderPatch
                 var taskAddButton2 = Object.Instantiate(__instance.RoleButton);
                 taskAddButton2.SafePositionWorld = __instance.SafePositionWorld;
                 taskAddButton2.Text.text = "Be_" + roleBehaviour.NiceName + ".exe";
-                taskAddButton2.Text.fontMaterial.EnableMasking();
+                taskAddButton2.Text.EnableMasking();
                 __instance.AddFileAsChildCustom(taskAddButton2, ref num, ref num2, ref num3);
                 taskAddButton2.Role = roleBehaviour;
 
@@ -352,7 +352,7 @@ public static class TaskAdderPatch
             taskAddButton.MyTask = null;
             taskAddButton.SafePositionWorld = instance.SafePositionWorld;
             taskAddButton.Text.text = modifier.ModifierName;
-            taskAddButton.Text.fontMaterial.EnableMasking();
+            taskAddButton.Text.EnableMasking();
             instance.AddFileAsChildCustom(taskAddButton, ref num, ref num2, ref num3);
 
             ControllerManager.Instance.AddSelectableUiElement(taskAddButton.Button);
@@ -384,7 +384,7 @@ public static class TaskAdderPatch
             var taskAddButton2 = Object.Instantiate(instance.RoleButton);
             taskAddButton2.SafePositionWorld = instance.SafePositionWorld;
             taskAddButton2.Text.text = "Be_" + roleBehaviour.NiceName + ".exe";
-            taskAddButton2.Text.fontMaterial.EnableMasking();
+            taskAddButton2.Text.EnableMasking();
 
             instance.AddFileAsChildCustom(taskAddButton2, ref num, ref num2, ref num3);
             taskAddButton2.Role = roleBehaviour;
