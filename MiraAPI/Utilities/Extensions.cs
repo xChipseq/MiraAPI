@@ -41,7 +41,7 @@ public static class Extensions
     }
 
     /// <summary>
-    /// Sets masking on a TMP MATERIAL! Do not use this on other materials.
+    /// Enables Among Us style masking on a TMP text object.
     /// </summary>
     /// <param name="text">The TMP text.</param>
     public static void EnableMasking(this TMP_Text text)
