@@ -31,6 +31,11 @@ public abstract class BaseModifier
     public virtual bool HideOnUi => false;
 
     /// <summary>
+    /// Gets a value indicating whether the modifier can be added multiple times.
+    /// </summary>
+    public virtual bool Stackable => false;
+
+    /// <summary>
     /// Gets the HUD information for this modifier. Defaults to the modifier name. Does nothing if <see cref="HideOnUi"/> is true.
     /// </summary>
     /// <returns>The information string for the HUD.</returns>

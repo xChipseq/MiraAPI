@@ -228,7 +228,7 @@ public class ModifierComponent(IntPtr cppPtr) : MonoBehaviour(cppPtr)
             return null;
         }
 
-        if (Modifiers.Find(x => x.ModifierId == modifierId) != null)
+        if (Modifiers.Find(x => x.ModifierId == modifierId && !x.Stackable) != null)
         {
             Logger<MiraApiPlugin>.Error($"Player already has modifier with id {modifierId}!");
             return null;
