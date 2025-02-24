@@ -41,7 +41,7 @@ public static class Extensions
     }
 
     /// <summary>
-    /// Enables Among Us style masking on a TMP text object.
+    /// Enables stencil masking on a TMP text object.
     /// </summary>
     /// <param name="text">The TMP text.</param>
     public static void EnableStencilMasking(this TMP_Text text)
@@ -141,30 +141,6 @@ public static class Extensions
             opt => opt.OptionBehaviour && opt.OptionBehaviour == optionBehaviour);
     }
 
-    internal static Dictionary<PlayerControl, ModifierComponent> ModifierComponents { get; } = [];
-
-    /// <summary>
-    /// Gets the ModifierComponent for a player.
-    /// </summary>
-    /// <param name="player">The PlayerControl object.</param>
-    /// <returns>A ModifierComponent if there is one, null otherwise.</returns>
-    public static ModifierComponent? GetModifierComponent(this PlayerControl player)
-    {
-        if (ModifierComponents.TryGetValue(player, out var component))
-        {
-            return component;
-        }
-
-        component = player.GetComponent<ModifierComponent>();
-        if (component == null)
-        {
-            return null;
-        }
-
-        ModifierComponents[player] = component;
-        return component;
-    }
-
     /// <summary>
     /// Randomizes a list.
     /// </summary>
@@ -183,105 +159,6 @@ public static class Extensions
         }
 
         return randomizedList;
-    }
-
-    /// <summary>
-    /// Gets a modifier by its type, or null if the player doesn't have it.
-    /// </summary>
-    /// <param name="player">The PlayerControl object.</param>
-    /// <typeparam name="T">The Type of the Modifier.</typeparam>
-    /// <returns>The Modifier if it is found, null otherwise.</returns>
-    public static T? GetModifier<T>(this PlayerControl? player) where T : BaseModifier
-    {
-        return player?.GetModifierComponent()?.ActiveModifiers.Find(x => x is T) as T;
-    }
-
-    /// <summary>
-    /// Checks if a player has a modifier.
-    /// </summary>
-    /// <param name="player">The PlayerControl object.</param>
-    /// <typeparam name="T">The Type of the Modifier.</typeparam>
-    /// <returns>True if the Modifier is present, false otherwise.</returns>
-    public static bool HasModifier<T>(this PlayerControl? player) where T : BaseModifier
-    {
-        return player?.GetModifierComponent() != null &&
-               player.GetModifierComponent()!.HasModifier<T>();
-    }
-
-    /// <summary>
-    /// Checks if a player has a modifier by its ID.
-    /// </summary>
-    /// <param name="player">The PlayerControl object.</param>
-    /// <param name="id">The Modifier ID.</param>
-    /// <returns>True if the Modifier is present, false otherwise.</returns>
-    public static bool HasModifier(this PlayerControl? player, uint id)
-    {
-        return player?.GetModifierComponent() != null &&
-               player.GetModifierComponent()!.HasModifier(id);
-    }
-
-    /// <summary>
-    /// Remote Procedure Call to remove a modifier from a player.
-    /// </summary>
-    /// <param name="target">The player to remove the modifier from.</param>
-    /// <param name="modifierId">The ID of the modifier.</param>
-    [MethodRpc((uint)MiraRpc.RemoveModifier)]
-    public static void RpcRemoveModifier(this PlayerControl target, uint modifierId)
-    {
-        target.GetModifierComponent()?.RemoveModifier(modifierId);
-    }
-
-    /// <summary>
-    /// Remote Procedure Call to remove a modifier from a player.
-    /// </summary>
-    /// <param name="player">The player to remove the modifier from.</param>
-    /// <typeparam name="T">The Type of the Modifier.</typeparam>
-    public static void RpcRemoveModifier<T>(this PlayerControl player) where T : BaseModifier
-    {
-        var id = ModifierManager.GetModifierId(typeof(T));
-
-        if (id == null)
-        {
-            Logger<MiraApiPlugin>.Error($"Cannot add modifier {typeof(T).Name} because it is not registered.");
-            return;
-        }
-
-        player.RpcRemoveModifier(id.Value);
-    }
-
-    /// <summary>
-    /// Remote Procedure Call to add a modifier to a player.
-    /// </summary>
-    /// <param name="target">The player to add the modifier to.</param>
-    /// <param name="modifierId">The modifier ID.</param>
-    [MethodRpc((uint)MiraRpc.AddModifier)]
-    public static void RpcAddModifier(this PlayerControl target, uint modifierId)
-    {
-        var type = ModifierManager.GetModifierType(modifierId);
-        if (type == null)
-        {
-            Logger<MiraApiPlugin>.Error($"Cannot add modifier with id {modifierId} because it is not registered.");
-            return;
-        }
-
-        target.GetModifierComponent()?.AddModifier(type);
-    }
-
-    /// <summary>
-    /// Remote Procedure Call to add a modifier to a player.
-    /// </summary>
-    /// <param name="player">The player to add the modifier to.</param>
-    /// <typeparam name="T">The modifier Type.</typeparam>
-    public static void RpcAddModifier<T>(this PlayerControl player) where T : BaseModifier
-    {
-        var id = ModifierManager.GetModifierId(typeof(T));
-        if (id == null)
-        {
-            Logger<MiraApiPlugin>.Error($"Cannot add modifier {typeof(T).Name} because it is not registered.");
-            return;
-        }
-
-        player.RpcAddModifier(id.Value);
     }
 
     /// <summary>
@@ -339,6 +216,7 @@ public static class Extensions
             .GetNearestDeadBodies(playerControl.GetTruePosition(), radius, Helpers.CreateFilter(Constants.NotShipMask))
             .Find(component => component && !component.Reported);
     }
+
     /// <summary>
     /// Finds the nearest object of a specified type to a player. It will only work if the object has a collider.
     /// </summary>
@@ -387,10 +265,6 @@ public static class Extensions
         return predicate != null ? filteredPlayers.Find(predicate) : filteredPlayers.FirstOrDefault();
     }
 
-    private static readonly int _outline = Shader.PropertyToID("_Outline");
-    private static readonly int _outlineColor = Shader.PropertyToID("_OutlineColor");
-    private static readonly int _addColor = Shader.PropertyToID("_AddColor");
-
     /// <summary>
     /// Fixed version of Reactor's SetOutline.
     /// </summary>
@@ -398,8 +272,8 @@ public static class Extensions
     /// <param name="color">The outline color.</param>
     public static void UpdateOutline(this Renderer renderer, Color? color)
     {
-        renderer.material.SetFloat(_outline, color.HasValue ? 1 : 0);
-        renderer.material.SetColor(_outlineColor, color.HasValue ? color.Value : Color.clear);
-        renderer.material.SetColor(_addColor, color.HasValue ? color.Value : Color.clear);
+        renderer.material.SetFloat(ShaderID.Outline, color.HasValue ? 1 : 0);
+        renderer.material.SetColor(ShaderID.OutlineColor, color ?? Color.clear);
+        renderer.material.SetColor(ShaderID.AddColor, color ?? Color.clear);
     }
 }
