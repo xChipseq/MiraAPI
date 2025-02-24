@@ -36,9 +36,9 @@ public abstract class BaseModifier
     public virtual bool ShowInFreeplay => false;
 
     /// <summary>
-    /// Gets a value indicating whether the modifier can be added multiple times.
+    /// Gets a value indicating whether the modifier is unique. If true, the player can only have one instance of this modifier.
     /// </summary>
-    public virtual bool Stackable => false;
+    public virtual bool Unique => true;
 
     /// <summary>
     /// Gets the HUD information for this modifier. Defaults to the modifier name. Does nothing if <see cref="HideOnUi"/> is true.
