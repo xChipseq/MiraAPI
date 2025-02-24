@@ -3,7 +3,6 @@ using UnityEngine;
 
 namespace MiraAPI.Example.Roles;
 
-[RegisterCustomRole]
 public class TeleporterRole : CrewmateRole, ICustomRole
 {
     public string RoleName => "Teleporter";
@@ -19,4 +18,9 @@ public class TeleporterRole : CrewmateRole, ICustomRole
         DefaultChance = 73,
         DefaultRoleCount = 4,
     };
+
+    public bool CanLocalPlayerSeeRole(PlayerControl player)
+    {
+        return true;
+    }
 }

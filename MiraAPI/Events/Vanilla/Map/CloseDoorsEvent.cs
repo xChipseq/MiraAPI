@@ -1,4 +1,4 @@
-﻿namespace MiraAPI.Events.Vanilla;
+﻿namespace MiraAPI.Events.Vanilla.Map;
 
 /// <summary>
 /// Event fired when a player closes the doors in a room.

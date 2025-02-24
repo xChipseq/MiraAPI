@@ -7,7 +7,7 @@ namespace MiraAPI.Roles;
 /// <summary>
 /// Used to configure the specific settings of a role.
 /// </summary>
-public struct CustomRoleConfiguration
+public record struct CustomRoleConfiguration
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="CustomRoleConfiguration"/> struct.
@@ -17,11 +17,6 @@ public struct CustomRoleConfiguration
     {
         var roleBehaviour = role as RoleBehaviour;
 
-        MaxRoleCount = 15;
-        DefaultRoleCount = 0;
-        DefaultChance = 0;
-
-        OptionsScreenshot = Icon = MiraAssets.Empty;
         AffectedByLightOnAirship = role.Team == ModdedRoleTeams.Crewmate;
         KillButtonOutlineColor = role.Team switch
         {
@@ -29,7 +24,6 @@ public struct CustomRoleConfiguration
             ModdedRoleTeams.Crewmate => Palette.CrewmateBlue,
             _ => role.RoleColor,
         };
-        RoleHintType = RoleHintType.RoleTab;
         GhostRole = role.Team is ModdedRoleTeams.Impostor ? RoleTypes.ImpostorGhost : RoleTypes.CrewmateGhost;
         CanGetKilled = roleBehaviour?.IsDead == false && role.Team is not ModdedRoleTeams.Impostor;
         UseVanillaKillButton = role.Team is ModdedRoleTeams.Impostor;
@@ -37,86 +31,92 @@ public struct CustomRoleConfiguration
         CanUseSabotage = role.Team is ModdedRoleTeams.Impostor;
         TasksCountForProgress = role.Team is ModdedRoleTeams.Crewmate;
         HideSettings = roleBehaviour?.IsDead == true;
-        CanModifyChance = true;
+        ShowInFreeplay = roleBehaviour?.IsDead == false;
+        OptionsScreenshot = null;
     }
 
     /// <summary>
-    /// Gets the hard limit of players that can have this role. This property is used to set a limit in the Role Options menu. If set to 0, the role will not be assigned at start.
+    /// Gets or sets the hard limit of players that can have this role. This property is used to set a limit in the Role Options menu. If set to 0, the role will not be assigned at start.
     /// </summary>
-    public int MaxRoleCount;
+    public int MaxRoleCount { get; set; } = 15;
 
     /// <summary>
-    /// Gets the default role count.
+    /// Gets or sets the default role count.
     /// </summary>
-    public int DefaultRoleCount;
+    public int DefaultRoleCount { get; set; } = 0;
 
     /// <summary>
-    /// Gets the default role chance.
+    /// Gets or sets the default role chance.
     /// </summary>
-    public int DefaultChance;
+    public int DefaultChance { get; set; } = 0;
 
     /// <summary>
-    /// Whether the chance option can be changed or not.
+    /// Gets or sets a value indicating whether the chance option can be changed or not.
     /// </summary>
-    public bool CanModifyChance;
+    public bool CanModifyChance { get; set; } = true;
 
     /// <summary>
-    /// Gets the Sprite used for the Role Options menu screenshot.
+    /// Gets or sets the Sprite used for the Role Options menu screenshot.
     /// </summary>
-    public LoadableAsset<Sprite> OptionsScreenshot;
+    public LoadableAsset<Sprite>? OptionsScreenshot { get; set; }
 
     /// <summary>
-    /// Gets the Sprite used for the Role Icon.
+    /// Gets or sets the Sprite used for the Role Icon.
     /// </summary>
-    public LoadableAsset<Sprite> Icon;
+    public LoadableAsset<Sprite> Icon { get; set; } = MiraAssets.Empty;
 
     /// <summary>
-    /// Gets a value indicating whether the role is affected by light affectors on Airship.
+    /// Gets or sets a value indicating whether the role is affected by light affectors on Airship.
     /// </summary>
-    public bool AffectedByLightOnAirship;
+    public bool AffectedByLightOnAirship { get; set; }
 
     /// <summary>
-    /// Gets a value indicating whether the role can be killed by vanilla murder system.
+    /// Gets or sets a value indicating whether the role can be killed by vanilla murder system.
     /// </summary>
-    public bool CanGetKilled;
+    public bool CanGetKilled { get; set; }
 
     /// <summary>
-    /// Gets a value indicating whether the role should use the vanilla kill button.
+    /// Gets or sets a value indicating whether the role should use the vanilla kill button.
     /// </summary>
-    public bool UseVanillaKillButton;
+    public bool UseVanillaKillButton { get; set; }
 
     /// <summary>
-    /// Gets a value indicating whether the role can use vents.
+    /// Gets or sets a value indicating whether the role can use vents.
     /// </summary>
-    public bool CanUseVent;
+    public bool CanUseVent { get; set; }
 
     /// <summary>
-    /// Gets a value indicating whether the role can use the sabotage button.
+    /// Gets or sets a value indicating whether the role can use the sabotage button.
     /// </summary>
-    public bool CanUseSabotage;
+    public bool CanUseSabotage { get; set; }
 
     /// <summary>
-    /// Gets a value indicating whether the role's tasks count towards task progress.
+    /// Gets or sets a value indicating whether the role's tasks count towards task progress.
     /// </summary>
-    public bool TasksCountForProgress;
+    public bool TasksCountForProgress { get; set; }
 
     /// <summary>
-    /// Gets a value indicating whether the role should show up in the Role Options menu.
+    /// Gets or sets a value indicating whether the role should show up in the Role Options menu.
     /// </summary>
-    public bool HideSettings;
+    public bool HideSettings { get; set; }
 
     /// <summary>
-    /// Gets the outline color for the KillButton if <see cref="UseVanillaKillButton"/> is true.
+    /// Gets or sets a value indicating whether the role should show up in the Freeplay Role Selection menu.
     /// </summary>
-    public Color KillButtonOutlineColor;
+    public bool ShowInFreeplay { get; set; }
 
     /// <summary>
-    /// Gets the role hint style. See <see cref="RoleHintType"/> enum for all options.
+    /// Gets or sets the outline color for the KillButton if <see cref="UseVanillaKillButton"/> is true.
     /// </summary>
-    public RoleHintType RoleHintType;
+    public Color KillButtonOutlineColor { get; set; }
 
     /// <summary>
-    /// Gets the Ghost role that is applied when the player is killed.
+    /// Gets or sets the role hint style. See <see cref="RoleHintType"/> enum for all options.
     /// </summary>
-    public RoleTypes GhostRole;
+    public RoleHintType RoleHintType { get; set; } = RoleHintType.RoleTab;
+
+    /// <summary>
+    /// Gets or sets the Ghost role that is applied when the player is killed.
+    /// </summary>
+    public RoleTypes GhostRole { get; set; }
 }

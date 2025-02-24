@@ -3,21 +3,27 @@ using UnityEngine;
 
 namespace MiraAPI.Example.Roles;
 
-[RegisterCustomRole]
 public class NeutralKillerRole : ImpostorRole, ICustomRole
 {
-    public string RoleName => "Neutral Killer";
-    public string RoleDescription => "Neutral who can kill.";
+    public string RoleName => "Outcast Killer";
+    public string RoleDescription => "Outcast who can kill.";
     public string RoleLongDescription => RoleDescription;
     public Color RoleColor => Color.magenta;
-    public ModdedRoleTeams Team => ModdedRoleTeams.Neutral;
+    public ModdedRoleTeams Team => ModdedRoleTeams.Custom;
 
-    public CustomRoleConfiguration Configuration => new CustomRoleConfiguration(this)
+    public CustomRoleConfiguration Configuration => new(this)
     {
         UseVanillaKillButton = true,
         CanGetKilled = true,
         CanUseVent = true,
     };
+
+    public RoleOptionsGroup RoleOptionsGroup { get; } = new("Outcast", Color.gray);
+
+    public TeamIntroConfiguration? IntroConfiguration { get; } = new(
+        Color.gray,
+        "NEUTRAL",
+        "You are an Outcast. You do not have a team.");
 
     public override void SpawnTaskHeader(PlayerControl playerControl)
     {

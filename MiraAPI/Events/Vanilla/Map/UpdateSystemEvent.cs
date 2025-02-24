@@ -1,4 +1,4 @@
-﻿namespace MiraAPI.Events.Vanilla;
+﻿namespace MiraAPI.Events.Vanilla.Map;
 
 /// <summary>
 /// Cancelable event that is invoked before a system is updated. Usually used for sabotage events.

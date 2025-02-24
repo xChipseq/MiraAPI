@@ -2,8 +2,8 @@
 using MiraAPI.Modifiers;
 using MiraAPI.PluginLoading;
 using MiraAPI.Utilities;
-using System.Text;
 using Reactor.Utilities;
+using System.Text;
 using UnityEngine;
 
 namespace MiraAPI.Roles;
@@ -44,6 +44,26 @@ public interface ICustomRole
     CustomRoleConfiguration Configuration { get; }
 
     /// <summary>
+    /// Gets the role options group.
+    /// </summary>
+    public RoleOptionsGroup RoleOptionsGroup => Team switch
+    {
+        ModdedRoleTeams.Crewmate => RoleOptionsGroup.Crewmate,
+        ModdedRoleTeams.Impostor => RoleOptionsGroup.Impostor,
+        ModdedRoleTeams.Custom => RoleOptionsGroup.Neutral,
+        _ => new RoleOptionsGroup(RoleName, RoleColor),
+    };
+
+    /// <summary>
+    /// Gets the role's TeamIntroCutscene configuration.
+    /// </summary>
+    public TeamIntroConfiguration? IntroConfiguration => Team switch
+    {
+        ModdedRoleTeams.Custom => TeamIntroConfiguration.Neutral,
+        _ => null,
+    };
+
+    /// <summary>
     /// Gets the parent mod of this role.
     /// </summary>
     MiraPluginInfo ParentMod => CustomRoleManager.FindParentMod(this);
@@ -63,7 +83,7 @@ public interface ICustomRole
     /// Gets the role chance option.
     /// </summary>
     /// <returns>The role chance option.</returns>
-    public int? GetChance()
+    public virtual int? GetChance()
     {
         if (!Configuration.CanModifyChance)
         {
@@ -82,7 +102,7 @@ public interface ICustomRole
     /// Gets the role count option.
     /// </summary>
     /// <returns>The role count option.</returns>
-    public int? GetCount()
+    public virtual int? GetCount()
     {
         if (ParentMod.PluginConfig.TryGetEntry(NumConfigDefinition, out ConfigEntry<int> entry))
         {
@@ -96,7 +116,7 @@ public interface ICustomRole
     /// Sets the role chance option.
     /// </summary>
     /// <param name="chance">The chance between 0 and 100.</param>
-    public void SetChance(int chance)
+    public virtual void SetChance(int chance)
     {
         if (!Configuration.CanModifyChance)
         {
@@ -117,7 +137,7 @@ public interface ICustomRole
     /// Sets the role count option.
     /// </summary>
     /// <param name="count">The amount of this role between zero and its MaxRoleCount in the Configuration.</param>
-    public void SetCount(int count)
+    public virtual void SetCount(int count)
     {
         if (ParentMod.PluginConfig.TryGetEntry(NumConfigDefinition, out ConfigEntry<int> entry))
         {
@@ -126,6 +146,16 @@ public interface ICustomRole
         }
 
         Logger<MiraApiPlugin>.Error($"Error getting count configuration for role: {RoleName}");
+    }
+
+    /// <summary>
+    /// Whether the local player can see this role.
+    /// </summary>
+    /// <param name="player">The player with the role.</param>
+    /// <returns>Whether they can see the role (name color) or not.</returns>
+    public virtual bool CanLocalPlayerSeeRole(PlayerControl player)
+    {
+        return (PlayerControl.LocalPlayer.Data.Role.IsImpostor && player.Data.Role.IsImpostor) || PlayerControl.LocalPlayer.Data.IsDead;
     }
 
     /// <summary>

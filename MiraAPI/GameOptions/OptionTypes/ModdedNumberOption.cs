@@ -46,6 +46,7 @@ public class ModdedNumberOption : ModdedOption<float>
     /// <param name="max">The maximum value.</param>
     /// <param name="increment">The increment.</param>
     /// <param name="suffixType">The suffix type.</param>
+    /// <param name="formatString">Optional format string for the option screen.</param>
     /// <param name="zeroInfinity">Whether zero is infinity or not.</param>
     /// <param name="roleType">An optional role type.</param>
     public ModdedNumberOption(
@@ -55,6 +56,7 @@ public class ModdedNumberOption : ModdedOption<float>
         float max,
         float increment,
         MiraNumberSuffixes suffixType,
+        string? formatString = null,
         bool zeroInfinity = false,
         Type? roleType = null) : base(title, defaultValue, roleType)
     {
@@ -74,7 +76,13 @@ public class ModdedNumberOption : ModdedOption<float>
         data.Value = Value;
         data.Increment = Increment;
         data.ValidRange = new FloatRange(Min, Max);
-        data.FormatString = Increment % 1 == 0 && Value % 1 == 0 && Min % 1 == 0 && Max % 1 == 0 ? "0" : "0.0"; // not sure if the == checks will work since this is floats but we'll find out
+        data.FormatString = formatString ??
+                            (!Mathf.Approximately(defaultValue, 0) ||
+                             !Mathf.Approximately(Increment % 1, 0) ||
+                             !Mathf.Approximately(Value % 1, 0) ||
+                             !Mathf.Approximately(Min % 1, 0) ||
+                             !Mathf.Approximately(Max % 1, 0) ? "0.0" : "0");
+
         data.ZeroIsInfinity = ZeroInfinity;
         data.SuffixType = (NumberSuffixes)SuffixType;
         data.OptionName = FloatOptionNames.Invalid;

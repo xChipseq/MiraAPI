@@ -1,4 +1,4 @@
-﻿namespace MiraAPI.Events.Vanilla;
+﻿namespace MiraAPI.Events.Vanilla.Usables;
 
 /// <summary>
 /// Event that is invoked when a player exits a vent. This event is cancelable.

@@ -1,11 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using HarmonyLib;
 using MiraAPI.GameOptions;
 using MiraAPI.Networking;
 using MiraAPI.Roles;
 using Reactor.Utilities;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using TMPro;
 using UnityEngine;
 
 namespace MiraAPI.Utilities;
@@ -35,6 +36,16 @@ public static class Extensions
         return new NetData(
             RoleId.Get(role.GetType()),
             BitConverter.GetBytes(count.Value).AddRangeToArray(BitConverter.GetBytes(chance.Value)));
+    }
+
+    /// <summary>
+    /// Enables stencil masking on a TMP text object.
+    /// </summary>
+    /// <param name="text">The TMP text.</param>
+    public static void EnableStencilMasking(this TMP_Text text)
+    {
+        text.fontMaterial.SetFloat(ShaderID.Get("_Stencil"), 1);
+        text.fontMaterial.SetFloat(ShaderID.Get("_StencilComp"), 4);
     }
 
     /// <summary>
@@ -250,5 +261,17 @@ public static class Extensions
             .ToList();
 
         return predicate != null ? filteredPlayers.Find(predicate) : filteredPlayers.FirstOrDefault();
+    }
+
+    /// <summary>
+    /// Fixed version of Reactor's SetOutline.
+    /// </summary>
+    /// <param name="renderer">The renderer you want to update the outline for.</param>
+    /// <param name="color">The outline color.</param>
+    public static void UpdateOutline(this Renderer renderer, Color? color)
+    {
+        renderer.material.SetFloat(ShaderID.Outline, color.HasValue ? 1 : 0);
+        renderer.material.SetColor(ShaderID.OutlineColor, color ?? Color.clear);
+        renderer.material.SetColor(ShaderID.AddColor, color ?? Color.clear);
     }
 }

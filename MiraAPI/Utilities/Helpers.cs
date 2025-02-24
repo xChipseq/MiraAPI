@@ -1,5 +1,5 @@
-﻿using System.Collections;
-using MiraAPI.Roles;
+﻿using MiraAPI.Roles;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -15,6 +15,15 @@ namespace MiraAPI.Utilities;
 /// </summary>
 public static class Helpers
 {
+    /// <summary>
+    /// Get all living players.
+    /// </summary>
+    /// <returns>A list of alive players.</returns>
+    public static List<PlayerControl> GetAlivePlayers()
+    {
+        return PlayerControl.AllPlayerControls.ToArray().Where(x => !x.Data.IsDead).ToList();
+    }
+
     /// <summary>
     /// Returns an empty coroutine.
     /// </summary>
@@ -99,14 +108,14 @@ public static class Helpers
         }
 
         return (from player in newList
-            let vector = player.GetTruePosition() - source
-            let magnitude = vector.magnitude
-            where !PhysicsHelpers.AnyNonTriggersBetween(
-                source,
-                vector.normalized,
-                magnitude,
-                Constants.ShipAndObjectsMask)
-            select player).ToList();
+                let vector = player.GetTruePosition() - source
+                let magnitude = vector.magnitude
+                where !PhysicsHelpers.AnyNonTriggersBetween(
+                    source,
+                    vector.normalized,
+                    magnitude,
+                    Constants.ShipAndObjectsMask)
+                select player).ToList();
     }
 
     /// <summary>
@@ -168,7 +177,7 @@ public static class Helpers
             select playerControl);
 
         outputList.Sort(
-            delegate(PlayerControl a, PlayerControl b)
+            delegate (PlayerControl a, PlayerControl b)
             {
                 var magnitude2 = (a.GetTruePosition() - source).magnitude;
                 var magnitude3 = (b.GetTruePosition() - source).magnitude;

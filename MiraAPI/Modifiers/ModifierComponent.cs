@@ -1,14 +1,14 @@
-﻿using System;
+﻿using Il2CppInterop.Runtime.Attributes;
+using MiraAPI.Modifiers.Types;
+using MiraAPI.Utilities;
+using Reactor.Utilities;
+using Reactor.Utilities.Attributes;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Globalization;
 using System.Linq;
 using System.Text;
-using Il2CppInterop.Runtime.Attributes;
-using MiraAPI.Modifiers.Types;
-using MiraAPI.Utilities;
-using Reactor.Utilities;
-using Reactor.Utilities.Attributes;
 using TMPro;
 using UnityEngine;
 
@@ -107,7 +107,7 @@ public class ModifierComponent(IntPtr cppPtr) : MonoBehaviour(cppPtr)
 
         var baseModifiers = filteredModifiers as BaseModifier[] ?? filteredModifiers.ToArray();
 
-        if (baseModifiers.Length != 0)
+        if (baseModifiers.Length != 0 && !MeetingHud.Instance)
         {
             var stringBuild = new StringBuilder();
             foreach (var mod in baseModifiers)
@@ -120,6 +120,38 @@ public class ModifierComponent(IntPtr cppPtr) : MonoBehaviour(cppPtr)
         {
             _modifierText.text = string.Empty;
         }
+    }
+
+    /// <summary>
+    /// Gets a collection of modifiers by their type, or null if the player doesn't have one.
+    /// </summary>
+    /// <typeparam name="T">The Type of the Modifier.</typeparam>
+    /// <returns>The Modifier if it is found, null otherwise.</returns>
+    public IEnumerable<T> GetModifiersByType<T>() where T : BaseModifier
+    {
+        return ActiveModifiers.OfType<T>();
+    }
+
+    /// <summary>
+    /// Gets a modifier by its type, or null if the player doesn't have it.
+    /// </summary>
+    /// <typeparam name="T">The Type of the Modifier.</typeparam>
+    /// <returns>The Modifier if it is found, null otherwise.</returns>
+    public T? GetModifier<T>() where T : BaseModifier
+    {
+        return GetModifiersByType<T>().FirstOrDefault();
+    }
+
+    /// <summary>
+    /// Tries to get a modifier by its type.
+    /// </summary>
+    /// <param name="modifier">The modifier or null.</param>
+    /// <typeparam name="T">The Type of the Modifier.</typeparam>
+    /// <returns>True if the modifier was found, false otherwise.</returns>
+    public bool TryGetModifier<T>(out T? modifier) where T : BaseModifier
+    {
+        modifier = GetModifier<T>();
+        return modifier != null;
     }
 
     /// <summary>
@@ -228,7 +260,7 @@ public class ModifierComponent(IntPtr cppPtr) : MonoBehaviour(cppPtr)
             return null;
         }
 
-        if (Modifiers.Find(x => x.ModifierId == modifierId) != null)
+        if (Modifiers.Find(x => x.ModifierId == modifierId && x.Unique) != null)
         {
             Logger<MiraApiPlugin>.Error($"Player already has modifier with id {modifierId}!");
             return null;
@@ -260,19 +292,23 @@ public class ModifierComponent(IntPtr cppPtr) : MonoBehaviour(cppPtr)
     /// Checks if a player has an active or queued modifier by its ID.
     /// </summary>
     /// <param name="id">The Modifier ID.</param>
+    /// <param name="predicate">The predicate to check the modifier.</param>
     /// <returns>True if the Modifier is present, false otherwise.</returns>
-    public bool HasModifier(uint id)
+    public bool HasModifier(uint id, Func<BaseModifier, bool>? predicate=null)
     {
-        return ActiveModifiers.Exists(x => x.ModifierId == id) || _toAdd.Exists(x => x.ModifierId == id);
+        return ActiveModifiers.Exists(x => x.ModifierId == id && (predicate == null || predicate(x))) ||
+               _toAdd.Exists(x => x.ModifierId == id && (predicate == null || predicate(x)));
     }
 
     /// <summary>
     /// Checks if a player has an active or queued modifier by its type.
     /// </summary>
+    /// <param name="predicate">The predicate to check the modifier.</param>
     /// <typeparam name="T">The Type of the Modifier.</typeparam>
     /// <returns>True if the Modifier is present, false otherwise.</returns>
-    public bool HasModifier<T>()
+    public bool HasModifier<T>(Func<T, bool>? predicate=null) where T : BaseModifier
     {
-        return ActiveModifiers.Exists(x => x is T) || _toAdd.Exists(x => x is T);
+        return ModifierManager.GetModifierId(typeof(T)) is { } id &&
+               HasModifier(id, (Func<BaseModifier, bool>?)predicate);
     }
 }

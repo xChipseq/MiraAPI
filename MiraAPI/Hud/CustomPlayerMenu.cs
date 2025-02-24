@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using AmongUs.GameOptions;
+﻿using AmongUs.GameOptions;
 using Il2CppInterop.Runtime.Attributes;
 using MiraAPI.Patches.Stubs;
 using Reactor.Utilities.Attributes;
 using Reactor.Utilities.Extensions;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -86,9 +86,15 @@ public class CustomPlayerMenu(IntPtr il2CppPtr) : Minigame(il2CppPtr)
     /// <param name="playerMatch">Function to determine if player should show in the custom menu.</param>
     /// <param name="onClick">Onclick action for player.</param>
     [HideFromIl2Cpp]
-    public void Begin(Func<PlayerControl, bool> playerMatch, Action<PlayerControl> onClick)
+    public void Begin(Func<PlayerControl, bool> playerMatch, Action<PlayerControl?> onClick)
     {
         MinigameStubs.Begin(this, null);
+
+        var back = BackButton.GetComponent<PassiveButton>();
+        back.OnClick.AddListener((UnityAction)(() =>
+        {
+            onClick(null);
+        }));
 
         DestroyableSingleton<DebugAnalytics>.Instance.Analytics.MinigameOpened(PlayerControl.LocalPlayer.Data, TaskType);
         var list = PlayerControl.AllPlayerControls.ToArray().Where(playerMatch).ToList();

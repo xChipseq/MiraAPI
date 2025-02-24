@@ -5,10 +5,10 @@ using UnityEngine;
 namespace MiraAPI.Patches.Roles;
 
 [HarmonyPatch(typeof(RoleBehaviour))]
-public static class RoleBehaviourPatches
+public static class RoleBehaviourPatch
 {
     /// <summary>
-    /// Update TeamColor text for Launchpad roles
+    /// Update TeamColor text for Mira roles.
     /// </summary>
     [HarmonyPrefix]
     [HarmonyPatch(nameof(RoleBehaviour.TeamColor), MethodType.Getter)]

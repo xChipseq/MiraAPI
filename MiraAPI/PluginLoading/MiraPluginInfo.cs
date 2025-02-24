@@ -5,6 +5,7 @@ using MiraAPI.GameOptions;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using MiraAPI.Hud;
+using MiraAPI.Modifiers;
 
 namespace MiraAPI.PluginLoading;
 
@@ -19,6 +20,15 @@ public class MiraPluginInfo
         PluginConfig = miraPlugin.GetConfigFile();
         PluginInfo = info;
         PluginId = info.Metadata.GUID;
+    }
+
+    /// <summary>
+    /// Get a read only collection of this plugin's modifiers. This is probably not safe because they are uninitialized.
+    /// </summary>
+    /// <returns>Readonly collection of modifiers.</returns>
+    public IReadOnlyCollection<BaseModifier> GetModifiers()
+    {
+        return Modifiers.AsReadOnly();
     }
 
     /// <summary>
@@ -60,6 +70,8 @@ public class MiraPluginInfo
     internal List<AbstractOptionGroup> OptionGroups { get; } = [];
 
     internal List<IModdedOption> Options { get; } = [];
+
+    internal List<BaseModifier> Modifiers { get; } = [];
 
     internal Dictionary<ushort, RoleBehaviour> CustomRoles { get; } = [];
 

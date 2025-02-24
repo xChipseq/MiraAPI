@@ -10,7 +10,6 @@ using UnityEngine;
 
 namespace MiraAPI.Example.Buttons.Freezer;
 
-[RegisterButton]
 public class FreezeButton : CustomActionButton<PlayerControl>
 {
     public override string Name => "Freeze";

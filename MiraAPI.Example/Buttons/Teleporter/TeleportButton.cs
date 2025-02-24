@@ -9,7 +9,6 @@ using UnityEngine;
 
 namespace MiraAPI.Example.Buttons.Teleporter;
 
-[RegisterButton]
 public class TeleportButton : CustomActionButton
 {
     public override string Name => "Teleport";
@@ -17,6 +16,7 @@ public class TeleportButton : CustomActionButton
     public override float Cooldown => OptionGroupSingleton<TeleporterOptions>.Instance.TeleportCooldown.Value;
 
     public override float EffectDuration => OptionGroupSingleton<TeleporterOptions>.Instance.TeleportDuration;
+    public override int MaxUses => 2;
 
     public override LoadableAsset<Sprite> Sprite => ExampleAssets.TeleportButton;
 
