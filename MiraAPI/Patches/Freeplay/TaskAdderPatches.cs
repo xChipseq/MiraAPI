@@ -338,12 +338,12 @@ internal static class TaskAdderPatches
             {
                 if (PlayerControl.LocalPlayer.HasModifier(modifier.ModifierId))
                 {
-                    PlayerControl.LocalPlayer.GetModifierComponent()!.RemoveModifier(modifier.ModifierId);
+                    PlayerControl.LocalPlayer.RemoveModifier(modifier.ModifierId);
                     taskAddButton.Overlay.enabled = false;
                 }
                 else
                 {
-                    PlayerControl.LocalPlayer.GetModifierComponent()!.AddModifier(ModifierManager.GetModifierType(modifier.ModifierId)!);
+                    PlayerControl.LocalPlayer.AddModifier(ModifierManager.GetModifierType(modifier.ModifierId)!);
                     taskAddButton.Overlay.enabled = true;
                 }
             }));
