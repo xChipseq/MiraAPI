@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using MiraAPI.Modifiers.Types;
 using MiraAPI.Networking;
+using MiraAPI.PluginLoading;
 using MiraAPI.Roles;
 using MiraAPI.Utilities;
 using Reactor.Networking.Rpc;
@@ -49,7 +51,7 @@ public static class ModifierManager
         return TypeToIdModifierMap.GetValueOrDefault(type);
     }
 
-    internal static bool RegisterModifier(Type modifierType)
+    internal static bool RegisterModifier(Type modifierType, MiraPluginInfo info)
     {
         if (!typeof(BaseModifier).IsAssignableFrom(modifierType))
         {
@@ -58,6 +60,9 @@ public static class ModifierManager
 
         IdToTypeModifierMap.Add(GetNextId(), modifierType);
         TypeToIdModifierMap.Add(modifierType, _nextId);
+        var bm = (BaseModifier)FormatterServices.GetUninitializedObject(modifierType); // this probably isn't a great idea
+        bm.ModifierId = _nextId;
+        info.Modifiers.Add(bm);
 
         if (!typeof(GameModifier).IsAssignableFrom(modifierType))
         {

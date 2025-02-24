@@ -8,6 +8,7 @@ using Reactor.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 
 namespace MiraAPI.Utilities;
@@ -37,6 +38,16 @@ public static class Extensions
         return new NetData(
             RoleId.Get(role.GetType()),
             BitConverter.GetBytes(count.Value).AddRangeToArray(BitConverter.GetBytes(chance.Value)));
+    }
+
+    /// <summary>
+    /// Enables Among Us style masking on a TMP text object.
+    /// </summary>
+    /// <param name="text">The TMP text.</param>
+    public static void EnableStencilMasking(this TMP_Text text)
+    {
+        text.fontMaterial.SetFloat(ShaderID.Get("_Stencil"), 1);
+        text.fontMaterial.SetFloat(ShaderID.Get("_StencilComp"), 4);
     }
 
     /// <summary>
