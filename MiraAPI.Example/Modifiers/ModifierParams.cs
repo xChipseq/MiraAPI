@@ -3,7 +3,6 @@ using Reactor.Utilities;
 
 namespace MiraAPI.Example.Modifiers;
 
-[RegisterModifier]
 public class ModifierParams : BaseModifier
 {
     public override string ModifierName => "ModifierParams";

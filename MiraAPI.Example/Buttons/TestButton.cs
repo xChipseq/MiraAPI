@@ -7,7 +7,6 @@ using UnityEngine;
 
 namespace MiraAPI.Example.Buttons;
 
-[RegisterButton]
 public class TestButton : CustomActionButton
 {
     public override string Name => "Test Button";
