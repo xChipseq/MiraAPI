@@ -41,7 +41,7 @@ public static class Extensions
     }
 
     /// <summary>
-    /// Enables Among Us style masking on a TMP text object.
+    /// Enables stencil masking on a TMP text object.
     /// </summary>
     /// <param name="text">The TMP text.</param>
     public static void EnableStencilMasking(this TMP_Text text)
