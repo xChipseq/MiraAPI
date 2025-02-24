@@ -31,5 +31,6 @@ internal static class TaskAddButtonPatches
         {
             __instance.FileImage.color = customRole.IntroConfiguration?.IntroTeamColor ?? Color.gray;
         }
+        __instance.RolloverHandler.OutColor = __instance.FileImage.color;
     }
 }
