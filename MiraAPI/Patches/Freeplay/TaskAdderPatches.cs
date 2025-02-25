@@ -326,7 +326,7 @@ internal static class TaskAdderPatches
             }
 
             var taskAddButton = Object.Instantiate(instance.RoleButton);
-            taskAddButton.name = modifier.GetId().ToString(NumberFormatInfo.InvariantInfo);
+            taskAddButton.name = modifier.TypeId.ToString(NumberFormatInfo.InvariantInfo);
             taskAddButton.role = null;
             taskAddButton.MyTask = null;
             taskAddButton.SafePositionWorld = instance.SafePositionWorld;
@@ -336,10 +336,10 @@ internal static class TaskAdderPatches
             taskAddButton.Button.OnClick = new Button.ButtonClickedEvent();
             taskAddButton.Button.OnClick.AddListener((UnityEngine.Events.UnityAction)(() =>
             {
-                var id = modifier.GetId();
-                if (PlayerControl.LocalPlayer.HasModifier(id))
+                var id = modifier.TypeId;
+                if (PlayerControl.LocalPlayer.HasModifierByTypeId(id))
                 {
-                    PlayerControl.LocalPlayer.RemoveModifier(id);
+                    PlayerControl.LocalPlayer.RemoveModifierByTypeId(id);
                     taskAddButton.Overlay.enabled = false;
                 }
                 else

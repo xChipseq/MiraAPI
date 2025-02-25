@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using MiraAPI.Modifiers.Types;
 using MiraAPI.Networking;
+using MiraAPI.Networking.Modifiers;
 using MiraAPI.PluginLoading;
 using MiraAPI.Roles;
 using MiraAPI.Utilities;
@@ -23,16 +24,16 @@ public static class ModifierManager
     private static readonly Dictionary<Type, uint> TypeToIdModifierMap = [];
     private static readonly Dictionary<int, List<uint>> PrioritiesToIdsMap = [];
 
-    private static uint _nextId;
+    private static uint _nextTypeId;
 
-    private static uint GetNextId()
+    private static uint GetNextTypeId()
     {
-        _nextId++;
-        return _nextId;
+        _nextTypeId++;
+        return _nextTypeId;
     }
 
     /// <summary>
-    /// Gets the modifier type from the id.
+    /// Gets the modifier type from the type id.
     /// </summary>
     /// <param name="id">The ID.</param>
     /// <returns>The Type of the modifier.</returns>
@@ -46,7 +47,7 @@ public static class ModifierManager
     /// </summary>
     /// <param name="type">The Type.</param>
     /// <returns>The ID of the modifier.</returns>
-    public static uint? GetModifierId(Type type)
+    public static uint? GetModifierTypeId(Type type)
     {
         if (!TypeToIdModifierMap.TryGetValue(type, out var id))
         {
@@ -63,8 +64,8 @@ public static class ModifierManager
             return false;
         }
 
-        IdToTypeModifierMap.Add(GetNextId(), modifierType);
-        TypeToIdModifierMap.Add(modifierType, _nextId);
+        IdToTypeModifierMap.Add(GetNextTypeId(), modifierType);
+        TypeToIdModifierMap.Add(modifierType, _nextTypeId);
         var bm = (BaseModifier)FormatterServices.GetUninitializedObject(modifierType); // this probably isn't a great idea
         info.Modifiers.Add(bm);
 
@@ -81,7 +82,7 @@ public static class ModifierManager
             PrioritiesToIdsMap[priority] = list = [];
         }
 
-        list.Add(_nextId);
+        list.Add(_nextTypeId);
         return true;
     }
 
@@ -143,7 +144,7 @@ public static class ModifierManager
                 var mod = Activator.CreateInstance(IdToTypeModifierMap[id]) as GameModifier;
                 var plr = plrs.Where(x => IsGameModifierValid(x, mod!, id)).Random();
 
-                if (plr == null)
+                if (!plr || plr == null)
                 {
                     Logger<MiraApiPlugin>.Warning($"Somehow valid players for modifier {mod!.ModifierName} disappeared");
                 }
@@ -158,8 +159,7 @@ public static class ModifierManager
     private static bool IsGameModifierValid(PlayerControl player, GameModifier modifier, uint modifierId)
     {
         return (player.Data.Role is not ICustomRole role || role.IsModifierApplicable(modifier)) &&
-               modifier.IsModifierValidOn(player.Data.Role) &&
-               !player.HasModifier(modifierId);
+               modifier.IsModifierValidOn(player.Data.Role) && !player.HasModifierByTypeId(modifierId);
     }
 
     internal static void SyncAllModifiers(int targetId = -1)

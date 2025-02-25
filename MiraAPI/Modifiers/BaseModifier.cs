@@ -43,13 +43,14 @@ public abstract class BaseModifier
     public bool Initialized { get; internal set; }
 
     /// <summary>
-    /// Get the ID of the modifier.
+    /// Gets the unique ID of the modifier.
     /// </summary>
-    /// <returns>The ID of the modifier.</returns>
-    public uint GetId()
-    {
-        return ModifierManager.GetModifierId(GetType()) ?? throw new InvalidOperationException("Modifier is not registered.");
-    }
+    public uint UniqueId { get; internal set; }
+
+    /// <summary>
+    /// Gets the type ID of the modifier.
+    /// </summary>
+    public uint TypeId => ModifierManager.GetModifierTypeId(GetType()) ?? throw new InvalidOperationException("Modifier is not registered.");
 
     /// <summary>
     /// Gets the HUD information for this modifier. Defaults to the modifier name. Does nothing if <see cref="HideOnUi"/> is true.

@@ -5,7 +5,7 @@ using Reactor.Networking.Attributes;
 using Reactor.Networking.Rpc;
 using Reactor.Networking.Serialization;
 
-namespace MiraAPI.Networking;
+namespace MiraAPI.Networking.Modifiers;
 
 /// <summary>
 /// Remote procedure call for adding a modifier.

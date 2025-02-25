@@ -24,7 +24,7 @@ public static class EndGameDidWinPatch
 
             var didWin = networkedPlayerInfo.Role.DidWin(gameOverReason);
 
-            var modifierWin = networkedPlayerInfo.Object?.GetModifierComponent()?.ActiveModifiers.OfType<GameModifier>()
+            var modifierWin = networkedPlayerInfo.Object?.GetModifierComponent().GetModifiers<GameModifier>()
                 .FirstOrDefault(x => x.DidWin(gameOverReason) != null)?.DidWin(gameOverReason);
             if (modifierWin != null)
             {

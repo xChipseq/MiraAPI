@@ -1,4 +1,4 @@
-﻿namespace MiraAPI.Events.Vanilla;
+﻿namespace MiraAPI.Events.Vanilla.Usables;
 
 /// <summary>
 /// Event for <see cref="PlayerControl"/> using a <see cref="IUsable"/> from Vanilla Among Us. Will always be ran locally.

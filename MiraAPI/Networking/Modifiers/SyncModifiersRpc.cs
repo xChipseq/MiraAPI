@@ -3,7 +3,7 @@ using MiraAPI.Modifiers;
 using Reactor.Networking.Attributes;
 using Reactor.Networking.Rpc;
 
-namespace MiraAPI.Networking;
+namespace MiraAPI.Networking.Modifiers;
 
 [RegisterCustomRpc((uint)MiraRpc.SyncModifiers)]
 internal sealed class SyncModifiersRpc(MiraApiPlugin plugin, uint id) : PlayerCustomRpc<MiraApiPlugin, NetData[]>(plugin, id)

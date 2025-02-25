@@ -1,8 +1,8 @@
 ﻿using HarmonyLib;
 using MiraAPI.Events;
-using MiraAPI.Events.Vanilla;
 using System.Collections.Generic;
 using System.Reflection;
+using MiraAPI.Events.Vanilla.Usables;
 
 namespace MiraAPI.Patches.Events;
 

@@ -15,6 +15,12 @@ public class TestButton : CustomActionButton
 
     protected override void OnClick()
     {
+        if (PlayerControl.LocalPlayer.HasModifier<ModifierParams>())
+        {
+            PlayerControl.LocalPlayer.RpcRemoveModifier<ModifierParams>();
+            return;
+        }
+
         var randomPlayer = PlayerControl.AllPlayerControls.ToArray().Random();
         PlayerControl.LocalPlayer.RpcAddModifier<ModifierParams>("test", 1, randomPlayer);
     }
