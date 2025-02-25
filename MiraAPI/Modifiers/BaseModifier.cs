@@ -1,4 +1,6 @@
-﻿namespace MiraAPI.Modifiers;
+﻿using System;
+
+namespace MiraAPI.Modifiers;
 
 /// <summary>
 /// Base class for all modifiers.
@@ -14,11 +16,6 @@ public abstract class BaseModifier
     /// Gets the modifier component that the modifier is attached to.
     /// </summary>
     public ModifierComponent? ModifierComponent { get; internal set; }
-
-    /// <summary>
-    /// Gets the modifier id.
-    /// </summary>
-    public uint ModifierId { get; internal set; }
 
     /// <summary>
     /// Gets the modifier name.
@@ -39,6 +36,20 @@ public abstract class BaseModifier
     /// Gets a value indicating whether the modifier is unique. If true, the player can only have one instance of this modifier.
     /// </summary>
     public virtual bool Unique => true;
+
+    /// <summary>
+    /// Gets a value indicating whether the modifier has been initialized.
+    /// </summary>
+    public bool Initialized { get; internal set; }
+
+    /// <summary>
+    /// Get the ID of the modifier.
+    /// </summary>
+    /// <returns>The ID of the modifier.</returns>
+    public uint GetId()
+    {
+        return ModifierManager.GetModifierId(GetType()) ?? throw new InvalidOperationException("Modifier is not registered.");
+    }
 
     /// <summary>
     /// Gets the HUD information for this modifier. Defaults to the modifier name. Does nothing if <see cref="HideOnUi"/> is true.

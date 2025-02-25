@@ -48,7 +48,12 @@ public static class ModifierManager
     /// <returns>The ID of the modifier.</returns>
     public static uint? GetModifierId(Type type)
     {
-        return TypeToIdModifierMap.GetValueOrDefault(type);
+        if (!TypeToIdModifierMap.TryGetValue(type, out var id))
+        {
+            return null;
+        }
+
+        return id;
     }
 
     internal static bool RegisterModifier(Type modifierType, MiraPluginInfo info)
@@ -61,7 +66,6 @@ public static class ModifierManager
         IdToTypeModifierMap.Add(GetNextId(), modifierType);
         TypeToIdModifierMap.Add(modifierType, _nextId);
         var bm = (BaseModifier)FormatterServices.GetUninitializedObject(modifierType); // this probably isn't a great idea
-        bm.ModifierId = _nextId;
         info.Modifiers.Add(bm);
 
         if (!typeof(GameModifier).IsAssignableFrom(modifierType))

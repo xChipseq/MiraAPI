@@ -126,6 +126,6 @@ public static class PlayerControlPatches
     [HarmonyPatch(nameof(PlayerControl.OnDestroy))]
     public static void PlayerControlOnDestroyPrefix(PlayerControl __instance)
     {
-        Utilities.ModifierExtensions.ModifierComponents.Remove(__instance);
+        ModifierExtensions.ModifierComponents.Remove(__instance);
     }
 }

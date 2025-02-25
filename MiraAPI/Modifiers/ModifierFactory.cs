@@ -1,18 +1,28 @@
 ﻿using System;
-using System.Linq;
 using System.Linq.Expressions;
 
 namespace MiraAPI.Modifiers;
 
+/// <summary>
+/// Factory for creating instances of a modifier. More efficient than using reflection.
+/// </summary>
 public static class ModifierFactory
 {
     private static Func<object[], BaseModifier>? _constructor;
 
-    private static Func<object[], BaseModifier> CreateConstructor(Type type)
+    private static Func<object[], BaseModifier> CreateConstructor(Type type, params object[] args)
     {
-        var constructorInfo = type.GetConstructors()
-            .OrderByDescending(c => c.GetParameters().Length)
-            .FirstOrDefault() ?? throw new InvalidOperationException($"Type {type} does not have a public constructor.");
+        var constructorInfo = Array.Find(
+            type.GetConstructors(),
+            x =>
+            {
+                var parameters = x.GetParameters();
+                return parameters.Length == args.Length && Array.TrueForAll(
+                    parameters,
+                    t => t.ParameterType.IsInstanceOfType(args[t.Position]));
+            }) ?? throw new InvalidOperationException(
+            $"Could not find a constructor for type {type} with the specified arguments.");
+
         var parameters = constructorInfo.GetParameters();
 
         var argsParam = Expression.Parameter(typeof(object[]), "args");
@@ -32,9 +42,15 @@ public static class ModifierFactory
         return lambda.Compile();
     }
 
+    /// <summary>
+    /// Creates a modifier with the specified type and arguments.
+    /// </summary>
+    /// <param name="type">Modifier type.</param>
+    /// <param name="args">Arguments.</param>
+    /// <returns>An instance of the modifier.</returns>
     public static BaseModifier CreateInstance(Type type, params object[] args)
     {
-        _constructor ??= CreateConstructor(type);
+        _constructor ??= CreateConstructor(type, args);
         return _constructor(args);
     }
 }
@@ -47,11 +63,18 @@ public static class ModifierFactory<T> where T : BaseModifier
 {
     private static readonly Func<object[], T> Constructor = CreateConstructor();
 
-    private static Func<object[], T> CreateConstructor()
+    private static Func<object[], T> CreateConstructor(params object[] args)
     {
-        var constructorInfo = typeof(T).GetConstructors()
-            .OrderByDescending(c => c.GetParameters().Length)
-            .FirstOrDefault() ?? throw new InvalidOperationException($"Type {typeof(T)} does not have a public constructor.");
+        var constructorInfo = Array.Find(
+            typeof(T).GetConstructors(),
+            x =>
+            {
+                var parameters = x.GetParameters();
+                return parameters.Length == args.Length && Array.TrueForAll(
+                    parameters,
+                    t => t.ParameterType.IsInstanceOfType(args[t.Position]));
+            }) ?? throw new InvalidOperationException($"Could not find a constructor for type {typeof(T)} with the specified arguments.");
+
         var parameters = constructorInfo.GetParameters();
 
         var argsParam = Expression.Parameter(typeof(object[]), "args");

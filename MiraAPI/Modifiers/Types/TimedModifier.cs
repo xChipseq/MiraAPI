@@ -102,7 +102,7 @@ public abstract class TimedModifier : BaseModifier
 
         if (RemoveOnComplete)
         {
-            ModifierComponent?.RemoveModifier(ModifierId);
+            ModifierComponent?.RemoveModifier(this);
         }
     }
 

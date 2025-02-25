@@ -67,6 +67,7 @@ public class ModifierComponent(IntPtr cppPtr) : MonoBehaviour(cppPtr)
         foreach (var modifier in _toAdd)
         {
             Modifiers.Add(modifier);
+            modifier.Initialized = true;
             modifier.OnActivate();
 
             if (modifier is TimedModifier { AutoStart: true } timer)
@@ -123,46 +124,153 @@ public class ModifierComponent(IntPtr cppPtr) : MonoBehaviour(cppPtr)
     }
 
     /// <summary>
-    /// Gets a collection of modifiers by their type, or null if the player doesn't have one.
+    /// Gets a collection of modifiers by type.
     /// </summary>
+    /// <param name="predicate">The predicate to check the modifier by.</param>
     /// <typeparam name="T">The Type of the Modifier.</typeparam>
     /// <returns>The Modifier if it is found, null otherwise.</returns>
-    public IEnumerable<T> GetModifiersByType<T>() where T : BaseModifier
+    [HideFromIl2Cpp]
+    public IEnumerable<T> GetModifiersByType<T>(Func<T, bool>? predicate=null) where T : BaseModifier
     {
-        return ActiveModifiers.OfType<T>();
+        return ActiveModifiers.OfType<T>().Where(x => predicate == null || predicate(x));
     }
 
     /// <summary>
-    /// Gets a modifier by its type, or null if the player doesn't have it.
+    /// Gets a collection of modifiers by type.
     /// </summary>
-    /// <typeparam name="T">The Type of the Modifier.</typeparam>
+    /// <param name="type">The modifier type.</param>
+    /// <param name="predicate">The predicate to check the modifier by.</param>
     /// <returns>The Modifier if it is found, null otherwise.</returns>
-    public T? GetModifier<T>() where T : BaseModifier
+    [HideFromIl2Cpp]
+    public IEnumerable<BaseModifier> GetModifiersByType(Type type, Func<BaseModifier, bool>? predicate=null)
     {
-        return GetModifiersByType<T>().FirstOrDefault();
+        return ActiveModifiers.Where(x => x.GetType() == type && (predicate == null || predicate(x)));
+    }
+
+    /// <summary>
+    /// Gets a collection of modifiers by ID.
+    /// </summary>
+    /// <param name="id">The Modifier ID.</param>
+    /// <param name="predicate">The predicate to check the modifier by.</param>
+    /// <returns>The Modifier if it is found, null otherwise.</returns>
+    [HideFromIl2Cpp]
+    public IEnumerable<BaseModifier> GetModifiersByType(uint id, Func<BaseModifier, bool>? predicate=null)
+    {
+        var type = ModifierManager.GetModifierType(id) ?? throw new InvalidOperationException(
+            $"Cannot get modifier with id {id} because it is not registered.");
+
+        return GetModifiersByType(type, predicate);
     }
 
     /// <summary>
     /// Tries to get a modifier by its type.
     /// </summary>
     /// <param name="modifier">The modifier or null.</param>
+    /// <param name="predicate">The predicate to check the modifier by.</param>
     /// <typeparam name="T">The Type of the Modifier.</typeparam>
     /// <returns>True if the modifier was found, false otherwise.</returns>
-    public bool TryGetModifier<T>(out T? modifier) where T : BaseModifier
+    [HideFromIl2Cpp]
+    public bool TryGetModifier<T>(out T? modifier, Func<T, bool>? predicate = null) where T : BaseModifier
     {
-        modifier = GetModifier<T>();
+        modifier = GetModifier(predicate);
         return modifier != null;
+    }
+
+    /// <summary>
+    /// Tries to get a modifier by its type.
+    /// </summary>
+    /// <param name="type">The modifier type.</param>
+    /// <param name="modifier">The modifier or null.</param>
+    /// <param name="predicate">The predicate to check the modifier by.</param>
+    /// <returns>True if the modifier was found, false otherwise.</returns>
+    [HideFromIl2Cpp]
+    public bool TryGetModifier(Type type, out BaseModifier? modifier, Func<BaseModifier, bool>? predicate = null)
+    {
+        modifier = GetModifier(type, predicate);
+        return modifier != null;
+    }
+
+    /// <summary>
+    /// Tries to get a modifier by its ID.
+    /// </summary>
+    /// <param name="id">The modifier ID.</param>
+    /// <param name="modifier">The modifier or null.</param>
+    /// <param name="predicate">The predicate to check the modifier by.</param>
+    /// <returns>True if the modifier was found, false otherwise.</returns>
+    [HideFromIl2Cpp]
+    public bool TryGetModifier(uint id, out BaseModifier? modifier, Func<BaseModifier, bool>? predicate = null)
+    {
+        var type = ModifierManager.GetModifierType(id) ?? throw new InvalidOperationException(
+            $"Cannot get modifier with id {id} because it is not registered.");
+
+        return TryGetModifier(type, out modifier, predicate);
+    }
+
+    /// <summary>
+    /// Gets a modifier by its type, or null if the player doesn't have it.
+    /// </summary>
+    /// <param name="predicate">The predicate to check the modifier by.</param>
+    /// <typeparam name="T">The Type of the Modifier.</typeparam>
+    /// <returns>The Modifier if it is found, null otherwise.</returns>
+    [HideFromIl2Cpp]
+    public T? GetModifier<T>(Func<T, bool>? predicate = null) where T : BaseModifier
+    {
+        return GetModifiersByType(predicate).FirstOrDefault();
+    }
+
+    /// <summary>
+    /// Gets a modifier by its type, or null if the player doesn't have it.
+    /// </summary>
+    /// <param name="type">The modifier type.</param>
+    /// <param name="predicate">The predicate to check the modifier by.</param>
+    /// <returns>The Modifier if it is found, null otherwise.</returns>
+    [HideFromIl2Cpp]
+    public BaseModifier? GetModifier(Type type, Func<BaseModifier, bool>? predicate = null)
+    {
+        return GetModifiersByType(type).FirstOrDefault(predicate ?? (_ => true));
+    }
+
+    /// <summary>
+    /// Gets a modifier by its type, or null if the player doesn't have it.
+    /// </summary>
+    /// <param name="id">The modifier ID.</param>
+    /// <param name="predicate">The predicate to check the modifier by.</param>
+    /// <returns>The Modifier if it is found, null otherwise.</returns>
+    [HideFromIl2Cpp]
+    public BaseModifier? GetModifier(uint id, Func<BaseModifier, bool>? predicate = null)
+    {
+        var type = ModifierManager.GetModifierType(id) ?? throw new InvalidOperationException(
+            $"Cannot get modifier with id {id} because it is not registered.");
+
+        return GetModifier(type, predicate);
+    }
+
+    /// <summary>
+    /// Removes a modifier from the player.
+    /// </summary>
+    /// <typeparam name="T">The modifier type.</typeparam>
+    /// <param name="predicate">The predicate to check the modifier by.</param>
+    [HideFromIl2Cpp]
+    public void RemoveModifier<T>(Func<T, bool>? predicate = null) where T : BaseModifier
+    {
+        RemoveModifier(typeof(T), x => predicate == null || predicate((T)x));
     }
 
     /// <summary>
     /// Removes a modifier from the player.
     /// </summary>
     /// <param name="type">The modifier type.</param>
+    /// <param name="predicate">The predicate to check the modifier by.</param>
     [HideFromIl2Cpp]
-    public void RemoveModifier(Type type)
+    public void RemoveModifier(Type type, Func<BaseModifier, bool>? predicate = null)
     {
-        var modifier = Modifiers.Find(x => x.GetType() == type);
+        var modifiers = Modifiers.Where(x => x.GetType() == type && (predicate == null || predicate(x))).ToList();
+        if (modifiers.Count > 1)
+        {
+            throw new InvalidOperationException($"Cannot remove modifier {type.Name} because there are multiple instances of that modifier.");
+        }
 
+        var modifier = modifiers.FirstOrDefault();
         if (modifier is null)
         {
             Logger<MiraApiPlugin>.Error($"Cannot remove modifier {type.Name} because it is not active.");
@@ -175,29 +283,14 @@ public class ModifierComponent(IntPtr cppPtr) : MonoBehaviour(cppPtr)
     /// <summary>
     /// Removes a modifier from the player.
     /// </summary>
-    /// <typeparam name="T">The modifier type.</typeparam>
-    [HideFromIl2Cpp]
-    public void RemoveModifier<T>() where T : BaseModifier
-    {
-        RemoveModifier(typeof(T));
-    }
-
-    /// <summary>
-    /// Removes a modifier from the player.
-    /// </summary>
     /// <param name="modifierId">The modifier ID.</param>
+    /// <param name="predicate">The predicate to check the modifier by.</param>
     [HideFromIl2Cpp]
-    public void RemoveModifier(uint modifierId)
+    public void RemoveModifier(uint modifierId, Func<BaseModifier, bool>? predicate = null)
     {
-        var modifier = Modifiers.Find(x => x.ModifierId == modifierId);
-
-        if (modifier is null)
-        {
-            Logger<MiraApiPlugin>.Error($"Cannot remove modifier with id {modifierId} because it is not active.");
-            return;
-        }
-
-        RemoveModifier(modifier);
+        var type = ModifierManager.GetModifierType(modifierId) ?? throw new InvalidOperationException(
+            $"Cannot remove modifier with id {modifierId} because it is not registered.");
+        RemoveModifier(type, predicate);
     }
 
     /// <summary>
@@ -219,29 +312,39 @@ public class ModifierComponent(IntPtr cppPtr) : MonoBehaviour(cppPtr)
     /// <summary>
     /// Adds a modifier to the player.
     /// </summary>
+    /// <param name="args">The arguments to initialize the modifier constructor with.</param>
+    /// <typeparam name="T">The Type of the modifier.</typeparam>
+    /// <returns>The new modifier.</returns>
+    [HideFromIl2Cpp]
+    public T? AddModifier<T>(params object[] args) where T : BaseModifier
+    {
+        return AddModifier(typeof(T), args) as T;
+    }
+
+    /// <summary>
+    /// Adds a modifier to the player.
+    /// </summary>
     /// <param name="modifier">The modifier to add.</param>
     /// <returns>The modifier that was added.</returns>
     [HideFromIl2Cpp]
     public BaseModifier? AddModifier(BaseModifier modifier)
     {
-        if (Modifiers.Contains(modifier))
+        var id = modifier.GetId();
+        if (modifier.Unique && Modifiers.Find(x => x.GetId() == id) != null)
         {
-            Logger<MiraApiPlugin>.Error($"Player already has modifier with id {modifier.ModifierId}!");
+            Logger<MiraApiPlugin>.Error($"Player already has modifier with id {id}!");
             return null;
         }
 
-        var modifierId = ModifierManager.GetModifierId(modifier.GetType());
-
-        if (modifierId == null)
+        if (Modifiers.Contains(modifier))
         {
-            Logger<MiraApiPlugin>.Error($"Cannot add modifier {modifier.GetType().Name} because it has no ID!");
+            Logger<MiraApiPlugin>.Error($"Player already has this modifier!");
             return null;
         }
 
         _toAdd.Add(modifier);
         modifier.Player = _player;
         modifier.ModifierComponent = this;
-        modifier.ModifierId = modifierId.Value;
         return modifier;
     }
 
@@ -249,66 +352,79 @@ public class ModifierComponent(IntPtr cppPtr) : MonoBehaviour(cppPtr)
     /// Adds a modifier to the player.
     /// </summary>
     /// <param name="type">The modifier type.</param>
+    /// <param name="args">The arguments to initialize the modifier constructor with.</param>
     /// <returns>The modifier that was added.</returns>
     [HideFromIl2Cpp]
-    public BaseModifier? AddModifier(Type type)
+    public BaseModifier? AddModifier(Type type, params object[] args)
     {
-        var modifierId = ModifierManager.GetModifierId(type);
-        if (modifierId == null)
+        BaseModifier? modifier;
+        if (args.Length > 0)
         {
-            Logger<MiraApiPlugin>.Error($"Cannot add modifier {type.Name} because it is not registered.");
-            return null;
+            modifier = ModifierFactory.CreateInstance(type, args);
+        }
+        else
+        {
+            modifier = Activator.CreateInstance(type) as BaseModifier;
+            if (modifier == null)
+            {
+                throw new InvalidOperationException($"Cannot add modifier {type.Name} because it is not a valid modifier.");
+            }
         }
 
-        if (Modifiers.Find(x => x.ModifierId == modifierId && x.Unique) != null)
-        {
-            Logger<MiraApiPlugin>.Error($"Player already has modifier with id {modifierId}!");
-            return null;
-        }
-
-        if (Activator.CreateInstance(type) is not BaseModifier modifier)
-        {
-            Logger<MiraApiPlugin>.Error($"Cannot add modifier {type.Name} because it is null.");
-            return null;
-        }
-
-        AddModifier(modifier);
-
-        return modifier;
+        return AddModifier(modifier);
     }
 
     /// <summary>
     /// Adds a modifier to the player.
     /// </summary>
-    /// <typeparam name="T">The Type of the modifier.</typeparam>
-    /// <returns>The new modifier.</returns>
+    /// <param name="id">The ID of the modifier.</param>
+    /// <param name="args">The arguments to initialize the modifier constructor with.</param>
+    /// <returns>The modifier if it was created, or null if it failed.</returns>
     [HideFromIl2Cpp]
-    public T? AddModifier<T>() where T : BaseModifier
+    public BaseModifier? AddModifier(uint id, params object[] args)
     {
-        return AddModifier(typeof(T)) as T;
+        var type = ModifierManager.GetModifierType(id) ?? throw new InvalidOperationException(
+            $"Cannot add modifier with id {id} because it is not registered.");
+
+        return AddModifier(type, args);
     }
 
     /// <summary>
-    /// Checks if a player has an active or queued modifier by its ID.
-    /// </summary>
-    /// <param name="id">The Modifier ID.</param>
-    /// <param name="predicate">The predicate to check the modifier.</param>
-    /// <returns>True if the Modifier is present, false otherwise.</returns>
-    public bool HasModifier(uint id, Func<BaseModifier, bool>? predicate=null)
-    {
-        return ActiveModifiers.Exists(x => x.ModifierId == id && (predicate == null || predicate(x))) ||
-               _toAdd.Exists(x => x.ModifierId == id && (predicate == null || predicate(x)));
-    }
-
-    /// <summary>
-    /// Checks if a player has an active or queued modifier by its type.
+    /// Checks if a player has an active modifier by its type.
     /// </summary>
     /// <param name="predicate">The predicate to check the modifier.</param>
     /// <typeparam name="T">The Type of the Modifier.</typeparam>
     /// <returns>True if the Modifier is present, false otherwise.</returns>
+    [HideFromIl2Cpp]
     public bool HasModifier<T>(Func<T, bool>? predicate=null) where T : BaseModifier
     {
-        return ModifierManager.GetModifierId(typeof(T)) is { } id &&
-               HasModifier(id, (Func<BaseModifier, bool>?)predicate);
+        return ActiveModifiers.Exists(x => x is T modifier && (predicate == null || predicate(modifier)));
+    }
+
+    /// <summary>
+    /// Checks if a player has an active modifier by its type.
+    /// </summary>
+    /// <param name="type">The modifier type.</param>
+    /// <param name="predicate">The predicate to check the modifier.</param>
+    /// <returns>True if the Modifier is present, false otherwise.</returns>
+    [HideFromIl2Cpp]
+    public bool HasModifier(Type type, Func<BaseModifier, bool>? predicate=null)
+    {
+        return ActiveModifiers.Exists(x => x.GetType() == type && (predicate == null || predicate(x)));
+    }
+
+    /// <summary>
+    /// Checks if a player has an active modifier by its ID.
+    /// </summary>
+    /// <param name="id">The Modifier ID.</param>
+    /// <param name="predicate">The predicate to check the modifier.</param>
+    /// <returns>True if the Modifier is present, false otherwise.</returns>
+    [HideFromIl2Cpp]
+    public bool HasModifier(uint id, Func<BaseModifier, bool>? predicate=null)
+    {
+        var type = ModifierManager.GetModifierType(id) ?? throw new InvalidOperationException(
+            $"Cannot get modifier with id {id} because it is not registered.");
+
+        return HasModifier(type, predicate);
     }
 }
