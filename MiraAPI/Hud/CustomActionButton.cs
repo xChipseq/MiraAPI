@@ -3,6 +3,7 @@ using MiraAPI.Events.Mira;
 using MiraAPI.Patches;
 using MiraAPI.Utilities.Assets;
 using System;
+using System.Globalization;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -421,7 +422,7 @@ public abstract class CustomActionButton
         {
             Button?.SetFillUp(Timer, EffectDuration);
 
-            Button!.cooldownTimerText.text = Mathf.CeilToInt(Timer).ToString();
+            Button!.cooldownTimerText.text = Mathf.CeilToInt(Timer).ToString(NumberFormatInfo.InvariantInfo);
             Button!.cooldownTimerText.gameObject.SetActive(true);
         }
         else

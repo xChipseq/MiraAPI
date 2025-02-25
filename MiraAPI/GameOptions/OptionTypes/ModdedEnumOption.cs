@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
@@ -146,7 +147,7 @@ public class ModdedEnumOption<T> : ModdedOption<T> where T : Enum
         // SetUpFromData method doesnt work correctly so we must set the values manually
         stringOption.Title = StringName;
         stringOption.Values = (Data as StringGameSetting)?.Values ?? new Il2CppStructArray<StringNames>(0);
-        stringOption.Value = Convert.ToInt32(Value);
+        stringOption.Value = Convert.ToInt32(Value, NumberFormatInfo.InvariantInfo);
 
         OptionBehaviour = stringOption;
 
@@ -156,13 +157,13 @@ public class ModdedEnumOption<T> : ModdedOption<T> where T : Enum
     /// <inheritdoc />
     public override float GetFloatData()
     {
-        return Convert.ToSingle(Value);
+        return Convert.ToSingle(Value, NumberFormatInfo.InvariantInfo);
     }
 
     /// <inheritdoc />
     public override NetData GetNetData()
     {
-        return new NetData(Id, Encoding.Unicode.GetBytes(Convert.ToString(Value)));
+        return new NetData(Id, Encoding.Unicode.GetBytes(Convert.ToString(Value, NumberFormatInfo.InvariantInfo)!));
     }
 
     /// <inheritdoc />
@@ -174,13 +175,13 @@ public class ModdedEnumOption<T> : ModdedOption<T> where T : Enum
     /// <inheritdoc />
     public override T GetValueFromOptionBehaviour(OptionBehaviour optionBehaviour)
     {
-        return (T)Enum.Parse(typeof(T), optionBehaviour.GetInt().ToString());
+        return (T)Enum.Parse(typeof(T), optionBehaviour.GetInt().ToString(NumberFormatInfo.InvariantInfo));
     }
 
     /// <inheritdoc />
     protected override void OnValueChanged(T newValue)
     {
-        HudManager.Instance.Notifier.AddSettingsChangeMessage(StringName, Data?.GetValueString(Convert.ToInt32(newValue)), false);
+        HudManager.Instance.Notifier.AddSettingsChangeMessage(StringName, Data.GetValueString(Convert.ToInt32(newValue, NumberFormatInfo.InvariantInfo)), false);
         if (!OptionBehaviour)
         {
             return;
@@ -188,7 +189,7 @@ public class ModdedEnumOption<T> : ModdedOption<T> where T : Enum
 
         if (OptionBehaviour is StringOption opt)
         {
-            opt.Value = Convert.ToInt32(newValue);
+            opt.Value = Convert.ToInt32(newValue, NumberFormatInfo.InvariantInfo);
         }
     }
 }
