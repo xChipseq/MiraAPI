@@ -1,8 +1,8 @@
 ﻿using HarmonyLib;
 using MiraAPI.Events;
 using MiraAPI.Events.Vanilla.Usables;
+using MiraAPI.Modifiers;
 using MiraAPI.Roles;
-using MiraAPI.Utilities;
 using UnityEngine;
 
 namespace MiraAPI.Patches;
