@@ -21,7 +21,8 @@ public class AddModifierRpc(MiraApiPlugin plugin, uint id) : PlayerCustomRpc<Mir
     /// <inheritdoc />
     public override void Write(MessageWriter writer, ModifierData data)
     {
-        writer.WritePacked(data.Id);
+        writer.WritePacked(data.TypeId);
+        writer.WriteBytesAndSize(data.UniqueId.ToByteArray());
         writer.WritePacked(data.Args.Length);
         foreach (var arg in data.Args)
         {
@@ -34,6 +35,7 @@ public class AddModifierRpc(MiraApiPlugin plugin, uint id) : PlayerCustomRpc<Mir
     public override ModifierData Read(MessageReader reader)
     {
         var modId = reader.ReadPackedUInt32();
+        var guid = new Guid(reader.ReadBytesAndSize());
         var argCount = reader.ReadPackedUInt32();
         var objects = new object[argCount];
 
@@ -48,12 +50,27 @@ public class AddModifierRpc(MiraApiPlugin plugin, uint id) : PlayerCustomRpc<Mir
             }
         }
 
-        return new ModifierData(modId, objects);
+        return new ModifierData(modId, guid, objects);
     }
 
     /// <inheritdoc />
     public override void Handle(PlayerControl player, ModifierData data)
     {
-        player.AddModifier(data.Id, data.Args);
+        var type = ModifierManager.GetModifierType(data.TypeId) ?? throw new InvalidOperationException($"Modifier type not found for ID {data.TypeId}.");
+        BaseModifier? modifier;
+        if (data.Args.Length > 0)
+        {
+            modifier = ModifierFactory.CreateInstance(type, data.Args);
+        }
+        else
+        {
+            modifier = Activator.CreateInstance(type) as BaseModifier;
+            if (modifier == null)
+            {
+                throw new InvalidOperationException($"Cannot add modifier {type.Name} because it is not a valid modifier.");
+            }
+        }
+        modifier.UniqueId = data.UniqueId;
+        player.AddModifier(modifier);
     }
 }

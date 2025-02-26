@@ -16,7 +16,7 @@ internal static class TaskAddButtonPatches
         if (uint.TryParse(__instance.name, out var result))
         {
             __instance.Overlay.sprite = __instance.CheckImage;
-            __instance.Overlay.enabled = PlayerControl.LocalPlayer.HasModifierByTypeId(result);
+            __instance.Overlay.enabled = PlayerControl.LocalPlayer.HasModifier(result);
             return false;
         }
 

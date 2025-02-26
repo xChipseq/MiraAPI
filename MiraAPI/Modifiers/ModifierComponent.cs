@@ -37,14 +37,6 @@ public class ModifierComponent(IntPtr cppPtr) : MonoBehaviour(cppPtr)
 
     private readonly List<BaseModifier> _toAdd = [];
 
-    private uint _nextUniqueId;
-
-    private uint GetNextUniqueId()
-    {
-        _nextUniqueId++;
-        return _nextUniqueId;
-    }
-
     internal void ClearModifiers()
     {
         _toRemove.AddRange(Modifiers);
@@ -204,22 +196,22 @@ public class ModifierComponent(IntPtr cppPtr) : MonoBehaviour(cppPtr)
     /// <param name="predicate">The predicate to check the modifier by.</param>
     /// <returns>True if the modifier was found, false otherwise.</returns>
     [HideFromIl2Cpp]
-    public bool TryGetModifierByTypeId(uint id, out BaseModifier? modifier, Func<BaseModifier, bool>? predicate = null)
+    public bool TryGetModifier(uint id, out BaseModifier? modifier, Func<BaseModifier, bool>? predicate = null)
     {
-        modifier = GetModifierByTypeId(id, predicate);
+        modifier = GetModifier(id, predicate);
         return modifier != null;
     }
 
     /// <summary>
     /// Tries to get a modifier by its unique ID.
     /// </summary>
-    /// <param name="id">The modifier unique ID.</param>
+    /// <param name="modifierGuid">The modifier unique ID.</param>
     /// <param name="modifier">The modifier or null.</param>
     /// <returns>True if the modifier was found, false otherwise.</returns>
     [HideFromIl2Cpp]
-    public bool TryGetModifierByUniqueId(uint id, out BaseModifier? modifier)
+    public bool TryGetModifier(Guid modifierGuid, out BaseModifier? modifier)
     {
-        modifier = GetModifierByUniqueId(id);
+        modifier = GetModifier(modifierGuid);
         return modifier != null;
     }
 
@@ -254,7 +246,7 @@ public class ModifierComponent(IntPtr cppPtr) : MonoBehaviour(cppPtr)
     /// <param name="predicate">The predicate to check the modifier by.</param>
     /// <returns>The Modifier if it is found, null otherwise.</returns>
     [HideFromIl2Cpp]
-    public BaseModifier? GetModifierByTypeId(uint id, Func<BaseModifier, bool>? predicate = null)
+    public BaseModifier? GetModifier(uint id, Func<BaseModifier, bool>? predicate = null)
     {
         var type = ModifierManager.GetModifierType(id) ?? throw new InvalidOperationException(
             $"Cannot get modifier with id {id} because it is not registered.");
@@ -265,12 +257,12 @@ public class ModifierComponent(IntPtr cppPtr) : MonoBehaviour(cppPtr)
     /// <summary>
     /// Gets a modifier by unique ID.
     /// </summary>
-    /// <param name="id">The modifier's unique ID.</param>
+    /// <param name="modifierGuid">The modifier's unique ID.</param>
     /// <returns>The modifier if it is found, or null.</returns>
     [HideFromIl2Cpp]
-    public BaseModifier? GetModifierByUniqueId(uint id)
+    public BaseModifier? GetModifier(Guid modifierGuid)
     {
-        return Modifiers.Find(x => x.UniqueId == id);
+        return Modifiers.Find(x => x.UniqueId == modifierGuid);
     }
 
     /// <summary>
@@ -330,7 +322,7 @@ public class ModifierComponent(IntPtr cppPtr) : MonoBehaviour(cppPtr)
     /// <param name="typeId">The modifier's type ID.</param>
     /// <param name="predicate">The predicate to check the modifier by.</param>
     [HideFromIl2Cpp]
-    public void RemoveModifierByTypeId(uint typeId, Func<BaseModifier, bool>? predicate = null)
+    public void RemoveModifier(uint typeId, Func<BaseModifier, bool>? predicate = null)
     {
         var type = ModifierManager.GetModifierType(typeId) ?? throw new InvalidOperationException(
             $"Cannot remove modifier with id {typeId} because it is not registered.");
@@ -342,9 +334,9 @@ public class ModifierComponent(IntPtr cppPtr) : MonoBehaviour(cppPtr)
     /// </summary>
     /// <param name="uniqueId">The modifier's unique ID.</param>
     [HideFromIl2Cpp]
-    public void RemoveModifierByUniqueId(uint uniqueId)
+    public void RemoveModifier(Guid uniqueId)
     {
-        var modifier = GetModifierByUniqueId(uniqueId);
+        var modifier = GetModifier(uniqueId);
         if (modifier == null)
         {
             Logger<MiraApiPlugin>.Error($"Cannot remove modifier with unique id {uniqueId} because it is not active.");
@@ -390,7 +382,10 @@ public class ModifierComponent(IntPtr cppPtr) : MonoBehaviour(cppPtr)
         _toAdd.Add(modifier);
         modifier.Player = _player;
         modifier.ModifierComponent = this;
-        modifier.UniqueId = GetNextUniqueId();
+        if (modifier.UniqueId == Guid.Empty)
+        {
+            modifier.UniqueId = Guid.NewGuid();
+        }
         return modifier;
     }
 
@@ -460,13 +455,13 @@ public class ModifierComponent(IntPtr cppPtr) : MonoBehaviour(cppPtr)
     }
 
     /// <summary>
-    /// Checks if a player has an active modifier by its type ID
+    /// Checks if a player has an active modifier by its type ID.
     /// </summary>
-    /// <param name="id">The Modifier type ID.</param>
+    /// <param name="id">The modifier's type ID.</param>
     /// <param name="predicate">The predicate to check the modifier.</param>
-    /// <returns>True if the Modifier is present, false otherwise.</returns>
+    /// <returns>True if the modifier is present, false otherwise.</returns>
     [HideFromIl2Cpp]
-    public bool HasModifierByTypeId(uint id, Func<BaseModifier, bool>? predicate=null)
+    public bool HasModifier(uint id, Func<BaseModifier, bool>? predicate=null)
     {
         var type = ModifierManager.GetModifierType(id) ?? throw new InvalidOperationException(
             $"Cannot get modifier with id {id} because it is not registered.");
@@ -475,12 +470,12 @@ public class ModifierComponent(IntPtr cppPtr) : MonoBehaviour(cppPtr)
     }
 
     /// <summary>
-    /// Checks if a player has an active modifier by its unique ID
+    /// Checks if a player has an active modifier by its unique ID.
     /// </summary>
-    /// <param name="id">The Modifier type ID.</param>
-    /// <returns>True if the Modifier is present, false otherwise.</returns>
+    /// <param name="id">The modifier's guid.</param>
+    /// <returns>True if the modifier is present, false otherwise.</returns>
     [HideFromIl2Cpp]
-    public bool HasModifierByUniqueId(uint id)
+    public bool HasModifier(Guid id)
     {
         return Modifiers.Exists(x => x.UniqueId == id);
     }

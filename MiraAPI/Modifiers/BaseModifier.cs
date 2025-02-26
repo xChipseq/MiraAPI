@@ -45,7 +45,7 @@ public abstract class BaseModifier
     /// <summary>
     /// Gets the unique ID of the modifier.
     /// </summary>
-    public uint UniqueId { get; internal set; }
+    public Guid UniqueId { get; internal set; } = Guid.Empty;
 
     /// <summary>
     /// Gets the type ID of the modifier.

@@ -3,12 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using MiraAPI.Modifiers.Types;
-using MiraAPI.Networking;
-using MiraAPI.Networking.Modifiers;
 using MiraAPI.PluginLoading;
 using MiraAPI.Roles;
 using MiraAPI.Utilities;
-using Reactor.Networking.Rpc;
 using Reactor.Utilities;
 using Reactor.Utilities.Extensions;
 using Random = System.Random;
@@ -159,70 +156,6 @@ public static class ModifierManager
     private static bool IsGameModifierValid(PlayerControl player, GameModifier modifier, uint modifierId)
     {
         return (player.Data.Role is not ICustomRole role || role.IsModifierApplicable(modifier)) &&
-               modifier.IsModifierValidOn(player.Data.Role) && !player.HasModifierByTypeId(modifierId);
-    }
-
-    internal static void SyncAllModifiers(int targetId = -1)
-    {
-        var data = new List<NetData>();
-
-        foreach (var player in PlayerControl.AllPlayerControls)
-        {
-            data.Add(GetPlayerModifiers(player));
-        }
-
-        Rpc<SyncModifiersRpc>.Instance.SendTo(PlayerControl.LocalPlayer, targetId, [.. data]);
-    }
-
-    internal static void HandleSyncModifiers(NetData[] data)
-    {
-        foreach (var netData in data)
-        {
-            var ids = new uint[netData.Data.Length / 4];
-            Buffer.BlockCopy(netData.Data, 0, ids, 0, netData.Data.Length);
-
-            var plr = GameData.Instance.GetPlayerById((byte)netData.Id).Object;
-            var modifierComponent = plr.GetComponent<ModifierComponent>();
-
-            if (!modifierComponent)
-            {
-                continue;
-            }
-
-            modifierComponent.ClearModifiers();
-
-            foreach (var id in ids)
-            {
-                if (!IdToTypeModifierMap.TryGetValue(id, out var type))
-                {
-                    Logger<MiraApiPlugin>.Error($"Cannot add modifier with id {id} because it is not registered.");
-                    continue;
-                }
-
-                modifierComponent.AddModifier(type);
-            }
-        }
-    }
-
-    private static NetData GetPlayerModifiers(PlayerControl? player)
-    {
-        if (player == null || !player)
-        {
-            return new NetData(0, []);
-        }
-
-        List<byte> bytes = [];
-        var modifierComponent = player.GetComponent<ModifierComponent>();
-        if (modifierComponent == null || !modifierComponent)
-        {
-            return new NetData(player.PlayerId, []);
-        }
-
-        foreach (var modifier in modifierComponent.ActiveModifiers)
-        {
-            bytes.AddRange(BitConverter.GetBytes(TypeToIdModifierMap[modifier.GetType()]));
-        }
-
-        return new NetData(player.PlayerId, [.. bytes]);
+               modifier.IsModifierValidOn(player.Data.Role) && !player.HasModifier(modifierId);
     }
 }

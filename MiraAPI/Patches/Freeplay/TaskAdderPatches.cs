@@ -337,9 +337,9 @@ internal static class TaskAdderPatches
             taskAddButton.Button.OnClick.AddListener((UnityEngine.Events.UnityAction)(() =>
             {
                 var id = modifier.TypeId;
-                if (PlayerControl.LocalPlayer.HasModifierByTypeId(id))
+                if (PlayerControl.LocalPlayer.HasModifier(id))
                 {
-                    PlayerControl.LocalPlayer.RemoveModifierByTypeId(id);
+                    PlayerControl.LocalPlayer.RemoveModifier(id);
                     taskAddButton.Overlay.enabled = false;
                 }
                 else
