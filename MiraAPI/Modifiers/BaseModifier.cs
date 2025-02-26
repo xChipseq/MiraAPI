@@ -18,6 +18,21 @@ public abstract class BaseModifier
     public ModifierComponent? ModifierComponent { get; internal set; }
 
     /// <summary>
+    /// Gets a value indicating whether the modifier has been initialized.
+    /// </summary>
+    public bool Initialized { get; internal set; }
+
+    /// <summary>
+    /// Gets the unique ID of the modifier.
+    /// </summary>
+    public Guid UniqueId { get; internal set; } = Guid.Empty;
+
+    /// <summary>
+    /// Gets the type ID of the modifier.
+    /// </summary>
+    public uint TypeId => ModifierManager.GetModifierTypeId(GetType()) ?? throw new InvalidOperationException("Modifier is not registered.");
+
+    /// <summary>
     /// Gets the modifier name.
     /// </summary>
     public abstract string ModifierName { get; }
@@ -36,21 +51,6 @@ public abstract class BaseModifier
     /// Gets a value indicating whether the modifier is unique. If true, the player can only have one instance of this modifier.
     /// </summary>
     public virtual bool Unique => true;
-
-    /// <summary>
-    /// Gets a value indicating whether the modifier has been initialized.
-    /// </summary>
-    public bool Initialized { get; internal set; }
-
-    /// <summary>
-    /// Gets the unique ID of the modifier.
-    /// </summary>
-    public Guid UniqueId { get; internal set; } = Guid.Empty;
-
-    /// <summary>
-    /// Gets the type ID of the modifier.
-    /// </summary>
-    public uint TypeId => ModifierManager.GetModifierTypeId(GetType()) ?? throw new InvalidOperationException("Modifier is not registered.");
 
     /// <summary>
     /// Gets the HUD information for this modifier. Defaults to the modifier name. Does nothing if <see cref="HideOnUi"/> is true.
