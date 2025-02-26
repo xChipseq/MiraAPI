@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
+using MiraAPI.Utilities;
 
 namespace MiraAPI.Modifiers;
 
@@ -8,19 +11,11 @@ namespace MiraAPI.Modifiers;
 /// </summary>
 public static class ModifierFactory
 {
-    private static Func<object[], BaseModifier>? _constructor;
+    private static readonly Dictionary<(Type, Type[]), Func<object[], BaseModifier>> _constructorCache = [];
 
     private static Func<object[], BaseModifier> CreateConstructor(Type type, params object[] args)
     {
-        var constructorInfo = Array.Find(
-            type.GetConstructors(),
-            x =>
-            {
-                var parameters = x.GetParameters();
-                return parameters.Length == args.Length && Array.TrueForAll(
-                    parameters,
-                    t => t.ParameterType.IsInstanceOfType(args[t.Position]));
-            }) ?? throw new InvalidOperationException(
+        var constructorInfo = type.GetBestConstructor(args) ?? throw new InvalidOperationException(
             $"Could not find a constructor for type {type} with the specified arguments.");
 
         var parameters = constructorInfo.GetParameters();
@@ -50,8 +45,16 @@ public static class ModifierFactory
     /// <returns>An instance of the modifier.</returns>
     public static BaseModifier CreateInstance(Type type, params object[] args)
     {
-        _constructor ??= CreateConstructor(type, args);
-        return _constructor(args);
+        var argTypes = args.Select(arg => arg?.GetType() ?? typeof(object)).ToArray();
+        var key = (type, argTypes);
+
+        if (!_constructorCache.TryGetValue(key, out var constructor))
+        {
+            constructor = CreateConstructor(type, args);
+            _constructorCache[key] = constructor;
+        }
+
+        return constructor(args);
     }
 }
 
@@ -65,15 +68,8 @@ public static class ModifierFactory<T> where T : BaseModifier
 
     private static Func<object[], T> CreateConstructor(params object[] args)
     {
-        var constructorInfo = Array.Find(
-            typeof(T).GetConstructors(),
-            x =>
-            {
-                var parameters = x.GetParameters();
-                return parameters.Length == args.Length && Array.TrueForAll(
-                    parameters,
-                    t => t.ParameterType.IsInstanceOfType(args[t.Position]));
-            }) ?? throw new InvalidOperationException($"Could not find a constructor for type {typeof(T)} with the specified arguments.");
+        var constructorInfo = typeof(T).GetBestConstructor(args) ?? throw new InvalidOperationException(
+            $"Could not find a constructor for type {typeof(T)} with the specified arguments.");
 
         var parameters = constructorInfo.GetParameters();
 

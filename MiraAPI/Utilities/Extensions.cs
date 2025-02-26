@@ -6,6 +6,7 @@ using Reactor.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using TMPro;
 using UnityEngine;
 
@@ -36,6 +37,64 @@ public static class Extensions
         return new NetData(
             RoleId.Get(role.GetType()),
             BitConverter.GetBytes(count.Value).AddRangeToArray(BitConverter.GetBytes(chance.Value)));
+    }
+
+    /// <summary>
+    /// Gets the best constructor for a type based on the specified arguments.
+    /// </summary>
+    /// <param name="type">The type to get the constructor from.</param>
+    /// <param name="args">The arguments to pass into the constructor.</param>
+    /// <returns>The best constructor.</returns>
+    public static ConstructorInfo? GetBestConstructor(this Type type, params object[] args)
+    {
+        return type.GetValidConstructors(args)
+            .OrderBy(
+                ctor => ctor.GetParameters()
+                    .Select((p, i) => GetInheritanceDistance(args[i].GetType(), p.ParameterType))
+                    .Sum())
+            .FirstOrDefault();
+    }
+
+    /// <summary>
+    /// Gets the constructors of a type that match the specified arguments.
+    /// </summary>
+    /// <param name="type">The type to get constructors from.</param>
+    /// <param name="args">The arguments to pass into the constructor.</param>
+    /// <returns>A collection of valid constructors.</returns>
+    public static IEnumerable<ConstructorInfo> GetValidConstructors(this Type type, params object[] args)
+    {
+        return type.GetConstructors().Where(
+            x =>
+            {
+                var parameters = x.GetParameters();
+                return parameters.Length == args.Length && Array.TrueForAll(
+                    parameters,
+                    t => t.ParameterType.IsInstanceOfType(args[t.Position]));
+            });
+    }
+
+    /// <summary>
+    /// Calculates the inheritance distance from the given type to its target base type.
+    /// Lower values mean the type is a closer match.
+    /// </summary>
+    /// <param name="from">The derived type.</param>
+    /// <param name="to">The base type.</param>
+    /// <returns>The distance between the types.</returns>
+    public static int GetInheritanceDistance(Type from, Type to)
+    {
+        if (!from.IsAssignableFrom(to))
+        {
+            return int.MaxValue;
+        }
+
+        var type = from;
+        var distance = 0;
+        while (type != null && type != to)
+        {
+            type = type.BaseType;
+            distance++;
+        }
+        return type == to ? distance : int.MaxValue;
     }
 
     /// <summary>
