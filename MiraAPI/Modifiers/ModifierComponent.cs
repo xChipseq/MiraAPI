@@ -366,10 +366,9 @@ public class ModifierComponent(IntPtr cppPtr) : MonoBehaviour(cppPtr)
     [HideFromIl2Cpp]
     public BaseModifier? AddModifier(BaseModifier modifier)
     {
-        if (!AmongUsClient.Instance.IsGameStarted)
+        if (LobbyBehaviour.Instance)
         {
-            Logger<MiraApiPlugin>.Error("Cannot add modifier because the game has not started yet.");
-            return null;
+            Logger<MiraApiPlugin>.Warning($"Modifiers added in the lobby won't sync to new players!");
         }
 
         var id = modifier.TypeId;
