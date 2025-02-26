@@ -64,6 +64,23 @@ public interface ICustomRole
     };
 
     /// <summary>
+    /// Allows the role to specify who is shown on the intro team screen.
+    /// </summary>
+    /// <param name="instance">The intro cutscene instance.</param>
+    /// <param name="yourTeam">The reference to the list of player in the team.</param>
+    void SetupIntroTeam(IntroCutscene instance, ref Il2CppSystem.Collections.Generic.List<PlayerControl> yourTeam)
+    {
+        if (Team == ModdedRoleTeams.Custom)
+        {
+            var team = new Il2CppSystem.Collections.Generic.List<PlayerControl>();
+
+            team.Add(PlayerControl.LocalPlayer);
+
+            yourTeam = team;
+        }
+    }
+
+    /// <summary>
     /// Gets the parent mod of this role.
     /// </summary>
     MiraPluginInfo ParentMod => CustomRoleManager.FindParentMod(this);
