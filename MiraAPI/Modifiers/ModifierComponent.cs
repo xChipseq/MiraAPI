@@ -366,6 +366,12 @@ public class ModifierComponent(IntPtr cppPtr) : MonoBehaviour(cppPtr)
     [HideFromIl2Cpp]
     public BaseModifier? AddModifier(BaseModifier modifier)
     {
+        if (!AmongUsClient.Instance.IsGameStarted)
+        {
+            Logger<MiraApiPlugin>.Error("Cannot add modifier because the game has not started yet.");
+            return null;
+        }
+
         var id = modifier.TypeId;
         if (modifier.Unique && Modifiers.Find(x => x.TypeId == id) != null)
         {
