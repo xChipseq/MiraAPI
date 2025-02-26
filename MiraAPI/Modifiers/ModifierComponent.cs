@@ -366,6 +366,7 @@ public class ModifierComponent(IntPtr cppPtr) : MonoBehaviour(cppPtr)
     [HideFromIl2Cpp]
     public BaseModifier? AddModifier(BaseModifier modifier)
     {
+        // TODO: Make a proper synchronization system.
         if (LobbyBehaviour.Instance)
         {
             Logger<MiraApiPlugin>.Warning($"Modifiers added in the lobby won't sync to new players!");
