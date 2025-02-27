@@ -10,17 +10,20 @@ using UnityEngine;
 
 namespace MiraAPI;
 
+/// <summary>
+/// The main plugin class for Mira API.
+/// </summary>
 [BepInAutoPlugin("mira.api", "MiraAPI")]
 [BepInProcess("Among Us.exe")]
 [BepInDependency(ReactorPlugin.Id)]
 [ReactorModFlags(ModFlags.RequireOnAllClients)]
 public partial class MiraApiPlugin : BasePlugin
 {
-    private static MiraPluginManager? PluginManager { get; set; }
-
-    public Harmony Harmony { get; } = new(Id);
     public static Color MiraColor { get; } = new Color32(238, 154, 112, 255);
+    private static MiraPluginManager? PluginManager { get; set; }
+    internal Harmony Harmony { get; } = new(Id);
 
+    /// <inheritdoc />
     public override void Load()
     {
         Harmony.PatchAll();
