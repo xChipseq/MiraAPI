@@ -33,11 +33,11 @@ public static class IntroCutscenePatches
     [HarmonyPrefix]
     [HarmonyPatch(nameof(IntroCutscene.BeginImpostor))]
     [HarmonyPatch(nameof(IntroCutscene.BeginCrewmate))]
-    public static void BeginImpostorPatch(IntroCutscene __instance, [HarmonyArgument(0)] ref Il2CppSystem.Collections.Generic.List<PlayerControl> yourTeam)
+    public static bool BeginImpostorPatch(IntroCutscene __instance, [HarmonyArgument(0)] ref Il2CppSystem.Collections.Generic.List<PlayerControl> yourTeam)
     {
         if (PlayerControl.LocalPlayer.Data.Role is not ICustomRole customRole)
         {
-            return;
+            return true;
         }
 
         if (customRole.IntroConfiguration is { } introConfig)
@@ -46,9 +46,9 @@ public static class IntroCutscenePatches
             __instance.TeamTitle.color = introConfig.IntroTeamColor;
             __instance.TeamTitle.text = introConfig.IntroTeamTitle;
             __instance.ImpostorText.text = introConfig.IntroTeamDescription;
-
-            customRole.SetupIntroTeam(__instance, ref yourTeam);
         }
+
+        return customRole.SetupIntroTeam(__instance, ref yourTeam);
     }
 
     /*
