@@ -1,4 +1,6 @@
-﻿namespace MiraAPI.Modifiers;
+﻿using System;
+
+namespace MiraAPI.Modifiers;
 
 /// <summary>
 /// Base class for all modifiers.
@@ -16,9 +18,19 @@ public abstract class BaseModifier
     public ModifierComponent? ModifierComponent { get; internal set; }
 
     /// <summary>
-    /// Gets the modifier id.
+    /// Gets a value indicating whether the modifier has been initialized.
     /// </summary>
-    public uint ModifierId { get; internal set; }
+    public bool Initialized { get; internal set; }
+
+    /// <summary>
+    /// Gets the unique ID of the modifier.
+    /// </summary>
+    public Guid UniqueId { get; internal set; } = Guid.Empty;
+
+    /// <summary>
+    /// Gets the type ID of the modifier.
+    /// </summary>
+    public uint TypeId => ModifierManager.GetModifierTypeId(GetType()) ?? throw new InvalidOperationException("Modifier is not registered.");
 
     /// <summary>
     /// Gets the modifier name.

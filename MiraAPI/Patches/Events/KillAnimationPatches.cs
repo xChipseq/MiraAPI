@@ -2,7 +2,7 @@
 using MiraAPI.Events;
 using MiraAPI.Events.Vanilla.Gameplay;
 
-namespace MiraAPI.Patches;
+namespace MiraAPI.Patches.Events;
 
 /// <summary>
 /// General patches for the KillAnimation class.

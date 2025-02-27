@@ -1,8 +1,8 @@
 ﻿using HarmonyLib;
 using MiraAPI.Events;
 using MiraAPI.Events.Vanilla.Usables;
+using MiraAPI.Modifiers;
 using MiraAPI.Roles;
-using MiraAPI.Utilities;
 using UnityEngine;
 
 namespace MiraAPI.Patches;
@@ -35,8 +35,8 @@ public static class VentPatches
         var canVent = role is ICustomRole customRole ? customRole.Configuration.CanUseVent : role.CanVent;
         couldUse = canVent;
 
-        var modifiers = @object.GetModifierComponent()?.ActiveModifiers;
-        if (modifiers is { Count: > 0 })
+        var modifiers = @object.GetModifierComponent().ActiveModifiers;
+        if (modifiers.Count > 0)
         {
             switch (canVent)
             {

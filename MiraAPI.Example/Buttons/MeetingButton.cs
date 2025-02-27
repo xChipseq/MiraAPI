@@ -1,6 +1,6 @@
 ﻿using MiraAPI.Example.Modifiers;
 using MiraAPI.Hud;
-using MiraAPI.Utilities;
+using MiraAPI.Modifiers;
 using MiraAPI.Utilities.Assets;
 using UnityEngine;
 
