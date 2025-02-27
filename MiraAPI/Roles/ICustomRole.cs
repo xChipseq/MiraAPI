@@ -159,6 +159,26 @@ public interface ICustomRole
     }
 
     /// <summary>
+    /// Allows the role to specify who is shown on the intro team screen.
+    /// </summary>
+    /// <param name="instance">The intro cutscene instance.</param>
+    /// <param name="yourTeam">The reference to the list of player in the team.</param>
+    /// <returns>True to use the original team intro code, false to skip.</returns>
+    public virtual bool SetupIntroTeam(IntroCutscene instance, ref Il2CppSystem.Collections.Generic.List<PlayerControl> yourTeam)
+    {
+        if (Team == ModdedRoleTeams.Custom)
+        {
+            var team = new Il2CppSystem.Collections.Generic.List<PlayerControl>();
+
+            team.Add(PlayerControl.LocalPlayer);
+
+            yourTeam = team;
+        }
+
+        return true;
+    }
+
+    /// <summary>
     /// This method runs on the HudManager.Update method ONLY when the LOCAL player has this role.
     /// </summary>
     /// <param name="hudManager">Reference to HudManager instance.</param>

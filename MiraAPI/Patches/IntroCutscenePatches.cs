@@ -32,25 +32,8 @@ public static class IntroCutscenePatches
 
     [HarmonyPrefix]
     [HarmonyPatch(nameof(IntroCutscene.BeginImpostor))]
-    public static void BeginImpostorPatch(IntroCutscene __instance)
-    {
-        if (PlayerControl.LocalPlayer.Data.Role is not ICustomRole customRole)
-        {
-            return;
-        }
-
-        if (customRole.IntroConfiguration is { } introConfig)
-        {
-            __instance.BackgroundBar.material.SetColor(ShaderID.Color, introConfig.IntroTeamColor);
-            __instance.TeamTitle.color = introConfig.IntroTeamColor;
-            __instance.TeamTitle.text = introConfig.IntroTeamTitle;
-            __instance.ImpostorText.text = introConfig.IntroTeamDescription;
-        }
-    }
-
-    [HarmonyPrefix]
     [HarmonyPatch(nameof(IntroCutscene.BeginCrewmate))]
-    public static bool BeginCrewmatePatch(IntroCutscene __instance)
+    public static bool BeginImpostorPatch(IntroCutscene __instance, [HarmonyArgument(0)] ref Il2CppSystem.Collections.Generic.List<PlayerControl> yourTeam)
     {
         if (PlayerControl.LocalPlayer.Data.Role is not ICustomRole customRole)
         {
@@ -65,24 +48,7 @@ public static class IntroCutscenePatches
             __instance.ImpostorText.text = introConfig.IntroTeamDescription;
         }
 
-        if (customRole.Team is not ModdedRoleTeams.Custom)
-        {
-            return true;
-        }
-
-        var barTransform = __instance.BackgroundBar.transform;
-        var position = barTransform.position;
-        position.y -= 0.25f;
-        barTransform.position = position;
-
-        __instance.impostorScale = 1f;
-
-        __instance.ourCrewmate = __instance.CreatePlayer(
-            0,
-            Mathf.CeilToInt(7.5f),
-            PlayerControl.LocalPlayer.Data,
-            false);
-        return false;
+        return customRole.SetupIntroTeam(__instance, ref yourTeam);
     }
 
     /*
