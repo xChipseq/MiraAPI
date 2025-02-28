@@ -16,6 +16,15 @@ public abstract class CustomGameOver
     public static CustomGameOver? Instance { get; internal set; }
 
     /// <summary>
+    /// Verifies if the condition for this CustomGameOver is met.
+    /// </summary>
+    /// <returns>True if the condition is met, otherwise false.</returns>
+    public virtual bool VerifyCondition()
+    {
+        return true;
+    }
+
+    /// <summary>
     /// Runs before the base game calls EndGameManager.SetEverythingUp.
     /// </summary>
     /// <param name="endGameManager">The EndGameManager instance.</param>
@@ -50,12 +59,6 @@ public abstract class CustomGameOver
     /// <typeparam name="T">Type of the custom game over.</typeparam>
     public static void Trigger<T>(IEnumerable<NetworkedPlayerInfo> winners) where T : CustomGameOver
     {
-        if (!AmongUsClient.Instance.AmHost)
-        {
-            Logger<MiraApiPlugin>.Error("Only the host can send a custom game over.");
-            return;
-        }
-
         var reason = GameOverManager.GetGameOverId<T>();
         var data = new GameOverData(reason, [.. winners]);
 

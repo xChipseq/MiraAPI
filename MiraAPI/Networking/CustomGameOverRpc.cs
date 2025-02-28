@@ -48,11 +48,17 @@ public class CustomGameOverRpc(MiraApiPlugin plugin, uint id) : PlayerCustomRpc<
     {
         if (GameOverManager.TryGetGameOver(data.Reason, out var gameOver))
         {
+            if (!gameOver!.VerifyCondition())
+            {
+                Logger<MiraApiPlugin>.Info($"Game over condition not met for {gameOver.GetType().Name}");
+                return;
+            }
+
             CustomGameOver.Instance = gameOver;
 
             if (AmongUsClient.Instance.AmHost)
             {
-                GameManager.Instance.RpcEndGame(gameOver!, false);
+                GameManager.Instance.RpcEndGame(gameOver, false);
             }
         }
         else
