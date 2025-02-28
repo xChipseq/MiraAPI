@@ -18,8 +18,9 @@ public abstract class CustomGameOver
     /// Verifies if the condition for this CustomGameOver is met.
     /// </summary>
     /// <param name="playerControl">The PlayerControl that requested the Game Over.</param>
+    /// <param name="winners">The collection of winners.</param>
     /// <returns>True if the condition is met, otherwise false.</returns>
-    public virtual bool VerifyCondition(PlayerControl playerControl)
+    public virtual bool VerifyCondition(PlayerControl playerControl, NetworkedPlayerInfo[] winners)
     {
         return true;
     }
