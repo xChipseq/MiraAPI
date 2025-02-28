@@ -49,6 +49,24 @@ public sealed class MiraPluginManager
                     continue;
                 }
 
+                foreach (var method in type.GetMethods(BindingFlags.Static | BindingFlags.Public))
+                {
+                    var eventAttribute = method.GetCustomAttribute<RegisterEventAttribute>();
+                    if (eventAttribute != null)
+                    {
+                        Logger<MiraApiPlugin>.Message("Registering event");
+                        var parameters = method.GetParameters();
+                        if (parameters.Length != 1 || !parameters[0].ParameterType.IsSubclassOf(typeof(MiraEvent)))
+                        {
+                            Logger<MiraApiPlugin>.Error($"Invalid event registration method {method.Name} in {type.Name}");
+                            continue;
+                        }
+
+                        var paramType = parameters[0].ParameterType;
+                        MiraEventManager.RegisterEventHandler(paramType, method, eventAttribute.Priority);
+                    }
+                }
+
                 if (RegisterModifier(type, info))
                 {
                     continue;

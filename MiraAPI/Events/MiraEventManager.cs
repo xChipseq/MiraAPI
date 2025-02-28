@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
+using Reactor.Utilities;
 
 namespace MiraAPI.Events;
 
@@ -52,6 +54,30 @@ public static class MiraEventManager
         }
 
         return true;
+    }
+
+    /// <summary>
+    /// Register an event.
+    /// </summary>
+    /// <param name="type">The type of event.</param>
+    /// <param name="methodInfo">The MethodInfo of the event handler.</param>
+    /// <param name="priority">The priority of the event handler. Higher values are called first.</param>
+    public static void RegisterEventHandler(Type type, MethodInfo methodInfo, int priority = 0)
+    {
+        if (!type.IsSubclassOf(typeof(MiraEvent)))
+        {
+            Logger<MiraApiPlugin>.Error($"Type must be a subclass of MiraEvent: {nameof(type)}");
+            return;
+        }
+
+        if (!EventWrappers.TryGetValue(type, out var handlers))
+        {
+            handlers = [];
+            EventWrappers.Add(type, handlers);
+        }
+
+        var @delegate = Delegate.CreateDelegate(typeof(Action<>).MakeGenericType(type), methodInfo);
+        handlers.Add(new MiraEventWrapper(@delegate, priority));
     }
 
     /// <summary>

@@ -12,11 +12,7 @@ public static class ExampleEventHandlers
 {
     public static void Initialize()
     {
-        // Register event handlers here
-        MiraEventManager.RegisterEventHandler<MiraButtonClickEvent<FreezeButton>>(FreezeButtonClickHandler, 1);
-        MiraEventManager.RegisterEventHandler<MiraButtonCancelledEvent<FreezeButton>>(FreezeButtonCancelledHandler);
-        MiraEventManager.RegisterEventHandler<UpdateSystemEvent>(UpdateSystemEventHandler);
-
+        // You can register event handlers with the MiraEventManager class.
         MiraEventManager.RegisterEventHandler<BeforeMurderEvent>(@event =>
         {
             Logger<ExamplePlugin>.Info($"{@event.Source.Data.PlayerName} is about to kill {@event.Target.Data.PlayerName}");
@@ -33,12 +29,15 @@ public static class ExampleEventHandlers
         });
     }
 
+    // Events can be registered using an attribute as well.
+    [RegisterEvent]
     public static void UpdateSystemEventHandler(UpdateSystemEvent @event)
     {
         Logger<ExamplePlugin>.Error(@event.SystemType.ToString());
     }
 
     // Example event handler
+    [RegisterEvent(1)]
     public static void FreezeButtonClickHandler(MiraButtonClickEvent<FreezeButton> @event)
     {
         Logger<ExamplePlugin>.Warning("Freeze button clicked!");
@@ -51,6 +50,7 @@ public static class ExampleEventHandlers
     }
 
     // Example event handler
+    [RegisterEvent]
     public static void FreezeButtonCancelledHandler(MiraButtonCancelledEvent<FreezeButton> @event)
     {
         Logger<ExamplePlugin>.Warning("Freeze button cancelled!");
