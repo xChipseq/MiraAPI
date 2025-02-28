@@ -34,4 +34,9 @@ public enum MiraRpc : uint
     /// Custom Murder RPC.
     /// </summary>
     CustomMurder,
+
+    /// <summary>
+    /// Custom Game Over RPC.
+    /// </summary>
+    CustomGameOver,
 }
