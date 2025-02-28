@@ -1,6 +1,12 @@
-﻿using BepInEx.Unity.IL2CPP;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Reflection;
+using BepInEx.Unity.IL2CPP;
 using MiraAPI.Colors;
 using MiraAPI.Events;
+using MiraAPI.GameEnd;
 using MiraAPI.GameOptions;
 using MiraAPI.GameOptions.Attributes;
 using MiraAPI.Hud;
@@ -9,11 +15,6 @@ using MiraAPI.Roles;
 using MiraAPI.Utilities;
 using Reactor.Networking;
 using Reactor.Utilities;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Reflection;
 
 namespace MiraAPI.PluginLoading;
 
@@ -69,6 +70,11 @@ public sealed class MiraPluginManager
                     continue;
                 }
 
+                if (RegisterGameOver(type))
+                {
+                    continue;
+                }
+
                 RegisterColorClasses(type);
             }
 
@@ -94,6 +100,19 @@ public sealed class MiraPluginManager
     public static MiraPluginInfo? GetPluginByGuid(string pluginId)
     {
         return Instance._registeredPlugins.Values.FirstOrDefault(plugin => plugin.PluginId == pluginId);
+    }
+
+    private static bool RegisterGameOver(Type type)
+    {
+        try
+        {
+            return GameOverManager.RegisterGameOver(type);
+        }
+        catch (Exception e)
+        {
+            Logger<MiraApiPlugin>.Error($"Failed to register game over {type.Name}: {e}");
+            return false;
+        }
     }
 
     private static bool RegisterOptions(Type type, MiraPluginInfo pluginInfo)

@@ -1,4 +1,6 @@
-﻿using MiraAPI.Roles;
+﻿using MiraAPI.Example.GameOver;
+using MiraAPI.GameEnd;
+using MiraAPI.Roles;
 using UnityEngine;
 
 namespace MiraAPI.Example.Roles;
@@ -22,7 +24,7 @@ public class NeutralKillerRole : ImpostorRole, ICustomRole
 
     public TeamIntroConfiguration? IntroConfiguration { get; } = new(
         Color.gray,
-        "NEUTRAL",
+        "OUTCAST",
         "You are an Outcast. You do not have a team.");
 
     public override void SpawnTaskHeader(PlayerControl playerControl)
@@ -32,6 +34,6 @@ public class NeutralKillerRole : ImpostorRole, ICustomRole
 
     public override bool DidWin(GameOverReason gameOverReason)
     {
-        return GameManager.Instance.DidHumansWin(gameOverReason);
+        return gameOverReason == CustomGameOver.GameOverReason<NeutralKillerGameOver>();
     }
 }
