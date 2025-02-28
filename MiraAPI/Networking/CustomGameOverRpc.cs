@@ -48,7 +48,7 @@ public class CustomGameOverRpc(MiraApiPlugin plugin, uint id) : PlayerCustomRpc<
     {
         if (GameOverManager.TryGetGameOver(data.Reason, out var gameOver))
         {
-            if (!gameOver.VerifyCondition(innerNetObject))
+            if (!gameOver.VerifyCondition(innerNetObject, [.. data.Winners]))
             {
                 Logger<MiraApiPlugin>.Info($"Game over condition not met for {gameOver.GetType().Name}");
                 return;

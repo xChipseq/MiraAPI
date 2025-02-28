@@ -7,9 +7,9 @@ namespace MiraAPI.Example.GameOver;
 
 public class NeutralKillerGameOver : CustomGameOver
 {
-    public override bool VerifyCondition(PlayerControl playerControl)
+    public override bool VerifyCondition(PlayerControl playerControl, NetworkedPlayerInfo[] winners)
     {
-        return playerControl.Data.Role is NeutralKillerRole;
+        return winners is [{ Role: NeutralKillerRole }];
     }
 
     public override void AfterEndGameSetup(EndGameManager endGameManager)
