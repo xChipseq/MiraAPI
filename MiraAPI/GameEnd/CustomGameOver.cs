@@ -18,8 +18,9 @@ public abstract class CustomGameOver
     /// <summary>
     /// Verifies if the condition for this CustomGameOver is met.
     /// </summary>
+    /// <param name="playerControl">The PlayerControl that requested the Game Over.</param>
     /// <returns>True if the condition is met, otherwise false.</returns>
-    public virtual bool VerifyCondition()
+    public virtual bool VerifyCondition(PlayerControl playerControl)
     {
         return true;
     }
