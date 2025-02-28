@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -168,7 +169,7 @@ public class ModifierComponent(IntPtr cppPtr) : MonoBehaviour(cppPtr)
     /// <typeparam name="T">The Type of the Modifier.</typeparam>
     /// <returns>True if the modifier was found, false otherwise.</returns>
     [HideFromIl2Cpp]
-    public bool TryGetModifier<T>(out T? modifier, Func<T, bool>? predicate = null) where T : BaseModifier
+    public bool TryGetModifier<T>([NotNullWhen(true)] out T? modifier, Func<T, bool>? predicate = null) where T : BaseModifier
     {
         modifier = GetModifier(predicate);
         return modifier != null;
@@ -182,7 +183,7 @@ public class ModifierComponent(IntPtr cppPtr) : MonoBehaviour(cppPtr)
     /// <param name="predicate">The predicate to check the modifier by.</param>
     /// <returns>True if the modifier was found, false otherwise.</returns>
     [HideFromIl2Cpp]
-    public bool TryGetModifier(Type type, out BaseModifier? modifier, Func<BaseModifier, bool>? predicate = null)
+    public bool TryGetModifier(Type type, [NotNullWhen(true)] out BaseModifier? modifier, Func<BaseModifier, bool>? predicate = null)
     {
         modifier = GetModifier(type, predicate);
         return modifier != null;
@@ -196,7 +197,7 @@ public class ModifierComponent(IntPtr cppPtr) : MonoBehaviour(cppPtr)
     /// <param name="predicate">The predicate to check the modifier by.</param>
     /// <returns>True if the modifier was found, false otherwise.</returns>
     [HideFromIl2Cpp]
-    public bool TryGetModifier(uint id, out BaseModifier? modifier, Func<BaseModifier, bool>? predicate = null)
+    public bool TryGetModifier(uint id, [NotNullWhen(true)] out BaseModifier? modifier, Func<BaseModifier, bool>? predicate = null)
     {
         modifier = GetModifier(id, predicate);
         return modifier != null;
@@ -209,7 +210,7 @@ public class ModifierComponent(IntPtr cppPtr) : MonoBehaviour(cppPtr)
     /// <param name="modifier">The modifier or null.</param>
     /// <returns>True if the modifier was found, false otherwise.</returns>
     [HideFromIl2Cpp]
-    public bool TryGetModifier(Guid modifierGuid, out BaseModifier? modifier)
+    public bool TryGetModifier(Guid modifierGuid, [NotNullWhen(true)] out BaseModifier? modifier)
     {
         modifier = GetModifier(modifierGuid);
         return modifier != null;

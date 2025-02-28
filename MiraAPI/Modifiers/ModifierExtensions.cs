@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using MiraAPI.Networking;
 using MiraAPI.Networking.Modifiers;
 using Reactor.Networking.Attributes;
@@ -188,6 +189,57 @@ public static class ModifierExtensions
     public static bool HasModifier(this PlayerControl player, Guid uniqueId)
     {
         return player.GetModifierComponent().HasModifier(uniqueId);
+    }
+
+    /// <summary>
+    /// Tries to get a modifier by its type.
+    /// </summary>
+    /// <param name="player">The PlayerControl instance.</param>
+    /// <param name="modifier">The modifier or null.</param>
+    /// <param name="predicate">The predicate to check the modifier by.</param>
+    /// <typeparam name="T">The Type of the Modifier.</typeparam>
+    /// <returns>True if the modifier was found, false otherwise.</returns>
+    public static bool TryGetModifier<T>(this PlayerControl player, [NotNullWhen(true)] out T? modifier, Func<T, bool>? predicate = null) where T : BaseModifier
+    {
+        return player.GetModifierComponent().TryGetModifier(out modifier, predicate);
+    }
+
+    /// <summary>
+    /// Tries to get a modifier by its type.
+    /// </summary>
+    /// <param name="player">The PlayerControl instance.</param>
+    /// <param name="type">The modifier type.</param>
+    /// <param name="modifier">The modifier or null.</param>
+    /// <param name="predicate">The predicate to check the modifier by.</param>
+    /// <returns>True if the modifier was found, false otherwise.</returns>
+    public static bool TryGetModifier(this PlayerControl player, Type type, [NotNullWhen(true)] out BaseModifier? modifier, Func<BaseModifier, bool>? predicate = null)
+    {
+        return player.GetModifierComponent().TryGetModifier(type, out modifier, predicate);
+    }
+
+    /// <summary>
+    /// Tries to get a modifier by its type ID.
+    /// </summary>
+    /// <param name="player">The PlayerControl instance.</param>
+    /// <param name="id">The modifier type ID.</param>
+    /// <param name="modifier">The modifier or null.</param>
+    /// <param name="predicate">The predicate to check the modifier by.</param>
+    /// <returns>True if the modifier was found, false otherwise.</returns>
+    public static bool TryGetModifier(this PlayerControl player, uint id, [NotNullWhen(true)] out BaseModifier? modifier, Func<BaseModifier, bool>? predicate = null)
+    {
+        return player.GetModifierComponent().TryGetModifier(id, out modifier, predicate);
+    }
+
+    /// <summary>
+    /// Tries to get a modifier by its unique ID.
+    /// </summary>
+    /// <param name="player">The PlayerControl instance.</param>
+    /// <param name="modifierGuid">The modifier unique ID.</param>
+    /// <param name="modifier">The modifier or null.</param>
+    /// <returns>True if the modifier was found, false otherwise.</returns>
+    public static bool TryGetModifier(this PlayerControl player, Guid modifierGuid, [NotNullWhen(true)] out BaseModifier? modifier)
+    {
+        return player.GetModifierComponent().TryGetModifier(modifierGuid, out modifier);
     }
 
     /// <summary>
