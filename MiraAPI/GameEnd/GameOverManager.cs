@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Reactor.Utilities;
 
 namespace MiraAPI.GameEnd;
 
@@ -18,20 +19,30 @@ public static class GameOverManager
     /// </summary>
     /// <param name="gameOverType">Type of the custom game over.</param>
     /// <exception cref="ArgumentException">Thrown when the type is not a subclass of CustomGameOver, is abstract, or does not have a parameterless constructor.</exception>
-    public static void RegisterGameOver(Type gameOverType)
+    /// <returns>>True if the game over was registered successfully, false otherwise.</returns>
+    public static bool RegisterGameOver(Type gameOverType)
     {
         if (!typeof(CustomGameOver).IsAssignableFrom(gameOverType))
-            throw new ArgumentException("The type must be a subclass of CustomGameOver.");
+        {
+            return false;
+        }
 
         if (gameOverType.IsAbstract)
-            throw new ArgumentException("The type must not be abstract.");
+        {
+            Logger<MiraApiPlugin>.Error("The type must not be abstract.");
+            return false;
+        }
 
         if (gameOverType.GetConstructor(Type.EmptyTypes) == null)
-            throw new ArgumentException("The type must have a parameterless constructor.");
+        {
+            Logger<MiraApiPlugin>.Error("The type must have a parameterless constructor.");
+            return false;
+        }
 
         GameOverIds.Add(gameOverType, _nextId);
         GameOverTypes.Add(_nextId, gameOverType);
         _nextId++;
+        return true;
     }
 
     /// <summary>

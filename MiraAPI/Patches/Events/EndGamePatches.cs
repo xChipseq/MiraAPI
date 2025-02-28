@@ -15,7 +15,7 @@ internal static class EndGamePatches
             return true;
         }
 
-        var result = gameOver.BeforeSetEverythingUp(__instance);
+        var result = gameOver.BeforeEndGameSetup(__instance);
         return result;
     }
 
@@ -23,7 +23,7 @@ internal static class EndGamePatches
     {
         if (CustomGameOver.Instance is { } gameOver)
         {
-            gameOver.AfterSetEverythingUp(__instance);
+            gameOver.AfterEndGameSetup(__instance);
             CustomGameOver.Instance = null;
         }
 

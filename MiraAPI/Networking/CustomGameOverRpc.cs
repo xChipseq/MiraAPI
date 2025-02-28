@@ -33,7 +33,7 @@ public class CustomGameOverRpc(MiraApiPlugin plugin, uint id) : PlayerCustomRpc<
     public override GameOverData Read(MessageReader reader)
     {
         var reason = reader.ReadPackedInt32();
-        var count = reader.ReadInt32();
+        var count = reader.ReadPackedInt32();
         var data = new List<NetworkedPlayerInfo>(count);
         for (var i = 0; i < count; i++)
         {

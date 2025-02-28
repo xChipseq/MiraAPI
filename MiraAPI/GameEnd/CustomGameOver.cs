@@ -16,21 +16,31 @@ public abstract class CustomGameOver
     public static CustomGameOver? Instance { get; internal set; }
 
     /// <summary>
-    /// Run before setting up the game over.
+    /// Runs before the base game calls EndGameManager.SetEverythingUp.
     /// </summary>
     /// <param name="endGameManager">The EndGameManager instance.</param>
-    /// <returns>Return True to use the default implementation, return False to skip it.</returns>
-    public virtual bool BeforeSetEverythingUp(EndGameManager endGameManager)
+    /// <returns>Return True to use the run the original method, return False to skip it.</returns>
+    public virtual bool BeforeEndGameSetup(EndGameManager endGameManager)
     {
         return true;
     }
 
     /// <summary>
-    /// Run after setting up the game over.
+    /// Runs after the base game calls EndGameManager.SetEverythingUp.
     /// </summary>
     /// <param name="endGameManager">The EndGameManager instance.</param>
-    public virtual void AfterSetEverythingUp(EndGameManager endGameManager)
+    public virtual void AfterEndGameSetup(EndGameManager endGameManager)
     {
+    }
+
+    /// <summary>
+    /// Get the GameOverReason associated with this CustomGameOver.
+    /// </summary>
+    /// <typeparam name="T">Type of the custom game over.</typeparam>
+    /// <returns>The GameOverReason associated with the custom game over.</returns>
+    public static GameOverReason GameOverReason<T>() where T : CustomGameOver
+    {
+        return (GameOverReason)GameOverManager.GetGameOverId<T>();
     }
 
     /// <summary>
@@ -38,7 +48,7 @@ public abstract class CustomGameOver
     /// </summary>
     /// <param name="winners">A collection of winners.</param>
     /// <typeparam name="T">Type of the custom game over.</typeparam>
-    public static void Send<T>(IEnumerable<NetworkedPlayerInfo> winners) where T : CustomGameOver
+    public static void Trigger<T>(IEnumerable<NetworkedPlayerInfo> winners) where T : CustomGameOver
     {
         if (!AmongUsClient.Instance.AmHost)
         {
