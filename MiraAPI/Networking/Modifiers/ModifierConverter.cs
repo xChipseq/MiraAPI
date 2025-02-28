@@ -35,6 +35,6 @@ public class ModifierConverter : MessageConverter<BaseModifier>
     {
         var player = reader.ReadNetObject<PlayerControl>();
         var guid = new Guid(reader.ReadBytesAndSize());
-        return player.GetModifier(guid) ?? throw new InvalidOperationException($"Modifier with GUID {guid} not found for player {player.NetId}.");
+        return player.GetModifier(guid) ?? throw new InvalidOperationException($"Modifier with GUID {guid} not found for player with ID: {player.PlayerId}");
     }
 }
