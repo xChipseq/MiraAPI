@@ -1,9 +1,9 @@
-﻿using BepInEx;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using BepInEx;
 using BepInEx.Configuration;
 using MiraAPI.GameModes;
 using MiraAPI.GameOptions;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using MiraAPI.Hud;
 using MiraAPI.Modifiers;
 

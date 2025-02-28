@@ -1,9 +1,9 @@
-﻿using BepInEx.Configuration;
+﻿using System.Text;
+using BepInEx.Configuration;
 using MiraAPI.Modifiers;
 using MiraAPI.PluginLoading;
 using MiraAPI.Utilities;
 using Reactor.Utilities;
-using System.Text;
 using UnityEngine;
 
 namespace MiraAPI.Roles;

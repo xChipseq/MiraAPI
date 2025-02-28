@@ -1,4 +1,6 @@
-﻿using AmongUs.GameOptions;
+﻿using System.Collections;
+using System.Linq;
+using AmongUs.GameOptions;
 using Assets.CoreScripts;
 using BepInEx.Unity.IL2CPP.Utils;
 using MiraAPI.Events;
@@ -6,8 +8,6 @@ using MiraAPI.Events.Vanilla.Gameplay;
 using Reactor.Networking.Attributes;
 using Reactor.Networking.Rpc;
 using Reactor.Utilities.Extensions;
-using System.Collections;
-using System.Linq;
 using UnityEngine;
 
 namespace MiraAPI.Networking;

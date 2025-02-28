@@ -1,9 +1,9 @@
-﻿using MiraAPI.Events.Mira;
-using MiraAPI.PluginLoading;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Reflection;
+using MiraAPI.Events.Mira;
+using MiraAPI.PluginLoading;
 
 namespace MiraAPI.Hud;
 

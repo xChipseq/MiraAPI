@@ -1,10 +1,10 @@
-﻿using BepInEx.Configuration;
+﻿using System;
+using BepInEx.Configuration;
 using MiraAPI.Networking;
 using MiraAPI.PluginLoading;
 using MiraAPI.Roles;
 using Reactor.Localization.Utilities;
 using Reactor.Networking.Rpc;
-using System;
 using UnityEngine;
 
 namespace MiraAPI.GameOptions.OptionTypes;
