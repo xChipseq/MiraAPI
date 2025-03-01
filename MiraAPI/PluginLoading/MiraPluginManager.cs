@@ -54,7 +54,6 @@ public sealed class MiraPluginManager
                     var eventAttribute = method.GetCustomAttribute<RegisterEventAttribute>();
                     if (eventAttribute != null)
                     {
-                        Logger<MiraApiPlugin>.Message("Registering event");
                         var parameters = method.GetParameters();
                         if (parameters.Length != 1 || !parameters[0].ParameterType.IsSubclassOf(typeof(MiraEvent)))
                         {
