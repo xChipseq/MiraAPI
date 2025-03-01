@@ -35,6 +35,7 @@ public static class ExampleEventHandlers
         });
     }
 
+    // If you want to add extra votes to a player, do something like this.
     [RegisterEvent]
     public static void StartMeetingEvent(StartMeetingEvent _)
     {
@@ -47,6 +48,7 @@ public static class ExampleEventHandlers
         }
     }
 
+    // Example of using the Voting API to make a role similar to the Prosecutor from Town of Us.
     [RegisterEvent(15)]
     public static void HandleVoteEvent(HandleVoteEvent @event)
     {

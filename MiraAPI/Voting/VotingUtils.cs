@@ -111,6 +111,14 @@ public static class VotingUtils
     /// <param name="votes">The list of networked votes.</param>
     public static void HandlePopulateResults(List<CustomVote> votes)
     {
+        PopulateResultsEvent @event = new PopulateResultsEvent(votes);
+        MiraEventManager.InvokeEvent(@event);
+
+        if (@event.IsCancelled)
+        {
+            return;
+        }
+
         MeetingHud.Instance.TitleText.text =
             DestroyableSingleton<TranslationController>.Instance.GetString(
                 StringNames.MeetingVotingResults,
