@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using BepInEx.Configuration;
+using MiraAPI.GameOptions;
 using MiraAPI.Modifiers;
 using MiraAPI.PluginLoading;
 using MiraAPI.Utilities;
@@ -11,7 +12,7 @@ namespace MiraAPI.Roles;
 /// <summary>
 /// Interface for custom roles.
 /// </summary>
-public interface ICustomRole
+public interface ICustomRole : IOptionable
 {
     /// <summary>
     /// Gets the name of the role.

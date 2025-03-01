@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using HarmonyLib;
+using MiraAPI.GameOptions;
 using MiraAPI.PluginLoading;
 using MiraAPI.Roles;
 using MiraAPI.Utilities;
@@ -125,7 +126,8 @@ public static class LobbyViewPanePatches
 
         var num = 1.44f;
 
-        var filteredGroups = SelectedMod.OptionGroups.Where(x => x.GroupVisible.Invoke() && x.AdvancedRole is null);
+        var filteredGroups = SelectedMod.OptionGroups
+            .Where(x => x.GroupVisible.Invoke() && x is not IOptionableGroup);
 
         foreach (var group in filteredGroups)
         {
@@ -277,8 +279,9 @@ public static class LobbyViewPanePatches
                 viewSettingsInfoPanelRoleVariant.transform.localScale = Vector3.one;
                 viewSettingsInfoPanelRoleVariant.transform.localPosition = new Vector3(num2, num, -2f);
 
-                var advancedRoleOptions = SelectedMod.Options
-                    .Where(x => x.AdvancedRole == customRole.GetType())
+                var advancedRoleOptions = SelectedMod.OptionGroups
+                    .Where(x => x is IOptionableGroup optionGroup && optionGroup.OptionableType == customRole.GetType())
+                    .SelectMany(x => x.Options)
                     .ToList();
 
                 if (numPerGame > 0 && advancedRoleOptions.Count > 0)
@@ -386,8 +389,9 @@ public static class LobbyViewPanePatches
         var num = viewPanel.yPosStart;
         var num2 = 1.08f;
 
-        var filteredOptions = SelectedMod.Options
-            .Where(x => x.AdvancedRole == roleType)
+        var filteredOptions = SelectedMod.OptionGroups
+            .Where(x => x is IOptionableGroup optionGroup && optionGroup.OptionableType == roleType)
+            .SelectMany(x=>x.Options)
             .ToList();
 
         for (var i = 0; i < filteredOptions.Count; i++)

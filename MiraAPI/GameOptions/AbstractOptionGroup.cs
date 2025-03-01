@@ -32,12 +32,19 @@ public abstract class AbstractOptionGroup
     /// </summary>
     public virtual uint GroupPriority => uint.MaxValue;
 
-    /// <summary>
-    /// Gets the role the group is associated with. This is used for the advanced role options menu.
-    /// </summary>
-    public virtual Type? AdvancedRole => null;
-
     internal bool AllOptionsHidden { get; set; }
 
     internal CategoryHeaderMasked? Header { get; set; }
+}
+
+/// <summary>
+/// Base class for option groups. An option group is a collection of options that are displayed together in the options menu.
+/// </summary>
+/// <typeparam name="T">The type of the optionable that this group contains.</typeparam>
+public abstract class AbstractOptionGroup<T> : AbstractOptionGroup, IOptionableGroup where T : IOptionable
+{
+    /// <summary>
+    /// Gets the Optionable type of the group.
+    /// </summary>
+    public Type OptionableType => typeof(T);
 }

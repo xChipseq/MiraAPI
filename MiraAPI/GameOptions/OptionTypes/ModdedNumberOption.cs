@@ -48,7 +48,6 @@ public class ModdedNumberOption : ModdedOption<float>
     /// <param name="suffixType">The suffix type.</param>
     /// <param name="formatString">Optional format string for the option screen.</param>
     /// <param name="zeroInfinity">Whether zero is infinity or not.</param>
-    /// <param name="roleType">An optional role type.</param>
     public ModdedNumberOption(
         string title,
         float defaultValue,
@@ -57,8 +56,7 @@ public class ModdedNumberOption : ModdedOption<float>
         float increment,
         MiraNumberSuffixes suffixType,
         string? formatString = null,
-        bool zeroInfinity = false,
-        Type? roleType = null) : base(title, defaultValue, roleType)
+        bool zeroInfinity = false) : base(title, defaultValue)
     {
         Min = min;
         Max = max;
@@ -144,7 +142,7 @@ public class ModdedNumberOption : ModdedOption<float>
         Value = Mathf.Clamp(newValue, Min, Max);
         HudManager.Instance.Notifier.AddSettingsChangeMessage(
             StringName,
-            Data?.GetValueString(Value),
+            Data.GetValueString(Value),
             false);
 
         if (OptionBehaviour is NumberOption opt)

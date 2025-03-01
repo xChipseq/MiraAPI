@@ -113,6 +113,8 @@ public static class GameSettingMenuPatches
         menu.GameSettingsButton.gameObject.SetActive(true);
         menu.RoleSettingsButton.gameObject.SetActive(true);
 
+        // TODO: reimplement this
+        /*
         if (SelectedModIdx != 0)
         {
             if (SelectedMod?.Options.Where(x=>x.AdvancedRole==null).ToList().Count == 0)
@@ -129,7 +131,7 @@ public static class GameSettingMenuPatches
             {
                 menu.RoleSettingsButton.transform.localPosition = menu.GameSettingsButton.transform.localPosition;
             }
-        }
+        }*/
 
         if (roles.roleChances != null && SelectedMod != null && SelectedMod.CustomRoles.Count != 0)
         {
