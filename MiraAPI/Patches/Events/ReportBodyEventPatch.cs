@@ -6,7 +6,7 @@ using MiraAPI.Utilities;
 namespace MiraAPI.Patches.Events;
 
 [HarmonyPatch]
-public static class StartMeetingEventPatch
+public static class ReportBodyEventPatch
 {
     [HarmonyPrefix]
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CmdReportDeadBody))]
@@ -14,7 +14,7 @@ public static class StartMeetingEventPatch
     {
         var body = target != null ? Helpers.GetBodyById(target.PlayerId) : null;
 
-        var @event = new StartMeetingEvent(__instance, target, body);
+        var @event = new ReportBodyEvent(__instance, target, body);
         MiraEventManager.InvokeEvent(@event);
         return !@event.IsCancelled;
     }

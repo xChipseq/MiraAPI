@@ -6,6 +6,7 @@ using HarmonyLib;
 using MiraAPI.GameOptions;
 using MiraAPI.Networking;
 using MiraAPI.Roles;
+using MiraAPI.Voting;
 using Reactor.Utilities;
 using TMPro;
 using UnityEngine;
@@ -37,6 +38,71 @@ public static class Extensions
         return new NetData(
             RoleId.Get(role.GetType()),
             BitConverter.GetBytes(count.Value).AddRangeToArray(BitConverter.GetBytes(chance.Value)));
+    }
+
+    /// <summary>
+    /// Gets a cache of player's vote data components to improve performance.
+    /// </summary>
+    public static Dictionary<PlayerControl, PlayerVoteData> VoteDataComponents { get; } = [];
+
+    /// <summary>
+    /// Gets the PlayerVoteData of a player.
+    /// </summary>
+    /// <param name="player">The PlayerControl object.</param>
+    /// <returns>A PlayerVoteData if there is one, null otherwise.</returns>
+    public static PlayerVoteData GetVoteData(this PlayerControl player)
+    {
+        if (VoteDataComponents.TryGetValue(player, out var component))
+        {
+            return component;
+        }
+
+        component = player.GetComponent<PlayerVoteData>();
+        if (!component)
+        {
+            throw new InvalidOperationException("PlayerVoteData is not attached to the player.");
+        }
+
+        VoteDataComponents[player] = component;
+        return component;
+    }
+
+    public static KeyValuePair<byte, int> MaxPair(this Dictionary<byte, int> self, out bool tie)
+    {
+        tie = true;
+        var result = new KeyValuePair<byte, int>(byte.MaxValue, int.MinValue);
+        foreach (var keyValuePair in self)
+        {
+            if (keyValuePair.Value > result.Value)
+            {
+                result = keyValuePair;
+                tie = false;
+            }
+            else if (keyValuePair.Value == result.Value)
+            {
+                tie = true;
+            }
+        }
+        return result;
+    }
+
+    public static KeyValuePair<byte, float> MaxPair(this Dictionary<byte, float> self, out bool tie)
+    {
+        tie = true;
+        var result = new KeyValuePair<byte, float>(byte.MaxValue, int.MinValue);
+        foreach (var keyValuePair in self)
+        {
+            if (keyValuePair.Value > result.Value)
+            {
+                result = keyValuePair;
+                tie = false;
+            }
+            else if (Math.Abs(keyValuePair.Value - result.Value) < .05)
+            {
+                tie = true;
+            }
+        }
+        return result;
     }
 
     /// <summary>
