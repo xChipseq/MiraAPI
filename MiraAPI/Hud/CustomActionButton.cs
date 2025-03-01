@@ -47,6 +47,11 @@ public abstract class CustomActionButton
     public virtual int MaxUses => 0;
 
     /// <summary>
+    /// Gets the button's text outline color.
+    /// </summary>
+    public virtual Color TextOutlineColor => Color.clear;
+
+    /// <summary>
     /// Gets the location of the button on the screen.
     /// </summary>
     public virtual ButtonLocation Location { get; private set; } = ButtonLocation.BottomLeft;
@@ -112,6 +117,11 @@ public abstract class CustomActionButton
         if (MaxUses <= 0)
         {
             Button.SetInfiniteUses();
+        }
+
+        if (TextOutlineColor != Color.clear)
+        {
+            SetTextOutline(TextOutlineColor);
         }
 
         var pb = Button.GetComponent<PassiveButton>();
@@ -205,6 +215,16 @@ public abstract class CustomActionButton
         }
 
         EffectActive = false;
+    }
+
+    /// <summary>
+    /// A utility function to change the outline color of the button's text.
+    /// </summary>
+    /// <param name="color">The new color.</param>
+    /// <param name="thickness">The thickness of the outline. Set to 0 if you want to remove it.</param>
+    public virtual void SetTextOutline(Color color)
+    {
+        Button?.buttonLabelText.SetOutlineColor(color);
     }
 
     /// <summary>
