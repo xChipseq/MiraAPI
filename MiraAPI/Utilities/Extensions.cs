@@ -40,6 +40,16 @@ public static class Extensions
     }
 
     /// <summary>
+    /// Determines if a float is an integer.
+    /// </summary>
+    /// <param name="number">The float number.</param>
+    /// <returns>True if the float is an integer, false otherwise.</returns>
+    public static bool IsInteger(this float number)
+    {
+        return Mathf.Approximately(number, Mathf.Round(number));
+    }
+
+    /// <summary>
     /// Gets the best constructor for a type based on the specified arguments.
     /// </summary>
     /// <param name="type">The type to get the constructor from.</param>

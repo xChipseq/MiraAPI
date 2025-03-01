@@ -6,6 +6,7 @@ using MiraAPI.GameModes;
 using MiraAPI.GameOptions;
 using MiraAPI.Hud;
 using MiraAPI.Modifiers;
+using MiraAPI.Modifiers.Types;
 
 namespace MiraAPI.PluginLoading;
 
@@ -72,6 +73,8 @@ public class MiraPluginInfo
     internal List<IModdedOption> Options { get; } = [];
 
     internal List<BaseModifier> Modifiers { get; } = [];
+
+    internal List<GameModifier> GameModifiers { get; } = [];
 
     internal Dictionary<ushort, RoleBehaviour> CustomRoles { get; } = [];
 

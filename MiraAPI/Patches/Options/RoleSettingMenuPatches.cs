@@ -504,7 +504,7 @@ public static class RoleSettingMenuPatches
 
         if (index < GameSettingMenuPatches.SelectedMod?.CustomRoles.Count - 1)
         {
-            ScrollerNum += -0.43f;
+            ScrollerNum -= 0.43f;
         }
 
         return roleOptionSetting;

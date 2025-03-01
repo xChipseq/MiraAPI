@@ -1,11 +1,13 @@
 ﻿using System;
+using MiraAPI.GameOptions;
+using MiraAPI.PluginLoading;
 
 namespace MiraAPI.Modifiers;
 
 /// <summary>
 /// Base class for all modifiers.
 /// </summary>
-public abstract class BaseModifier
+public abstract class BaseModifier : IOptionable
 {
     /// <summary>
     /// Gets the player that the modifier is attached to.
@@ -31,6 +33,16 @@ public abstract class BaseModifier
     /// Gets the type ID of the modifier.
     /// </summary>
     public uint TypeId => ModifierManager.GetModifierTypeId(GetType()) ?? throw new InvalidOperationException("Modifier is not registered.");
+
+    /// <summary>
+    /// Gets the parent mod of the modifier.
+    /// </summary>
+    public MiraPluginInfo ParentMod => Array.Find(
+        MiraPluginManager.Instance.RegisteredPlugins(),
+        x => x.Modifiers.Exists(y => y.TypeId == TypeId)
+        ) ?? throw new InvalidOperationException("Modifier is not registered.");
+
+    internal ModifierOptionGroup? ModifierOptionsGroup { get; set; }
 
     /// <summary>
     /// Gets the modifier name.

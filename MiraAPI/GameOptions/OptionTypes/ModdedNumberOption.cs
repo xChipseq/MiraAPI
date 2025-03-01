@@ -75,11 +75,11 @@ public class ModdedNumberOption : ModdedOption<float>
         data.Increment = Increment;
         data.ValidRange = new FloatRange(Min, Max);
         data.FormatString = formatString ??
-                            (!Mathf.Approximately(defaultValue, 0) ||
-                             !Mathf.Approximately(Increment % 1, 0) ||
-                             !Mathf.Approximately(Value % 1, 0) ||
-                             !Mathf.Approximately(Min % 1, 0) ||
-                             !Mathf.Approximately(Max % 1, 0) ? "0.0" : "0");
+                            (defaultValue.IsInteger() &&
+                             Increment.IsInteger() &&
+                             Value.IsInteger() &&
+                             Min.IsInteger() &&
+                             Max.IsInteger() ? "0" : "0.0");
 
         data.ZeroIsInfinity = ZeroInfinity;
         data.SuffixType = (NumberSuffixes)SuffixType;

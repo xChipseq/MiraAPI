@@ -1,14 +1,18 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using HarmonyLib;
 using MiraAPI.GameOptions;
+using MiraAPI.Modifiers.Types;
 using MiraAPI.Roles;
 using MiraAPI.Utilities;
 using MiraAPI.Utilities.Assets;
 using Reactor.Localization.Utilities;
+using Reactor.Utilities;
 using Reactor.Utilities.Extensions;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
+using Object = UnityEngine.Object;
 
 namespace MiraAPI.Patches.Options;
 
@@ -32,62 +36,103 @@ public static class GameOptionsMenuPatch
         }
 
         var num = 2.1f;
-        var filteredGroups =
-            GameSettingMenuPatches.SelectedMod?.OptionGroups
-                .Where(x=> x is not IOptionableGroup) ?? [];
-
-        foreach (var group in filteredGroups)
+        if (__instance.name == "MODIFIERS TAB")
         {
-            if (group.Options.Count == 0 || group.Header is null)
+            ModifiersUpdate(ref num);
+        }
+        else
+        {
+            var filteredGroups =
+                GameSettingMenuPatches.SelectedMod?.OptionGroups
+                    .Where(x => x is not IOptionableGroup) ?? [];
+
+            foreach (var group in filteredGroups)
             {
-                continue;
-            }
-
-            if (!group.GroupVisible.Invoke())
-            {
-                group.Header.gameObject.SetActive(false);
-                foreach (var option in group.Options)
-                {
-                    option.OptionBehaviour?.gameObject.SetActive(false);
-                }
-                continue;
-            }
-
-            group.Header.gameObject.SetActive(true);
-            group.Header.transform.localScale = Vector3.one * 0.63f;
-            group.Header.transform.localPosition = new Vector3(-0.903f, num, -2f);
-
-            num -= 0.58f;
-
-            foreach (var opt in group.Options)
-            {
-                var newOpt = opt.OptionBehaviour;
-
-                if (newOpt is null)
-                {
-                    continue;
-                }
-
-                if (!opt.Visible.Invoke())
-                {
-                    newOpt.gameObject.SetActive(false);
-                    continue;
-                }
-
-                if (!group.AllOptionsHidden)
-                {
-                    newOpt.gameObject.SetActive(true);
-                    newOpt.transform.localPosition = new Vector3(0.952f, num, -2f);
-                    num -= 0.45f;
-                }
-                else
-                {
-                    newOpt.gameObject.SetActive(false);
-                }
+                UpdateGroup(group, ref num);
             }
         }
 
         __instance.scrollBar.SetYBoundsMax(-num - 1.65f);
+    }
+
+    private static void UpdateGroup(AbstractOptionGroup group, ref float num)
+    {
+        if (group.Options.Count == 0 || group.Header is null)
+        {
+            return;
+        }
+
+        if (!group.GroupVisible.Invoke())
+        {
+            group.Header.gameObject.SetActive(false);
+            foreach (var option in group.Options)
+            {
+                option.OptionBehaviour?.gameObject.SetActive(false);
+            }
+
+            return;
+        }
+
+        group.Header.gameObject.SetActive(true);
+        group.Header.transform.localScale = Vector3.one * 0.63f;
+        group.Header.transform.localPosition = new Vector3(-0.903f, num, -2f);
+
+        num -= 0.58f;
+
+        foreach (var opt in group.Options)
+        {
+            var newOpt = opt.OptionBehaviour;
+
+            if (newOpt is null)
+            {
+                continue;
+            }
+
+            if (!opt.Visible.Invoke())
+            {
+                newOpt.gameObject.SetActive(false);
+                continue;
+            }
+
+            if (!group.AllOptionsHidden)
+            {
+                newOpt.gameObject.SetActive(true);
+                newOpt.transform.localPosition = new Vector3(0.952f, num, -2f);
+                num -= 0.45f;
+            }
+            else
+            {
+                newOpt.gameObject.SetActive(false);
+            }
+        }
+    }
+
+    private static void ModifiersUpdate(ref float num)
+    {
+        var modifiers = GameSettingMenuPatches.SelectedMod?.Modifiers.Select(x=>x.ModifierOptionsGroup) ?? [];
+
+        foreach (var modGroup in modifiers)
+        {
+            if (modGroup != null)
+            {
+                UpdateGroup(modGroup, ref num);
+            }
+        }
+    }
+
+    private static void ModifiersCreate(GameOptionsMenu menu)
+    {
+        var modifiers = GameSettingMenuPatches.SelectedMod?.GameModifiers ?? [];
+
+        var optLookup = GameSettingMenuPatches.SelectedMod?.OptionGroups
+            .Where(x => x is IOptionableGroup group && group.OptionableType.IsAssignableTo(typeof(GameModifier)))
+            .ToLookup(x => (x as IOptionableGroup)!.OptionableType);
+
+        foreach (var mod in modifiers)
+        {
+            mod.ModifierOptionsGroup = new ModifierOptionGroup(mod.ModifierName, [mod.AmountOption, mod.ChanceOption], [.. optLookup?[mod.GetType()] ?? []]);
+            CreateGroup(menu, mod.ModifierOptionsGroup);
+        }
     }
 
     [HarmonyPrefix]
@@ -101,107 +146,19 @@ public static class GameOptionsMenuPatch
 
         __instance.MapPicker.gameObject.SetActive(false);
 
+        if (__instance.name == "MODIFIERS TAB")
+        {
+            Logger<MiraApiPlugin>.Error("Creating modifiers");
+            ModifiersCreate(__instance);
+            return false;
+        }
+
         var filteredGroups = GameSettingMenuPatches.SelectedMod?.OptionGroups
             .Where(x => x is not IOptionableGroup) ?? [];
 
         foreach (var group in filteredGroups)
         {
-            var categoryHeaderMasked = Object.Instantiate(
-                __instance.categoryHeaderOrigin,
-                Vector3.zero,
-                Quaternion.identity,
-                __instance.settingsContainer);
-            categoryHeaderMasked.SetHeader(CustomStringName.CreateAndRegister(group.GroupName), 20);
-            if (group.GroupColor != Color.clear)
-            {
-                categoryHeaderMasked.Background.color = group.GroupColor;
-                categoryHeaderMasked.Divider.color = group.GroupColor;
-                categoryHeaderMasked.Title.color = group.GroupColor.GetAlternateColor();
-            }
-
-            categoryHeaderMasked.Background.size = new Vector2(
-                categoryHeaderMasked.Background.size.x + 1.5f,
-                categoryHeaderMasked.Background.size.y);
-            categoryHeaderMasked.gameObject.SetActive(false);
-            group.Header = categoryHeaderMasked;
-
-            var newText = Object.Instantiate(categoryHeaderMasked.Title, categoryHeaderMasked.transform);
-            newText.text = "<size=70%>(Click to close)</size>";
-            newText.transform.localPosition = new Vector3(2.6249f, -0.165f, 0f);
-            newText.gameObject.GetComponent<TextTranslatorTMP>().Destroy();
-
-            var options = group.Options.Select(
-                opt => opt.CreateOption(
-                    __instance.checkboxOrigin,
-                    __instance.numberOptionOrigin,
-                    __instance.stringOptionOrigin,
-                    __instance.settingsContainer));
-
-            foreach (var newOpt in options)
-            {
-                newOpt.SetClickMask(__instance.ButtonClickMask);
-
-                SpriteRenderer[] componentsInChildren = newOpt.GetComponentsInChildren<SpriteRenderer>(true);
-                foreach (var renderer in componentsInChildren)
-                {
-                    if (group.GroupColor != Color.clear)
-                    {
-                        renderer.color = group.GroupColor.GetAlternateColor();
-                        if (renderer.transform.parent.TryGetComponent<GameOptionButton>(out var btn))
-                        {
-                            btn.interactableColor = group.GroupColor.GetAlternateColor();
-                            btn.interactableHoveredColor = Color.white;
-                        }
-                    }
-
-                    renderer.material.SetInt(PlayerMaterial.MaskLayer, 20);
-                }
-
-                foreach (var textMeshPro in newOpt.GetComponentsInChildren<TextMeshPro>(true))
-                {
-                    if (group.GroupColor != Color.clear)
-                    {
-                        textMeshPro.color = group.GroupColor;
-                    }
-
-                    textMeshPro.fontMaterial.SetFloat(ShaderID.StencilComp, 3f);
-                    textMeshPro.fontMaterial.SetFloat(ShaderID.Stencil, 20);
-                }
-
-                if (newOpt is ToggleOption toggle)
-                {
-                    toggle.CheckMark.sprite = MiraAssets.Checkmark.LoadAsset();
-                    toggle.CheckMark.color =
-                        group.GroupColor != Color.clear ? group.GroupColor : MiraAssets.AcceptedTeal;
-                    var rend = toggle.CheckMark.transform.parent.FindChild("ActiveSprite")
-                        .GetComponent<SpriteRenderer>();
-                    rend.sprite = MiraAssets.CheckmarkBox.LoadAsset();
-                    rend.color = group.GroupColor != Color.clear ? group.GroupColor : MiraAssets.AcceptedTeal;
-                }
-
-                __instance.Children.Add(newOpt);
-
-                newOpt.Initialize();
-                newOpt.gameObject.SetActive(false);
-            }
-
-            var boxCol = categoryHeaderMasked.gameObject.AddComponent<BoxCollider2D>();
-            boxCol.size = new Vector2(7, 0.7f);
-            boxCol.offset = new Vector2(1.5f, -0.3f);
-
-            var headerBtn = categoryHeaderMasked.gameObject.AddComponent<PassiveButton>();
-            headerBtn.ClickSound = __instance.BackButton.GetComponent<PassiveButton>().ClickSound;
-            headerBtn.OnMouseOver = new UnityEvent();
-            headerBtn.OnMouseOut = new UnityEvent();
-            headerBtn.OnClick.AddListener(
-                (UnityAction)(() =>
-                {
-                    group.AllOptionsHidden = !group.AllOptionsHidden;
-                    newText.text = group.AllOptionsHidden
-                        ? "<size=70%>(Click to open)</size>"
-                        : "<size=70%>(Click to close)</size>";
-                }));
-            headerBtn.SetButtonEnableState(true);
+            CreateGroup(__instance, group);
         }
 
         return false;
@@ -240,5 +197,106 @@ public static class GameOptionsMenuPatch
         }
 
         return false;
+    }
+
+    private static void CreateGroup(GameOptionsMenu menu, AbstractOptionGroup group)
+    {
+        var categoryHeaderMasked = Object.Instantiate(
+            menu.categoryHeaderOrigin,
+            Vector3.zero,
+            Quaternion.identity,
+            menu.settingsContainer);
+
+        categoryHeaderMasked.SetHeader(CustomStringName.CreateAndRegister(group.GroupName), 20);
+        if (group.GroupColor != Color.clear)
+        {
+            categoryHeaderMasked.Background.color = group.GroupColor;
+            categoryHeaderMasked.Divider.color = group.GroupColor;
+            categoryHeaderMasked.Title.color = group.GroupColor.GetAlternateColor();
+        }
+
+        categoryHeaderMasked.Background.size = new Vector2(
+            categoryHeaderMasked.Background.size.x + 1.5f,
+            categoryHeaderMasked.Background.size.y);
+        categoryHeaderMasked.gameObject.SetActive(false);
+        group.Header = categoryHeaderMasked;
+
+        var newText = Object.Instantiate(categoryHeaderMasked.Title, categoryHeaderMasked.transform);
+        newText.text = "<size=70%>(Click to close)</size>";
+        newText.transform.localPosition = new Vector3(2.6249f, -0.165f, 0f);
+        newText.gameObject.GetComponent<TextTranslatorTMP>().Destroy();
+
+        var options = group.Options.Select(
+            opt => opt.CreateOption(
+                menu.checkboxOrigin,
+                menu.numberOptionOrigin,
+                menu.stringOptionOrigin,
+                menu.settingsContainer));
+
+        foreach (var newOpt in options)
+        {
+            newOpt.SetClickMask(menu.ButtonClickMask);
+
+            SpriteRenderer[] componentsInChildren = newOpt.GetComponentsInChildren<SpriteRenderer>(true);
+            foreach (var renderer in componentsInChildren)
+            {
+                if (group.GroupColor != Color.clear)
+                {
+                    renderer.color = group.GroupColor.GetAlternateColor();
+                    if (renderer.transform.parent.TryGetComponent<GameOptionButton>(out var btn))
+                    {
+                        btn.interactableColor = group.GroupColor.GetAlternateColor();
+                        btn.interactableHoveredColor = Color.white;
+                    }
+                }
+
+                renderer.material.SetInt(PlayerMaterial.MaskLayer, 20);
+            }
+
+            foreach (var textMeshPro in newOpt.GetComponentsInChildren<TextMeshPro>(true))
+            {
+                if (group.GroupColor != Color.clear)
+                {
+                    textMeshPro.color = group.GroupColor;
+                }
+
+                textMeshPro.fontMaterial.SetFloat(ShaderID.StencilComp, 3f);
+                textMeshPro.fontMaterial.SetFloat(ShaderID.Stencil, 20);
+            }
+
+            if (newOpt is ToggleOption toggle)
+            {
+                toggle.CheckMark.sprite = MiraAssets.Checkmark.LoadAsset();
+                toggle.CheckMark.color =
+                    group.GroupColor != Color.clear ? group.GroupColor : MiraAssets.AcceptedTeal;
+                var rend = toggle.CheckMark.transform.parent.FindChild("ActiveSprite")
+                    .GetComponent<SpriteRenderer>();
+                rend.sprite = MiraAssets.CheckmarkBox.LoadAsset();
+                rend.color = group.GroupColor != Color.clear ? group.GroupColor : MiraAssets.AcceptedTeal;
+            }
+
+            menu.Children.Add(newOpt);
+
+            newOpt.Initialize();
+            newOpt.gameObject.SetActive(false);
+        }
+
+        var boxCol = categoryHeaderMasked.gameObject.AddComponent<BoxCollider2D>();
+        boxCol.size = new Vector2(7, 0.7f);
+        boxCol.offset = new Vector2(1.5f, -0.3f);
+
+        var headerBtn = categoryHeaderMasked.gameObject.AddComponent<PassiveButton>();
+        headerBtn.ClickSound = menu.BackButton.GetComponent<PassiveButton>().ClickSound;
+        headerBtn.OnMouseOver = new UnityEvent();
+        headerBtn.OnMouseOut = new UnityEvent();
+        headerBtn.OnClick.AddListener(
+            (UnityAction)(() =>
+            {
+                group.AllOptionsHidden = !group.AllOptionsHidden;
+                newText.text = group.AllOptionsHidden
+                    ? "<size=70%>(Click to open)</size>"
+                    : "<size=70%>(Click to close)</size>";
+            }));
+        headerBtn.SetButtonEnableState(true);
     }
 }

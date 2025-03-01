@@ -47,7 +47,7 @@ public interface ICustomRole : IOptionable
     /// <summary>
     /// Gets the role options group.
     /// </summary>
-    public RoleOptionsGroup RoleOptionsGroup => Team switch
+    RoleOptionsGroup RoleOptionsGroup => Team switch
     {
         ModdedRoleTeams.Crewmate => RoleOptionsGroup.Crewmate,
         ModdedRoleTeams.Impostor => RoleOptionsGroup.Impostor,
@@ -58,7 +58,7 @@ public interface ICustomRole : IOptionable
     /// <summary>
     /// Gets the role's TeamIntroCutscene configuration.
     /// </summary>
-    public TeamIntroConfiguration? IntroConfiguration => Team switch
+    TeamIntroConfiguration? IntroConfiguration => Team switch
     {
         ModdedRoleTeams.Custom => TeamIntroConfiguration.Neutral,
         _ => null,

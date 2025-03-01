@@ -71,7 +71,23 @@ public static class ModifierManager
             return true;
         }
 
-        var mod = Activator.CreateInstance(modifierType) as GameModifier;
+        if (modifierType.GetConstructor(Type.EmptyTypes) == null)
+        {
+            Logger<MiraApiPlugin>.Error($"Modifier {modifierType.FullName} does not have a parameterless constructor!");
+            return false;
+        }
+
+        if (Activator.CreateInstance(modifierType) is not GameModifier mod)
+        {
+            Logger<MiraApiPlugin>.Error($"Modifier {modifierType.FullName} could not be cast to GameModifier!");
+            return false;
+        }
+
+        info.GameModifiers.Add(mod);
+
+        info.PluginConfig.Bind(mod.AmountDefinition, 0);
+        info.PluginConfig.Bind(mod.ChanceDefinition, 0);
+
         var priority = mod!.Priority();
 
         if (!PrioritiesToIdsMap.TryGetValue(priority, out var list))
