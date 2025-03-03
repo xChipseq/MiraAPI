@@ -6,10 +6,10 @@ internal class ModifierOptionGroup : AbstractOptionGroup
 {
     public override string GroupName { get; }
 
-    public ModifierOptionGroup(string name, IModdedOption[] options, params AbstractOptionGroup[] others)
+    public ModifierOptionGroup(string name, IModdedOption[] options, params AbstractOptionGroup[] groups)
     {
         GroupName = name;
         Options.AddRange(options);
-        Options.AddRange(others.SelectMany(x=>x.Options));
+        Options.AddRange(groups.SelectMany(x=>x.Options));
     }
 }

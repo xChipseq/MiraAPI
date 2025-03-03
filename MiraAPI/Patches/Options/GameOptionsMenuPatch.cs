@@ -122,15 +122,22 @@ public static class GameOptionsMenuPatch
 
     private static void ModifiersCreate(GameOptionsMenu menu)
     {
-        var modifiers = GameSettingMenuPatches.SelectedMod?.GameModifiers ?? [];
+        var modifiers = GameSettingMenuPatches.SelectedMod?.Modifiers ?? [];
 
         var optLookup = GameSettingMenuPatches.SelectedMod?.OptionGroups
-            .Where(x => x is IOptionableGroup group && group.OptionableType.IsAssignableTo(typeof(GameModifier)))
-            .ToLookup(x => (x as IOptionableGroup)!.OptionableType);
+            .OfType<IOptionableGroup>()
+            .ToLookup(x => x.OptionableType);
 
         foreach (var mod in modifiers)
         {
-            mod.ModifierOptionsGroup = new ModifierOptionGroup(mod.ModifierName, [mod.AmountOption, mod.ChanceOption], [.. optLookup?[mod.GetType()] ?? []]);
+            IModdedOption[] opts = mod is GameModifier gm ? [gm.AmountOption, gm.ChanceOption] : [];
+            if (optLookup?[mod.GetType()].Any() == false && opts.Length == 0)
+            {
+                continue;
+            }
+
+            var groups = optLookup?[mod.GetType()] ?? [];
+            mod.ModifierOptionsGroup = new ModifierOptionGroup(mod.ModifierName, opts, [.. groups.OfType<AbstractOptionGroup>()]);
             CreateGroup(menu, mod.ModifierOptionsGroup);
         }
     }
