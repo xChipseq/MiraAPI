@@ -307,7 +307,7 @@ public static class RoleSettingMenuPatches
 
         // TODO: create sub groups under the role settings.
         var filteredOptions = GameSettingMenuPatches.SelectedMod?.OptionGroups
-            .Where(x=> x is IOptionableGroup optionableGroup && optionableGroup.OptionableType == role.GetType())
+            .Where(x=> x.OptionableType == role.GetType())
             .SelectMany(x=>x.Options)
             .ToList() ?? [];
 
@@ -471,7 +471,7 @@ public static class RoleSettingMenuPatches
 
         if (GameSettingMenuPatches.SelectedMod is null ||
             GameSettingMenuPatches.SelectedMod.OptionGroups
-                .Exists(x => x is IOptionableGroup optionGroup && optionGroup.OptionableType == role.GetType()))
+                .Exists(x => x.OptionableType == role.GetType()))
         {
             var newButton = Object.Instantiate(roleOptionSetting.buttons[0], roleOptionSetting.transform);
             newButton.name = "ConfigButton";

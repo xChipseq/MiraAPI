@@ -17,6 +17,11 @@ public abstract class AbstractOptionGroup
     public abstract string GroupName { get; }
 
     /// <summary>
+    /// Gets the Optionable type of the group.
+    /// </summary>
+    public virtual Type? OptionableType => null;
+
+    /// <summary>
     /// Gets the function that determines whether the group should be visible or not.
     /// </summary>
     public virtual Func<bool> GroupVisible => () => true;
@@ -41,10 +46,8 @@ public abstract class AbstractOptionGroup
 /// Base class for option groups. An option group is a collection of options that are displayed together in the options menu.
 /// </summary>
 /// <typeparam name="T">The type of the optionable that this group contains.</typeparam>
-public abstract class AbstractOptionGroup<T> : AbstractOptionGroup, IOptionableGroup where T : IOptionable
+public abstract class AbstractOptionGroup<T> : AbstractOptionGroup where T : IOptionable
 {
-    /// <summary>
-    /// Gets the Optionable type of the group.
-    /// </summary>
-    public Type OptionableType => typeof(T);
+    /// <inheritdoc />
+    public override Type OptionableType => typeof(T);
 }

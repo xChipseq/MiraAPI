@@ -108,7 +108,7 @@ public static class ModdedOptionsManager
         RegisterOption(option, group, property.Name, pluginInfo);
     }
 
-    private static void RegisterOption(
+    internal static void RegisterOption(
         IModdedOption option,
         AbstractOptionGroup group,
         string propertyName,

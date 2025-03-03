@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Linq;
 using HarmonyLib;
+using MiraAPI.Modifiers;
+using MiraAPI.Modifiers.Types;
 using MiraAPI.PluginLoading;
 using MiraAPI.Utilities.Assets;
 using Reactor.Utilities.Extensions;
@@ -73,36 +76,43 @@ internal static class GameSettingMenuPatches
         var nextButton = Object.Instantiate(__instance.BackButton, __instance.BackButton.transform.parent).gameObject;
         nextButton.transform.localPosition = new Vector3(-2.2663f, 1.5272f, -25f);
         nextButton.name = "RightArrowButton";
-        nextButton.transform.FindChild("Inactive").gameObject.GetComponent<SpriteRenderer>().sprite = MiraAssets.NextButton.LoadAsset();
-        nextButton.transform.FindChild("Active").gameObject.GetComponent<SpriteRenderer>().sprite = MiraAssets.NextButtonActive.LoadAsset();
+        nextButton.transform.FindChild("Inactive").gameObject.GetComponent<SpriteRenderer>().sprite =
+            MiraAssets.NextButton.LoadAsset();
+        nextButton.transform.FindChild("Active").gameObject.GetComponent<SpriteRenderer>().sprite =
+            MiraAssets.NextButtonActive.LoadAsset();
         nextButton.gameObject.GetComponent<CloseButtonConsoleBehaviour>().DestroyImmediate();
 
         var passiveButton = nextButton.gameObject.GetComponent<PassiveButton>();
         passiveButton.OnClick = new ButtonClickedEvent();
-        passiveButton.OnClick.AddListener((UnityAction)(() =>
-        {
-            SelectedModIdx += 1;
-            if (SelectedModIdx > MiraPluginManager.Instance.RegisteredPlugins().Length)
+        passiveButton.OnClick.AddListener(
+            (UnityAction)(() =>
             {
-                SelectedModIdx = 0;
-            }
-            UpdateText(__instance, __instance.GameSettingsTab, __instance.RoleSettingsTab);
-        }));
+                SelectedModIdx += 1;
+                if (SelectedModIdx > MiraPluginManager.Instance.RegisteredPlugins().Length)
+                {
+                    SelectedModIdx = 0;
+                }
+
+                UpdateText(__instance, __instance.GameSettingsTab, __instance.RoleSettingsTab);
+            }));
 
         var backButton = Object.Instantiate(nextButton, __instance.BackButton.transform.parent).gameObject;
         backButton.transform.localPosition = new Vector3(-4.4209f, 1.5272f, -25f);
         backButton.name = "LeftArrowButton";
         backButton.gameObject.GetComponent<CloseButtonConsoleBehaviour>().Destroy();
-        backButton.transform.FindChild("Active").gameObject.GetComponent<SpriteRenderer>().flipX = backButton.transform.FindChild("Inactive").gameObject.GetComponent<SpriteRenderer>().flipX = true;
-        backButton.gameObject.GetComponent<PassiveButton>().OnClick.AddListener((UnityAction)(() =>
-        {
-            SelectedModIdx -= 1;
-            if (SelectedModIdx < 0)
+        backButton.transform.FindChild("Active").gameObject.GetComponent<SpriteRenderer>().flipX =
+            backButton.transform.FindChild("Inactive").gameObject.GetComponent<SpriteRenderer>().flipX = true;
+        backButton.gameObject.GetComponent<PassiveButton>().OnClick.AddListener(
+            (UnityAction)(() =>
             {
-                SelectedModIdx = MiraPluginManager.Instance.RegisteredPlugins().Length;
-            }
-            UpdateText(__instance, __instance.GameSettingsTab, __instance.RoleSettingsTab);
-        }));
+                SelectedModIdx -= 1;
+                if (SelectedModIdx < 0)
+                {
+                    SelectedModIdx = MiraPluginManager.Instance.RegisteredPlugins().Length;
+                }
+
+                UpdateText(__instance, __instance.GameSettingsTab, __instance.RoleSettingsTab);
+            }));
 
         // clone game settings tab for modifiers
         _modifiersTab = Object.Instantiate(__instance.GameSettingsTab, __instance.GameSettingsTab.transform.parent);
@@ -110,23 +120,33 @@ internal static class GameSettingMenuPatches
 
         // create button for modifiers
         __instance.RoleSettingsButton.gameObject.SetActive(false);
-        _smallRolesButton = Object.Instantiate(__instance.RoleSettingsButton, __instance.RoleSettingsButton.transform.parent);
-        var pos = new Vector3(-3.65f, _smallRolesButton.transform.localPosition.y, _smallRolesButton.transform.localPosition.z);
+        _smallRolesButton = Object.Instantiate(
+            __instance.RoleSettingsButton,
+            __instance.RoleSettingsButton.transform.parent);
+        var pos = new Vector3(
+            -3.65f,
+            _smallRolesButton.transform.localPosition.y,
+            _smallRolesButton.transform.localPosition.z);
         _smallRolesButton.transform.localPosition = pos;
-        _smallRolesButton.OnClick.AddListener((UnityAction)(() =>
-        {
-            __instance.ChangeTab(2, false);
-        }));
-        _smallRolesButton.OnMouseOver.AddListener((UnityAction)(() =>
-        {
-            __instance.ChangeTab(2, true);
-        }));
+        _smallRolesButton.OnClick.AddListener(
+            (UnityAction)(() =>
+            {
+                __instance.ChangeTab(2, false);
+            }));
+        _smallRolesButton.OnMouseOver.AddListener(
+            (UnityAction)(() =>
+            {
+                __instance.ChangeTab(2, true);
+            }));
 
         var roleText = _smallRolesButton.buttonText;
         roleText.text = "Roles";
         roleText.GetComponent<TextTranslatorTMP>().Destroy();
         roleText.alignment = TextAlignmentOptions.Center;
-        roleText.transform.parent.localPosition = new Vector3(-.525f, roleText.transform.parent.localPosition.y, roleText.transform.parent.localPosition.z);
+        roleText.transform.parent.localPosition = new Vector3(
+            -.525f,
+            roleText.transform.parent.localPosition.y,
+            roleText.transform.parent.localPosition.z);
 
         foreach (var collider in _smallRolesButton.Colliders)
         {
@@ -135,6 +155,7 @@ internal static class GameSettingMenuPatches
                 col.size = new Vector2(col.size.x / 2, col.size.y);
             }
         }
+
         foreach (var rend in _smallRolesButton.GetComponentsInChildren<SpriteRenderer>(true))
         {
             rend.size = new Vector2(rend.size.x / 2, rend.size.y);
@@ -142,15 +163,17 @@ internal static class GameSettingMenuPatches
 
         _modifiersButton = Object.Instantiate(_smallRolesButton, _smallRolesButton.transform.parent);
         _modifiersButton.OnClick = new ButtonClickedEvent();
-        _modifiersButton.OnClick.AddListener((UnityAction)(() =>
-        {
-            __instance.ChangeTab(3, false);
-        }));
+        _modifiersButton.OnClick.AddListener(
+            (UnityAction)(() =>
+            {
+                __instance.ChangeTab(3, false);
+            }));
         _modifiersButton.OnMouseOver = new UnityEvent();
-        _modifiersButton.OnMouseOver.AddListener((UnityAction)(() =>
-        {
-            __instance.ChangeTab(3, true);
-        }));
+        _modifiersButton.OnMouseOver.AddListener(
+            (UnityAction)(() =>
+            {
+                __instance.ChangeTab(3, true);
+            }));
 
         _modifiersButton.buttonText.text = "Modifiers";
         pos.x = -2.27f;
@@ -179,7 +202,8 @@ internal static class GameSettingMenuPatches
         _modifiersButton.gameObject.SetActive(false);
         _smallRolesButton.gameObject.SetActive(false);
         menu.RoleSettingsButton.gameObject.SetActive(false);
-        if (SelectedModIdx != 0 && SelectedMod?.GameModifiers.Count != 0)
+        if (SelectedModIdx != 0 &&
+            SelectedMod?.OptionGroups.Exists(x => x.OptionableType?.IsAssignableTo(typeof(BaseModifier)) == true) == true)
         {
             _modifiersButton.gameObject.SetActive(true);
             _smallRolesButton.gameObject.SetActive(true);
@@ -225,11 +249,13 @@ internal static class GameSettingMenuPatches
                 {
                     child.gameObject.DestroyImmediate();
                 }
+
                 roles.advancedSettingChildren.Clear();
                 roles.advancedSettingChildren = null;
             }
 
-            foreach (var header in roles.RoleChancesSettings.transform.GetComponentsInChildren<CategoryHeaderEditRole>())
+            foreach (var header in roles.RoleChancesSettings.transform
+                         .GetComponentsInChildren<CategoryHeaderEditRole>())
             {
                 header.gameObject.DestroyImmediate();
             }

@@ -42,8 +42,6 @@ public abstract class BaseModifier : IOptionable
         x => x.Modifiers.Exists(y => y.TypeId == TypeId)
         ) ?? throw new InvalidOperationException("Modifier is not registered.");
 
-    internal ModifierOptionGroup? ModifierOptionsGroup { get; set; }
-
     /// <summary>
     /// Gets the modifier name.
     /// </summary>

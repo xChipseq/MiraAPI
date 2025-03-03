@@ -127,7 +127,7 @@ public static class LobbyViewPanePatches
         var num = 1.44f;
 
         var filteredGroups = SelectedMod.OptionGroups
-            .Where(x => x.GroupVisible.Invoke() && x is not IOptionableGroup);
+            .Where(x => x.OptionableType == null && x.GroupVisible.Invoke());
 
         foreach (var group in filteredGroups)
         {
@@ -280,7 +280,7 @@ public static class LobbyViewPanePatches
                 viewSettingsInfoPanelRoleVariant.transform.localPosition = new Vector3(num2, num, -2f);
 
                 var advancedRoleOptions = SelectedMod.OptionGroups
-                    .Where(x => x is IOptionableGroup optionGroup && optionGroup.OptionableType == customRole.GetType())
+                    .Where(x => x.OptionableType == customRole.GetType())
                     .SelectMany(x => x.Options)
                     .ToList();
 
@@ -390,7 +390,7 @@ public static class LobbyViewPanePatches
         var num2 = 1.08f;
 
         var filteredOptions = SelectedMod.OptionGroups
-            .Where(x => x is IOptionableGroup optionGroup && optionGroup.OptionableType == roleType)
+            .Where(x => x.OptionableType == roleType)
             .SelectMany(x=>x.Options)
             .ToList();
 

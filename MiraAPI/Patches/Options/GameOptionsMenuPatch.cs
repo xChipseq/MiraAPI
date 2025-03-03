@@ -2,6 +2,7 @@
 using System.Linq;
 using HarmonyLib;
 using MiraAPI.GameOptions;
+using MiraAPI.Modifiers;
 using MiraAPI.Modifiers.Types;
 using MiraAPI.Roles;
 using MiraAPI.Utilities;
@@ -44,7 +45,7 @@ public static class GameOptionsMenuPatch
         {
             var filteredGroups =
                 GameSettingMenuPatches.SelectedMod?.OptionGroups
-                    .Where(x => x is not IOptionableGroup) ?? [];
+                    .Where(x => x.OptionableType == null) ?? [];
 
             foreach (var group in filteredGroups)
             {
@@ -109,36 +110,22 @@ public static class GameOptionsMenuPatch
 
     private static void ModifiersUpdate(ref float num)
     {
-        var modifiers = GameSettingMenuPatches.SelectedMod?.Modifiers.Select(x=>x.ModifierOptionsGroup) ?? [];
+        var groups = GameSettingMenuPatches.SelectedMod?.OptionGroups
+            .Where(x => x.OptionableType?.IsAssignableTo(typeof(BaseModifier)) == true) ?? [];
 
-        foreach (var modGroup in modifiers)
+        foreach (var modGroup in groups)
         {
-            if (modGroup != null)
-            {
-                UpdateGroup(modGroup, ref num);
-            }
+            UpdateGroup(modGroup, ref num);
         }
     }
 
     private static void ModifiersCreate(GameOptionsMenu menu)
     {
-        var modifiers = GameSettingMenuPatches.SelectedMod?.Modifiers ?? [];
-
-        var optLookup = GameSettingMenuPatches.SelectedMod?.OptionGroups
-            .OfType<IOptionableGroup>()
-            .ToLookup(x => x.OptionableType);
-
-        foreach (var mod in modifiers)
+        var groups = GameSettingMenuPatches.SelectedMod?.OptionGroups
+            .Where(x => x.OptionableType?.IsAssignableTo(typeof(BaseModifier))==true) ?? [];
+        foreach (var group in groups)
         {
-            IModdedOption[] opts = mod is GameModifier gm ? [gm.AmountOption, gm.ChanceOption] : [];
-            if (optLookup?[mod.GetType()].Any() == false && opts.Length == 0)
-            {
-                continue;
-            }
-
-            var groups = optLookup?[mod.GetType()] ?? [];
-            mod.ModifierOptionsGroup = new ModifierOptionGroup(mod.ModifierName, opts, [.. groups.OfType<AbstractOptionGroup>()]);
-            CreateGroup(menu, mod.ModifierOptionsGroup);
+            CreateGroup(menu, group);
         }
     }
 
@@ -161,7 +148,7 @@ public static class GameOptionsMenuPatch
         }
 
         var filteredGroups = GameSettingMenuPatches.SelectedMod?.OptionGroups
-            .Where(x => x is not IOptionableGroup) ?? [];
+            .Where(x => x.OptionableType == null) ?? [];
 
         foreach (var group in filteredGroups)
         {

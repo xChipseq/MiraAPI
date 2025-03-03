@@ -74,8 +74,6 @@ public class MiraPluginInfo
 
     internal List<BaseModifier> Modifiers { get; } = [];
 
-    internal List<GameModifier> GameModifiers { get; } = [];
-
     internal Dictionary<ushort, RoleBehaviour> CustomRoles { get; } = [];
 
     internal Dictionary<int, CustomGameMode> GameModes { get; } = [];

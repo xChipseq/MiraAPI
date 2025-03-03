@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using BepInEx.Unity.IL2CPP;
@@ -78,7 +79,7 @@ public sealed class MiraPluginManager
 
                 if (RegisterRoleAttribute(type, info, out var role))
                 {
-                    roles.Add(role!);
+                    roles.Add(role);
                     continue;
                 }
 
@@ -172,7 +173,7 @@ public sealed class MiraPluginManager
         return false;
     }
 
-    private static bool RegisterRoleAttribute(Type type, MiraPluginInfo pluginInfo, out Type? role)
+    private static bool RegisterRoleAttribute(Type type, MiraPluginInfo pluginInfo, [NotNullWhen(true)] out Type? role)
     {
         role = null;
         try
