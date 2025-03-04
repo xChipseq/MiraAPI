@@ -142,7 +142,6 @@ public static class GameOptionsMenuPatch
 
         if (__instance.name == "MODIFIERS TAB")
         {
-            Logger<MiraApiPlugin>.Error("Creating modifiers");
             ModifiersCreate(__instance);
             return false;
         }
