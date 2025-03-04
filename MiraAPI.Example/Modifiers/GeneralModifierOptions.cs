@@ -1,0 +1,19 @@
+﻿using MiraAPI.GameOptions;
+using MiraAPI.GameOptions.Attributes;
+
+namespace MiraAPI.Example.Modifiers;
+
+public class GeneralModifierOptions : AbstractOptionGroup
+{
+    public override string GroupName => "General";
+
+    public override uint GroupPriority => 0;
+
+    public override bool ShowInModifiersMenu => true;
+
+    [ModdedToggleOption("Some Boolean Option")]
+    public bool SomeBooleanOption { get; set; } = true;
+
+    [ModdedNumberOption("Number Option", 0, 10, 1)]
+    public float NumberOption { get; set; } = 5;
+}

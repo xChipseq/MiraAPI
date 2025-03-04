@@ -22,6 +22,12 @@ public abstract class AbstractOptionGroup
     public virtual Type? OptionableType => null;
 
     /// <summary>
+    /// Gets a value indicating whether the group should be shown in the modifiers menu.
+    /// </summary>
+    // TODO: make this not a boolean
+    public virtual bool ShowInModifiersMenu => false;
+
+    /// <summary>
     /// Gets the function that determines whether the group should be visible or not.
     /// </summary>
     public virtual Func<bool> GroupVisible => () => true;
