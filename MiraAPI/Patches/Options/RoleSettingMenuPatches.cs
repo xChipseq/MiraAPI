@@ -304,15 +304,14 @@ public static class RoleSettingMenuPatches
         var hasImage = role.RoleScreenshot != null;
         var num = hasImage ? -0.872f : -1;
 
-        var filteredOptions = GameSettingMenuPatches.SelectedMod?.Options.Where(x => x.AdvancedRole == role.GetType()) ?? [];
+        // TODO: create sub groups under the role settings.
+        var filteredOptions = GameSettingMenuPatches.SelectedMod?.OptionGroups
+            .Where(x=> x.OptionableType == role.GetType())
+            .SelectMany(x=>x.Options)
+            .ToList() ?? [];
 
         foreach (var option in filteredOptions)
         {
-            if (option.AdvancedRole is not null && option.AdvancedRole != role.GetType())
-            {
-                continue;
-            }
-
             var newOpt = option.CreateOption(
                 __instance.checkboxOrigin,
                 __instance.numberOptionOrigin,
@@ -470,8 +469,8 @@ public static class RoleSettingMenuPatches
         roleOptionSetting.titleText.horizontalAlignment = HorizontalAlignmentOptions.Left;
 
         if (GameSettingMenuPatches.SelectedMod is null ||
-            GameSettingMenuPatches.SelectedMod.Options.Exists(
-                x => x.AdvancedRole != null && x.AdvancedRole.IsInstanceOfType(role)))
+            GameSettingMenuPatches.SelectedMod.OptionGroups
+                .Exists(x => x.OptionableType == role.GetType()))
         {
             var newButton = Object.Instantiate(roleOptionSetting.buttons[0], roleOptionSetting.transform);
             newButton.name = "ConfigButton";
@@ -504,7 +503,7 @@ public static class RoleSettingMenuPatches
 
         if (index < GameSettingMenuPatches.SelectedMod?.CustomRoles.Count - 1)
         {
-            ScrollerNum += -0.43f;
+            ScrollerNum -= 0.43f;
         }
 
         return roleOptionSetting;

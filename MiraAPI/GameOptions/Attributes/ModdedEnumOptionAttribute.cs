@@ -8,12 +8,12 @@ namespace MiraAPI.GameOptions.Attributes;
 /// Attribute for creating an enum option.
 /// </summary>
 [AttributeUsage(AttributeTargets.Property)]
-public class ModdedEnumOptionAttribute(string title, Type enumType, string[]? values = null, Type? roleType = null)
-    : ModdedOptionAttribute(title, roleType)
+public class ModdedEnumOptionAttribute(string title, Type enumType, string[]? values = null)
+    : ModdedOptionAttribute(title)
 {
     internal override IModdedOption CreateOption(object? value, PropertyInfo property)
     {
-        var opt = new ModdedEnumOption(Title, (int)(value ?? 0), enumType, values, RoleType);
+        var opt = new ModdedEnumOption(Title, (int)(value ?? 0), enumType, values);
         return opt;
     }
 

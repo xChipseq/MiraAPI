@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using BepInEx.Configuration;
+using MiraAPI.GameOptions;
 using MiraAPI.Modifiers;
 using MiraAPI.PluginLoading;
 using MiraAPI.Utilities;
@@ -11,7 +12,7 @@ namespace MiraAPI.Roles;
 /// <summary>
 /// Interface for custom roles.
 /// </summary>
-public interface ICustomRole
+public interface ICustomRole : IOptionable
 {
     /// <summary>
     /// Gets the name of the role.
@@ -46,7 +47,7 @@ public interface ICustomRole
     /// <summary>
     /// Gets the role options group.
     /// </summary>
-    public RoleOptionsGroup RoleOptionsGroup => Team switch
+    RoleOptionsGroup RoleOptionsGroup => Team switch
     {
         ModdedRoleTeams.Crewmate => RoleOptionsGroup.Crewmate,
         ModdedRoleTeams.Impostor => RoleOptionsGroup.Impostor,
@@ -57,7 +58,7 @@ public interface ICustomRole
     /// <summary>
     /// Gets the role's TeamIntroCutscene configuration.
     /// </summary>
-    public TeamIntroConfiguration? IntroConfiguration => Team switch
+    TeamIntroConfiguration? IntroConfiguration => Team switch
     {
         ModdedRoleTeams.Custom => TeamIntroConfiguration.Neutral,
         _ => null,

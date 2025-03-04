@@ -15,8 +15,7 @@ public class ModdedToggleOption : ModdedOption<bool>
     /// </summary>
     /// <param name="title">The option title.</param>
     /// <param name="defaultValue">The default value.</param>
-    /// <param name="roleType">An optional role type.</param>
-    public ModdedToggleOption(string title, bool defaultValue, Type? roleType = null) : base(title, defaultValue, roleType)
+    public ModdedToggleOption(string title, bool defaultValue) : base(title, defaultValue)
     {
         Data = ScriptableObject.CreateInstance<CheckboxGameSetting>();
 

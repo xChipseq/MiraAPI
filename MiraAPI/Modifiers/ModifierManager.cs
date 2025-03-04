@@ -63,16 +63,32 @@ public static class ModifierManager
 
         IdToTypeModifierMap.Add(GetNextTypeId(), modifierType);
         TypeToIdModifierMap.Add(modifierType, _nextTypeId);
-        var bm = (BaseModifier)FormatterServices.GetUninitializedObject(modifierType); // this probably isn't a great idea
-        info.Modifiers.Add(bm);
 
-        if (!typeof(GameModifier).IsAssignableFrom(modifierType))
+        BaseModifier modifier;
+        if (modifierType.GetConstructor(Type.EmptyTypes) != null)
+        {
+            modifier = (BaseModifier)Activator.CreateInstance(modifierType)!;
+        }
+        else
+        {
+            // this is probably terrible but its good enough for now.
+            modifier = (BaseModifier)FormatterServices.GetUninitializedObject(modifierType);
+        }
+
+        info.Modifiers.Add(modifier);
+
+        if (modifier is not GameModifier gameModifier)
         {
             return true;
         }
 
-        var mod = Activator.CreateInstance(modifierType) as GameModifier;
-        var priority = mod!.Priority();
+        if (modifierType.GetConstructor(Type.EmptyTypes) == null)
+        {
+            Logger<MiraApiPlugin>.Error($"Game Modifier {modifierType.FullName} does not have a parameterless constructor!");
+            return false;
+        }
+
+        var priority = gameModifier.Priority();
 
         if (!PrioritiesToIdsMap.TryGetValue(priority, out var list))
         {

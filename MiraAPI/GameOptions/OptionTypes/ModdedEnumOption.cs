@@ -27,8 +27,7 @@ public class ModdedEnumOption : ModdedOption<int>
     /// <param name="defaultValue">The default value as an int.</param>
     /// <param name="enumType">The Enum type.</param>
     /// <param name="values">An option list of string values to use in place of the enum name.</param>
-    /// <param name="roleType">An optional role type to specify for a specific role.</param>
-    public ModdedEnumOption(string title, int defaultValue, Type enumType, string[]? values = null, Type? roleType = null) : base(title, defaultValue, roleType)
+    public ModdedEnumOption(string title, int defaultValue, Type enumType, string[]? values = null) : base(title, defaultValue)
     {
         Values = values ?? Enum.GetNames(enumType);
         Data = ScriptableObject.CreateInstance<StringGameSetting>();
@@ -101,7 +100,6 @@ public class ModdedEnumOption : ModdedOption<int>
     }
 }
 
-
 /// <summary>
 /// An option for selecting an enum value.
 /// </summary>
@@ -118,10 +116,8 @@ public class ModdedEnumOption<T> : ModdedOption<T> where T : Enum
     /// </summary>
     /// <param name="title">The title of the option.</param>
     /// <param name="defaultValue">The default value as an int.</param>
-    /// <param name="enumType">The Enum type.</param>
     /// <param name="values">An option list of string values to use in place of the enum name.</param>
-    /// <param name="roleType">An optional role type to specify for a specific role.</param>
-    public ModdedEnumOption(string title, T defaultValue, string[]? values = null, Type? roleType = null) : base(title, defaultValue, roleType)
+    public ModdedEnumOption(string title, T defaultValue, string[]? values = null) : base(title, defaultValue)
     {
         Values = values ?? Enum.GetNames(typeof(T));
         Data = ScriptableObject.CreateInstance<StringGameSetting>();
