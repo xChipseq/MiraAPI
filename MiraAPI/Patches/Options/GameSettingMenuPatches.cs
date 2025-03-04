@@ -35,7 +35,7 @@ internal static class GameSettingMenuPatches
     {
         if ((previewOnly && Controller.currentTouchType == Controller.TouchType.Joystick) || !previewOnly)
         {
-            _modifiersTab?.gameObject.SetActive(tabNum == 3);
+            if (_modifiersTab) _modifiersTab?.gameObject.SetActive(tabNum == 3);
             _modifiersButton?.SelectButton(tabNum == 3);
             _smallRolesButton?.SelectButton(tabNum == 2);
         }
