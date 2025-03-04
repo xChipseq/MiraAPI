@@ -6,7 +6,6 @@ using MiraAPI.GameModes;
 using MiraAPI.GameOptions;
 using MiraAPI.Hud;
 using MiraAPI.Modifiers;
-using MiraAPI.Modifiers.Types;
 
 namespace MiraAPI.PluginLoading;
 

@@ -1,5 +1,4 @@
-﻿using MiraAPI.GameOptions;
-using MiraAPI.Modifiers.Types;
+﻿using MiraAPI.Modifiers.Types;
 
 namespace MiraAPI.Example.Modifiers;
 

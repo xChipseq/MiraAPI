@@ -3,12 +3,9 @@ using System.Linq;
 using HarmonyLib;
 using MiraAPI.GameOptions;
 using MiraAPI.Modifiers;
-using MiraAPI.Modifiers.Types;
-using MiraAPI.Roles;
 using MiraAPI.Utilities;
 using MiraAPI.Utilities.Assets;
 using Reactor.Localization.Utilities;
-using Reactor.Utilities;
 using Reactor.Utilities.Extensions;
 using TMPro;
 using UnityEngine;
@@ -186,7 +183,7 @@ public static class GameOptionsMenuPatch
                 continue;
             }
 
-            optionBehaviour.OnValueChanged = new System.Action<OptionBehaviour>(__instance.ValueChanged);
+            optionBehaviour.OnValueChanged = new Action<OptionBehaviour>(__instance.ValueChanged);
         }
 
         return false;

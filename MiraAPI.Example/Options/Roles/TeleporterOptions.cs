@@ -1,5 +1,4 @@
-﻿using System;
-using MiraAPI.Example.Roles;
+﻿using MiraAPI.Example.Roles;
 using MiraAPI.GameOptions;
 using MiraAPI.GameOptions.Attributes;
 using MiraAPI.GameOptions.OptionTypes;

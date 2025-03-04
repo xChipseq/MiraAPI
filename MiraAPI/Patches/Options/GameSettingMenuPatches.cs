@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Linq;
 using HarmonyLib;
 using MiraAPI.Modifiers;
-using MiraAPI.Modifiers.Types;
 using MiraAPI.PluginLoading;
 using MiraAPI.Utilities.Assets;
 using Reactor.Utilities.Extensions;
