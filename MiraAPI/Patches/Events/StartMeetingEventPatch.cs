@@ -1,21 +1,15 @@
 ﻿using HarmonyLib;
 using MiraAPI.Events;
 using MiraAPI.Events.Vanilla.Meeting;
-using MiraAPI.Utilities;
 
 namespace MiraAPI.Patches.Events;
 
-[HarmonyPatch]
+[HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Start))]
 public static class StartMeetingEventPatch
 {
-    [HarmonyPrefix]
-    [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CmdReportDeadBody))]
-    public static bool PlayerControlCmdReportDeadBodyPrefix(PlayerControl __instance, NetworkedPlayerInfo? target)
+    public static void Postfix(MeetingHud __instance)
     {
-        var body = target != null ? Helpers.GetBodyById(target.PlayerId) : null;
-
-        var @event = new StartMeetingEvent(__instance, target, body);
+        var @event = new StartMeetingEvent(__instance);
         MiraEventManager.InvokeEvent(@event);
-        return !@event.IsCancelled;
     }
 }
