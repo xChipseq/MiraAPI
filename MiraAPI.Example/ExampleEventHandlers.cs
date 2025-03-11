@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using HarmonyLib;
 using MiraAPI.Events;
 using MiraAPI.Events.Mira;
 using MiraAPI.Events.Vanilla.Gameplay;
@@ -43,7 +42,7 @@ public static class ExampleEventHandlers
         {
             if (plr.Data.Role is MayorRole)
             {
-                plr.GetVoteData().AddVotes(1);
+                plr.GetVoteData().IncreaseRemainingVotes(1);
             }
         }
     }
@@ -52,9 +51,9 @@ public static class ExampleEventHandlers
     [RegisterEvent(15)]
     public static void HandleVoteEvent(HandleVoteEvent @event)
     {
-        if (@event.VoteData.Owner?.Data.Role is not NeutralKillerRole) return;
+        if (@event.VoteData.Owner.Data.Role is not NeutralKillerRole) return;
 
-        @event.VoteData.SetVotesRemaining(0);
+        @event.VoteData.SetRemainingVotes(0);
 
         for (var i = 0; i < 5; i++)
         {
@@ -63,7 +62,7 @@ public static class ExampleEventHandlers
 
         foreach (var plr in PlayerControl.AllPlayerControls.ToArray().Where(player => player != @event.VoteData.Owner))
         {
-            plr.GetVoteData().VotedPlayers.Clear();
+            plr.GetVoteData().Votes.Clear();
             plr.GetVoteData().VotesRemaining = 0;
         }
 

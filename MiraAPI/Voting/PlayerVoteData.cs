@@ -9,17 +9,17 @@ namespace MiraAPI.Voting;
 /// Handles player votes, and removing/adding additional votes.
 /// </summary>
 [RegisterInIl2Cpp]
-public class PlayerVoteData(nint ptr) : MonoBehaviour(ptr)
+public class PlayerVoteData(nint cppPtr) : MonoBehaviour(cppPtr)
 {
     /// <summary>
     /// Gets the owner of this component.
     /// </summary>
-    public PlayerControl? Owner { get; private set; }
+    public PlayerControl Owner { get; private set; } = null!;
 
     /// <summary>
-    /// Gets the players which the owner has voted for.
+    /// Gets the list of votes the owner has.
     /// </summary>
-    public List<byte> VotedPlayers { get; private set; } = [];
+    public List<CustomVote> Votes { get; private set; } = [];
 
     /// <summary>
     /// Gets or sets the amount of votes the owner has left.
@@ -43,29 +43,48 @@ public class PlayerVoteData(nint ptr) : MonoBehaviour(ptr)
     }
 
     /// <summary>
-    /// Adds the voted player to the list.
+    /// Returns whether the owner has voted for the specified player.
     /// </summary>
     /// <param name="playerId">The target's playerId.</param>
-    public void VoteForPlayer(byte playerId)
+    /// <returns>True if the owner voted for the specified player, false otherwise.</returns>
+    public bool VotedFor(byte playerId)
     {
-        VotedPlayers.Add(playerId);
+        return Votes.Exists(x => x.Suspect == playerId);
     }
 
     /// <summary>
-    /// Removes the voted player from the list.
+    /// Adds the voted player to the list.
+    /// </summary>
+    /// <param name="playerId">The target's playerId.</param>
+    /// <param name="weight">The weight of the vote.</param>
+    public void VoteForPlayer(byte playerId, float weight=1f)
+    {
+        Votes.Add(new CustomVote(Owner.PlayerId, playerId, weight));
+    }
+
+    /// <summary>
+    /// Removes the specified vote.
+    /// </summary>
+    /// <param name="vote">The vote you would like to remove.</param>
+    public void RemovePlayerVote(CustomVote vote)
+    {
+        Votes.Remove(vote);
+    }
+
+    /// <summary>
+    /// Removes a single vote from the owner.
     /// </summary>
     /// <param name="playerId">The target's playerId.</param>
     public void RemovePlayerVote(byte playerId)
     {
-        if (!VotedPlayers.Contains(playerId)) return;
-        VotedPlayers.Remove(playerId);
+        Votes.Remove(Votes.Find(x=>x.Suspect==playerId));
     }
 
     /// <summary>
     /// Sets the player's votes remaining.
     /// </summary>
     /// <param name="votesRemaining">The amount of votes you would like to set it to.</param>
-    public void SetVotesRemaining(int votesRemaining)
+    public void SetRemainingVotes(int votesRemaining)
     {
         VotesRemaining = votesRemaining;
     }
@@ -74,17 +93,17 @@ public class PlayerVoteData(nint ptr) : MonoBehaviour(ptr)
     /// Adds votes to the owner.
     /// </summary>
     /// <param name="amount">The amount of votes you would like to add.</param>
-    public void AddVotes(int amount)
+    public void IncreaseRemainingVotes(int amount)
     {
-        SetVotesRemaining(VotesRemaining + amount);
+        SetRemainingVotes(VotesRemaining + amount);
     }
 
     /// <summary>
     /// Removes votes from the owner.
     /// </summary>
     /// <param name="amount">The amount of votes you would like to remove.</param>
-    public void RemoveVotes(int amount)
+    public void DecreaseRemainingVotes(int amount)
     {
-        SetVotesRemaining(VotesRemaining - amount);
+        SetRemainingVotes(VotesRemaining - amount);
     }
 }

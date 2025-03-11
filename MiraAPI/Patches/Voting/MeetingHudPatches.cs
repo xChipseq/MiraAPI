@@ -10,7 +10,7 @@ using Reactor.Networking.Rpc;
 namespace MiraAPI.Patches.Voting;
 
 [HarmonyPatch(typeof(MeetingHud))]
-public static class MeetingHudPatches
+internal static class MeetingHudPatches
 {
     [HarmonyPostfix]
     [HarmonyPatch(nameof(MeetingHud.Start))]
@@ -19,12 +19,12 @@ public static class MeetingHudPatches
         foreach (var plr in PlayerControl.AllPlayerControls)
         {
             var voteData = plr.GetVoteData();
-            voteData.VotedPlayers.Clear();
-            voteData.SetVotesRemaining(1);
+            voteData.Votes.Clear();
+            voteData.SetRemainingVotes(1);
 
             if (plr.Data.IsDead || plr.Data.Disconnected)
             {
-                voteData.SetVotesRemaining(0);
+                voteData.SetRemainingVotes(0);
             }
         }
         var @event = new StartMeetingEvent(__instance);
@@ -46,7 +46,7 @@ public static class MeetingHudPatches
         }
 
         var hasVotes = voteData.VotesRemaining > 0;
-        var hasVotedFor = voteData.VotedPlayers.Contains((byte)suspectStateIdx);
+        var hasVotedFor = voteData.VotedFor((byte)suspectStateIdx);
 
         return hasVotes && !hasVotedFor;
     }
@@ -69,12 +69,12 @@ public static class MeetingHudPatches
             var pva = __instance.playerStates.First(pv => pv.TargetPlayerId == player.PlayerId);
             var voteData = player.GetVoteData();
 
-            if (pva.AmDead || !voteData.VotedPlayers.Contains(pc.PlayerId))
+            if (pva.AmDead || !voteData.VotedFor(pc.PlayerId))
             {
                 continue;
             }
 
-            voteData.VotedPlayers.Remove(pc.PlayerId);
+            voteData.Votes.RemoveAll(x=>x.Suspect==pc.PlayerId);
             voteData.VotesRemaining += 1;
 
             VotingUtils.RpcRemoveVote(PlayerControl.LocalPlayer, player.PlayerId, pc.PlayerId);
@@ -104,7 +104,7 @@ public static class MeetingHudPatches
 
         var voteData = plr.Object.GetVoteData();
         if (voteData == null || voteData.VotesRemaining == 0 ||
-            voteData.VotedPlayers.Contains(suspectPlayerId))
+            voteData.VotedFor(suspectPlayerId))
         {
             return false;
         }
@@ -135,7 +135,7 @@ public static class MeetingHudPatches
         if (!AmongUsClient.Instance.AmHost)
         {
             if (voteData == null || voteData.VotesRemaining == 0 ||
-                voteData.VotedPlayers.Contains(suspectIdx))
+                voteData.VotedFor(suspectIdx))
             {
                 return;
             }
@@ -173,7 +173,7 @@ public static class MeetingHudPatches
     [HarmonyPatch(nameof(MeetingHud.CheckForEndVoting))]
     public static bool EndCheck(MeetingHud __instance)
     {
-        if (Helpers.GetAlivePlayers().Any(plr => plr.GetVoteData()!.VotesRemaining > 0))
+        if (Helpers.GetAlivePlayers().Exists(plr => plr.GetVoteData()!.VotesRemaining > 0))
         {
             return false;
         }
@@ -193,7 +193,6 @@ public static class MeetingHudPatches
         return false;
     }
 
-
     [HarmonyPrefix]
     [HarmonyPatch(nameof(MeetingHud.PopulateResults))]
     public static bool PopulateResultsPatch(MeetingHud __instance)
@@ -204,7 +203,7 @@ public static class MeetingHudPatches
         }
         var votes = VotingUtils.CalculateVotes();
 
-        Rpc<PopulateResultsRpc>.Instance.Send(votes.ToArray());
+        Rpc<PopulateResultsRpc>.Instance.Send([.. votes]);
         return false;
     }
 

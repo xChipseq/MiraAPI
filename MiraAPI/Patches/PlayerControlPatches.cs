@@ -6,7 +6,6 @@ using MiraAPI.Events.Vanilla.Player;
 using MiraAPI.Hud;
 using MiraAPI.Modifiers;
 using MiraAPI.Roles;
-using MiraAPI.Utilities;
 using MiraAPI.Voting;
 using Reactor.Utilities.Extensions;
 

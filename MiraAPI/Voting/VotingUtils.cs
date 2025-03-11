@@ -23,7 +23,7 @@ public static class VotingUtils
     /// <param name="suspectIdx">Who the player voted for.</param>
     public static void HandleVote(PlayerVoteData voteData, byte suspectIdx)
     {
-        HandleVoteEvent @event = new HandleVoteEvent(voteData, suspectIdx);
+        var @event = new HandleVoteEvent(voteData, suspectIdx);
         MiraEventManager.InvokeEvent(@event);
 
         if (@event.IsCancelled)
@@ -31,7 +31,7 @@ public static class VotingUtils
             return;
         }
 
-        voteData.RemoveVotes(1);
+        voteData.DecreaseRemainingVotes(1);
         voteData.VoteForPlayer(suspectIdx);
     }
 
@@ -61,7 +61,7 @@ public static class VotingUtils
         if (!AmongUsClient.Instance.AmHost)
         {
             var voteData = PlayerControl.LocalPlayer.GetVoteData();
-            voteData.RemoveVotes(1);
+            voteData.DecreaseRemainingVotes(1);
             voteData.RemovePlayerVote(votedFor);
         }
 
@@ -100,9 +100,11 @@ public static class VotingUtils
     /// <returns>The list of votes.</returns>
     public static List<CustomVote> CalculateVotes()
     {
-        return (from player in Helpers.GetAlivePlayers()
-            from vote in player.GetVoteData()!.VotedPlayers
-            select new CustomVote(player.PlayerId, vote)).ToList();
+        return
+        [
+            .. Helpers.GetAlivePlayers()
+            .SelectMany(player => player.GetVoteData().Votes)
+        ];
     }
 
     /// <summary>

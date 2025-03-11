@@ -1,5 +1,4 @@
-﻿using MiraAPI.Utilities;
-using MiraAPI.Voting;
+﻿using MiraAPI.Voting;
 
 namespace MiraAPI.Events.Vanilla.Meeting.Voting;
 

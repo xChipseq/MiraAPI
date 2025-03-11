@@ -39,6 +39,14 @@ public enum MiraRpc : uint
     /// Custom Game Over RPC.
     /// </summary>
     CustomGameOver,
+
+    /// <summary>
+    /// Custom RPC to handle populating vote results.
+    /// </summary>
     PopulateResults,
+
+    /// <summary>
+    /// Custom RPC to undo a player's vote.
+    /// </summary>
     RemoveVote,
 }
