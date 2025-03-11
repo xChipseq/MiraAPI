@@ -1,19 +1,9 @@
 ﻿namespace MiraAPI.Voting;
 
 /// <summary>
-/// A custom implementation to keep track of votes.
+/// Represents a custom vote.
 /// </summary>
-/// <param name="voter">The player who voted.</param>
-/// <param name="suspect">The suspect.</param>
-public readonly struct CustomVote(byte voter, byte suspect)
-{
-    /// <summary>
-    /// Gets the playerId of the Voter.
-    /// </summary>
-    public byte Voter { get; } = voter;
-
-    /// <summary>
-    /// Gets the playerId of the Suspect.
-    /// </summary>
-    public byte Suspect { get; } = suspect;
-}
+/// <param name="Voter">The player that voted.</param>
+/// <param name="Suspect">The suspect being voted for.</param>
+/// <param name="Weight">The weight of the vote for calculations.</param>
+public record struct CustomVote(byte Voter, byte Suspect, float Weight = 1f);

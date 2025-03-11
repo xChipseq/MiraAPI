@@ -79,15 +79,15 @@ public static class VotingUtils
     /// </summary>
     /// <param name="votes">A list of calculated votes.</param>
     /// <returns>The total votes.</returns>
-    public static Dictionary<byte, int> CalculateNumVotes(IEnumerable<CustomVote> votes)
+    public static Dictionary<byte, float> CalculateNumVotes(IEnumerable<CustomVote> votes)
     {
-        var dictionary = new Dictionary<byte, int>();
+        var dictionary = new Dictionary<byte, float>();
 
         foreach (var vote in votes)
         {
-            if (!dictionary.TryAdd(vote.Suspect, 1))
+            if (!dictionary.TryAdd(vote.Suspect, vote.Weight))
             {
-                dictionary[vote.Suspect] += 1;
+                dictionary[vote.Suspect] += vote.Weight;
             }
         }
 
@@ -123,7 +123,6 @@ public static class VotingUtils
             DestroyableSingleton<TranslationController>.Instance.GetString(
                 StringNames.MeetingVotingResults,
                 Il2CppSystem.Array.Empty<Il2CppSystem.Object>());
-
 
         var delays = new Dictionary<byte, int>();
         var num = 0;
