@@ -383,8 +383,8 @@ public static class RoleSettingMenuPatches
             __instance.roleScreenshot.drawMode = SpriteDrawMode.Sliced;
         }
 
-        __instance.roleHeaderSprite.color = customRole.RoleColor;
-        __instance.roleHeaderText.color = customRole.RoleColor.FindAlternateColor();
+        __instance.roleHeaderSprite.color = customRole.OptionsMenuColor;
+        __instance.roleHeaderText.color = customRole.OptionsMenuColor.FindAlternateColor();
 
         var categoryHeaderMasked = __instance.AdvancedRolesSettings.transform.Find("CategoryHeaderMasked").GetComponent<CategoryHeaderMasked>();
 
@@ -459,13 +459,13 @@ public static class RoleSettingMenuPatches
         roleOptionSetting.transform.localPosition = new Vector3(-0.1f, ScrollerNum, -2f);
 
         roleOptionSetting.SetRole(GameOptionsManager.Instance.CurrentGameOptions.RoleOptions, role, 20);
-        roleOptionSetting.labelSprite.color = customRole.RoleColor;
+        roleOptionSetting.labelSprite.color = customRole.OptionsMenuColor;
         roleOptionSetting.OnValueChanged = new Action<OptionBehaviour>(ValueChanged);
         roleOptionSetting.SetClickMask(__instance.ButtonClickMask);
         __instance.roleChances.Add(roleOptionSetting);
 
         roleOptionSetting.titleText.transform.localPosition = new Vector3(-0.5376f, -0.2923f, 0f);
-        roleOptionSetting.titleText.color = customRole.RoleColor.FindAlternateColor();
+        roleOptionSetting.titleText.color = customRole.OptionsMenuColor.FindAlternateColor();
         roleOptionSetting.titleText.horizontalAlignment = HorizontalAlignmentOptions.Left;
 
         if (GameSettingMenuPatches.SelectedMod is null ||
@@ -483,7 +483,7 @@ public static class RoleSettingMenuPatches
 
             var passiveButton = newButton.GetComponent<GameOptionButton>();
             passiveButton.OnClick = new ButtonClickedEvent();
-            passiveButton.interactableColor = btnRend.color = customRole.RoleColor.FindAlternateColor();
+            passiveButton.interactableColor = btnRend.color = customRole.OptionsMenuColor.FindAlternateColor();
             passiveButton.interactableHoveredColor = Color.white;
 
             passiveButton.OnClick.AddListener((UnityAction)(() => { ChangeTab(role, __instance); }));

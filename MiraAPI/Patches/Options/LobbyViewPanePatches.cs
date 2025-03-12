@@ -330,7 +330,7 @@ public static class LobbyViewPanePatches
                     numPerGame,
                     chancePerGame,
                     61,
-                    customRole.RoleColor,
+                    customRole.OptionsMenuColor,
                     customRole.Configuration.Icon.LoadAsset(),
                     true);
                 viewSettingsInfoPanelRoleVariant.iconSprite.transform.localScale = new Vector3(0.365f, 0.365f, 1f);
@@ -340,7 +340,7 @@ public static class LobbyViewPanePatches
                     viewSettingsInfoPanelRoleVariant.chanceTitle.color =
                         viewSettingsInfoPanelRoleVariant.chanceBackground.color =
                             viewSettingsInfoPanelRoleVariant.background.color =
-                                customRole.RoleColor.FindAlternateColor();
+                                customRole.OptionsMenuColor.FindAlternateColor();
                 instance.settingsInfo.Add(viewSettingsInfoPanelRoleVariant.gameObject);
                 num -= 0.664f;
             }

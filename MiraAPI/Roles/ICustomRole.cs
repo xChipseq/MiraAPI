@@ -35,6 +35,11 @@ public interface ICustomRole : IOptionable
     Color RoleColor { get; }
 
     /// <summary>
+    /// Gets the color that should be used in the options menu.
+    /// </summary>
+    Color OptionsMenuColor => RoleColor;
+
+    /// <summary>
     /// Gets the team of the role.
     /// </summary>
     ModdedRoleTeams Team { get; }
