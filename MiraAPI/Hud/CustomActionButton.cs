@@ -52,9 +52,9 @@ public abstract class CustomActionButton
     public virtual Color TextOutlineColor => Color.clear;
 
     /// <summary>
-    /// Gets the location of the button on the screen.
+    /// Gets or sets the location of the button on the screen.
     /// </summary>
-    public virtual ButtonLocation Location { get; private set; } = ButtonLocation.BottomLeft;
+    public virtual ButtonLocation Location { get; set; } = ButtonLocation.BottomLeft;
 
     /// <summary>
     /// Gets a value indicating whether the button has an effect ability.
@@ -69,27 +69,27 @@ public abstract class CustomActionButton
     /// <summary>
     /// Gets or sets a value indicating whether the effect is currently active, if there is one.
     /// </summary>
-    public bool EffectActive { get; protected set; }
+    public bool EffectActive { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether the timer is currently active.
     /// </summary>
-    public bool TimerPaused { get; protected set; }
+    public bool TimerPaused { get; set; }
 
     /// <summary>
     /// Gets or sets the amount of uses left.
     /// </summary>
-    public int UsesLeft { get; protected set; }
+    public int UsesLeft { get; set; }
 
     /// <summary>
     /// Gets or sets the timer variable to measure cooldowns and effects.
     /// </summary>
-    public float Timer { get; protected set; }
+    public float Timer { get; set; }
 
     /// <summary>
-    /// Gets the button object in game. This is created by Mira API automatically.
+    /// Gets or sets the button object in game. This is created by Mira API automatically.
     /// </summary>
-    protected ActionButton? Button { get; private set; }
+    public ActionButton? Button { get; set; }
 
     /// <summary>
     /// The method used to create the button.
@@ -463,7 +463,7 @@ public abstract class CustomActionButton<T> : CustomActionButton where T : MonoB
     /// <summary>
     /// Gets or sets the target object of the button.
     /// </summary>
-    public T? Target { get; protected set; }
+    public T? Target { get; set; }
 
     /// <summary>
     /// Gets the distance the player must be from the target object to use the button.
