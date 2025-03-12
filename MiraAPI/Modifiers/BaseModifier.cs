@@ -10,7 +10,7 @@ public abstract class BaseModifier
     /// <summary>
     /// Gets the player that the modifier is attached to.
     /// </summary>
-    public PlayerControl? Player { get; internal set; }
+    public PlayerControl Player { get; internal set; } = null!;
 
     /// <summary>
     /// Gets the modifier component that the modifier is attached to.
