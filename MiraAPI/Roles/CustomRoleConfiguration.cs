@@ -32,7 +32,6 @@ public record struct CustomRoleConfiguration
         TasksCountForProgress = role.Team is ModdedRoleTeams.Crewmate;
         HideSettings = roleBehaviour?.IsDead == true;
         ShowInFreeplay = roleBehaviour?.IsDead == false;
-        OptionsScreenshot = null;
     }
 
     /// <summary>
@@ -58,12 +57,12 @@ public record struct CustomRoleConfiguration
     /// <summary>
     /// Gets or sets the Sprite used for the Role Options menu screenshot.
     /// </summary>
-    public LoadableAsset<Sprite>? OptionsScreenshot { get; set; }
+    public LoadableAsset<Sprite>? OptionsScreenshot { get; set; } = null;
 
     /// <summary>
     /// Gets or sets the Sprite used for the Role Icon.
     /// </summary>
-    public LoadableAsset<Sprite> Icon { get; set; } = MiraAssets.Empty;
+    public LoadableAsset<Sprite>? Icon { get; set; } = null;
 
     /// <summary>
     /// Gets or sets a value indicating whether the role is affected by light affectors on Airship.

@@ -330,8 +330,8 @@ public static class LobbyViewPanePatches
                     numPerGame,
                     chancePerGame,
                     61,
-                    customRole.OptionsMenuColor,
-                    customRole.Configuration.Icon.LoadAsset(),
+                    customRole.RoleColor,
+                    customRole.Configuration.Icon != null ? customRole.Configuration.Icon.LoadAsset() : MiraAssets.Empty.LoadAsset(),
                     true);
                 viewSettingsInfoPanelRoleVariant.iconSprite.transform.localScale = new Vector3(0.365f, 0.365f, 1f);
                 viewSettingsInfoPanelRoleVariant.iconSprite.transform.localPosition = new Vector3(0.7144f, -0.028f, -2);
@@ -340,7 +340,7 @@ public static class LobbyViewPanePatches
                     viewSettingsInfoPanelRoleVariant.chanceTitle.color =
                         viewSettingsInfoPanelRoleVariant.chanceBackground.color =
                             viewSettingsInfoPanelRoleVariant.background.color =
-                                customRole.OptionsMenuColor.FindAlternateColor();
+                                customRole.RoleColor.GetAlternateColor();
                 instance.settingsInfo.Add(viewSettingsInfoPanelRoleVariant.gameObject);
                 num -= 0.664f;
             }
@@ -418,7 +418,7 @@ public static class LobbyViewPanePatches
             role.StringName,
             maskLayer,
             role.TeamType == RoleTeamTypes.Crewmate,
-            customRole.Configuration.Icon.LoadAsset());
+            customRole.Configuration.Icon != null ? customRole.Configuration.Icon.LoadAsset() : MiraAssets.Empty.LoadAsset());
         viewPanel.header.icon.transform.localScale = new Vector3(0.465f, 0.465f, 1f);
         viewPanel.divider.material.SetInt(PlayerMaterial.MaskLayer, maskLayer);
 

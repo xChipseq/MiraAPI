@@ -1,12 +1,19 @@
-﻿using BepInEx;
+﻿using System;
+using BepInEx;
 using BepInEx.Unity.IL2CPP;
 using HarmonyLib;
+using Il2CppInterop.Runtime;
 using MiraAPI.PluginLoading;
+using MiraAPI.Roles;
+using MonoMod.Utils;
 using Reactor;
 using Reactor.Networking;
 using Reactor.Networking.Attributes;
 using Reactor.Utilities;
+using TMPro;
 using UnityEngine;
+using UnityEngine.ProBuilder;
+using Delegate = Il2CppSystem.Delegate;
 
 namespace MiraAPI;
 

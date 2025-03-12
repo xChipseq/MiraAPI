@@ -1,11 +1,15 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Text;
+using HarmonyLib;
 using MiraAPI.Roles;
+using Reactor.Utilities.Extensions;
 using TMPro;
 using UnityEngine;
+using UnityEngine.TextCore;
 using Object = UnityEngine.Object;
 
 namespace MiraAPI.Utilities;
@@ -22,6 +26,69 @@ public static class Helpers
     public static List<PlayerControl> GetAlivePlayers()
     {
         return PlayerControl.AllPlayerControls.ToArray().Where(x => !x.Data.IsDead).ToList();
+    }
+
+    internal static readonly List<TMP_SpriteAsset> RegisteredSpriteAssets = [];
+
+    /// <summary>
+    /// Allows you to create a custom sprite asset. Normally used for TextMeshPro.
+    /// Ensure you set the TMP object's sprite asset to this one and use the sprite name tag.
+    /// https://docs.unity3d.com/Packages/com.unity.textmeshpro@4.0/manual/RichTextSprite.html
+    /// </summary>
+    /// <param name="sprites">The dictionary of sprites you want to add to the asset. String is the name of the sprite you'd like to use for rich text.</param>
+    /// <param name="spriteAssetName">The name of the sprite asset.</param>
+    /// <returns>The created sprite asset.</returns>
+    public static TMP_SpriteAsset CreateSpriteAsset(Dictionary<string, Sprite> sprites, string spriteAssetName)
+    {
+        var textures = sprites.Values.Select(x => x.texture).ToArray();
+        var asset = ScriptableObject.CreateInstance<TMP_SpriteAsset>();
+        var image = new Texture2D(2048, 2048) { name = spriteAssetName };
+        var rects = image.PackTextures(textures, 2);
+
+        for (var i = 0; i < rects.Length; i++)
+        {
+            var rect = rects[i];
+            var pair = sprites.ElementAt(i);
+
+            var glyph = new TMP_SpriteGlyph
+            {
+                glyphRect = new GlyphRect
+                {
+                    x = (int)(rect.x * image.width),
+                    y = (int)(rect.y * image.height),
+                    width = (int)(rect.width * image.width),
+                    height = (int)(rect.height * image.height),
+                },
+                metrics = new GlyphMetrics
+                {
+                    width = (int)(rect.width * image.width),
+                    height = (int)(rect.height * image.height),
+                    horizontalBearingY = (int)(rect.height * image.height) * 0.75f,
+                    horizontalBearingX = 0,
+                    horizontalAdvance = (int)(rect.width * image.width),
+                },
+                index = (uint)i,
+                sprite = pair.Value,
+            };
+
+            var character = new TMP_SpriteCharacter(0, asset, glyph)
+            {
+                name = pair.Key,
+                glyphIndex = (uint)i,
+            };
+
+            asset.spriteGlyphTable.Add(glyph);
+            asset.spriteCharacterTable.Add(character);
+        }
+
+        asset.name = spriteAssetName;
+        asset.hashCode = TMP_TextUtilities.GetSimpleHashCode(asset.name);
+        asset.material = new Material(Shader.Find("TextMeshPro/Sprite"));
+        AccessTools.Property(asset.GetType(), "version").SetValue(asset, "1.1.0");
+        asset.material.mainTexture = asset.spriteSheet = image;
+        asset.UpdateLookupTables();
+        RegisteredSpriteAssets.Add(asset);
+        return asset.DontDestroyOnLoad().DontUnload();
     }
 
     /// <summary>

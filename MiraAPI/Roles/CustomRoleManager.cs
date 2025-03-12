@@ -13,6 +13,7 @@ using Reactor.Utilities;
 using Reactor.Utilities.Extensions;
 using TMPro;
 using UnityEngine;
+using UnityEngine.TextCore;
 using Object = UnityEngine.Object;
 
 namespace MiraAPI.Roles;
@@ -24,7 +25,9 @@ public static class CustomRoleManager
 {
     internal static readonly Dictionary<ushort, RoleBehaviour> CustomRoles = [];
     internal static readonly Dictionary<Type, ushort> RoleIds = [];
+    internal static TMP_SpriteAsset SpriteAsset;
 
+    private static Dictionary<string, Sprite> _roleIcons = [];
     private static ushort _roleId = 100;
 
     private static ushort GetNextRoleId()
@@ -58,6 +61,8 @@ public static class CustomRoleManager
 
             pluginInfo.CustomRoles.Add((ushort)role.Role, role);
         }
+
+        SpriteAsset = Helpers.CreateSpriteAsset(_roleIcons, "RoleIcons");
     }
 
     private static RoleBehaviour? RegisterRole(Type roleType, MiraPluginInfo parentMod)
@@ -92,6 +97,17 @@ public static class CustomRoleManager
         roleBehaviour.DefaultGhostRole = customRole.Configuration.GhostRole;
         roleBehaviour.MaxCount = customRole.Configuration.MaxRoleCount;
         roleBehaviour.RoleScreenshot = customRole.Configuration.OptionsScreenshot?.LoadAsset();
+
+        if (customRole.Configuration.Icon != null)
+        {
+            var asset = customRole.Configuration.Icon.LoadAsset();
+            if (asset != null)
+            {
+                roleBehaviour.RoleIconSolid = asset;
+                roleBehaviour.RoleIconWhite = asset;
+                _roleIcons.Add(roleBehaviour.NiceName, asset);
+            }
+        }
 
         if (roleBehaviour.IsDead)
         {
