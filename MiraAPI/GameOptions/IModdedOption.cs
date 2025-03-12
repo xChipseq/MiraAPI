@@ -13,7 +13,6 @@ public interface IModdedOption
     StringNames StringName { get; }
     IMiraPlugin? ParentMod { get; set; }
     BaseGameSetting Data { get; }
-    Type? AdvancedRole { get; set; }
     OptionBehaviour? OptionBehaviour { get; }
     Func<bool> Visible { get; set; }
     ConfigDefinition? ConfigDefinition { get; set; }

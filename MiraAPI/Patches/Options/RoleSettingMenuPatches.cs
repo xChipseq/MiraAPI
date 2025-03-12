@@ -304,15 +304,14 @@ public static class RoleSettingMenuPatches
         var hasImage = role.RoleScreenshot != null;
         var num = hasImage ? -0.872f : -1;
 
-        var filteredOptions = GameSettingMenuPatches.SelectedMod?.Options.Where(x => x.AdvancedRole == role.GetType()) ?? [];
+        // TODO: create sub groups under the role settings.
+        var filteredOptions = GameSettingMenuPatches.SelectedMod?.OptionGroups
+            .Where(x=> x.OptionableType == role.GetType())
+            .SelectMany(x=>x.Options)
+            .ToList() ?? [];
 
         foreach (var option in filteredOptions)
         {
-            if (option.AdvancedRole is not null && option.AdvancedRole != role.GetType())
-            {
-                continue;
-            }
-
             var newOpt = option.CreateOption(
                 __instance.checkboxOrigin,
                 __instance.numberOptionOrigin,
@@ -384,8 +383,8 @@ public static class RoleSettingMenuPatches
             __instance.roleScreenshot.drawMode = SpriteDrawMode.Sliced;
         }
 
-        __instance.roleHeaderSprite.color = customRole.RoleColor;
-        __instance.roleHeaderText.color = customRole.RoleColor.GetAlternateColor();
+        __instance.roleHeaderSprite.color = customRole.OptionsMenuColor;
+        __instance.roleHeaderText.color = customRole.OptionsMenuColor.FindAlternateColor();
 
         var categoryHeaderMasked = __instance.AdvancedRolesSettings.transform.Find("CategoryHeaderMasked").GetComponent<CategoryHeaderMasked>();
 
@@ -460,18 +459,18 @@ public static class RoleSettingMenuPatches
         roleOptionSetting.transform.localPosition = new Vector3(-0.1f, ScrollerNum, -2f);
 
         roleOptionSetting.SetRole(GameOptionsManager.Instance.CurrentGameOptions.RoleOptions, role, 20);
-        roleOptionSetting.labelSprite.color = customRole.RoleColor;
+        roleOptionSetting.labelSprite.color = customRole.OptionsMenuColor;
         roleOptionSetting.OnValueChanged = new Action<OptionBehaviour>(ValueChanged);
         roleOptionSetting.SetClickMask(__instance.ButtonClickMask);
         __instance.roleChances.Add(roleOptionSetting);
 
         roleOptionSetting.titleText.transform.localPosition = new Vector3(-0.5376f, -0.2923f, 0f);
-        roleOptionSetting.titleText.color = customRole.RoleColor.GetAlternateColor();
+        roleOptionSetting.titleText.color = customRole.OptionsMenuColor.FindAlternateColor();
         roleOptionSetting.titleText.horizontalAlignment = HorizontalAlignmentOptions.Left;
 
         if (GameSettingMenuPatches.SelectedMod is null ||
-            GameSettingMenuPatches.SelectedMod.Options.Exists(
-                x => x.AdvancedRole != null && x.AdvancedRole.IsInstanceOfType(role)))
+            GameSettingMenuPatches.SelectedMod.OptionGroups
+                .Exists(x => x.OptionableType == role.GetType()))
         {
             var newButton = Object.Instantiate(roleOptionSetting.buttons[0], roleOptionSetting.transform);
             newButton.name = "ConfigButton";
@@ -484,7 +483,7 @@ public static class RoleSettingMenuPatches
 
             var passiveButton = newButton.GetComponent<GameOptionButton>();
             passiveButton.OnClick = new ButtonClickedEvent();
-            passiveButton.interactableColor = btnRend.color = customRole.RoleColor.GetAlternateColor();
+            passiveButton.interactableColor = btnRend.color = customRole.OptionsMenuColor.FindAlternateColor();
             passiveButton.interactableHoveredColor = Color.white;
 
             passiveButton.OnClick.AddListener((UnityAction)(() => { ChangeTab(role, __instance); }));
@@ -504,7 +503,7 @@ public static class RoleSettingMenuPatches
 
         if (index < GameSettingMenuPatches.SelectedMod?.CustomRoles.Count - 1)
         {
-            ScrollerNum += -0.43f;
+            ScrollerNum -= 0.43f;
         }
 
         return roleOptionSetting;

@@ -108,7 +108,7 @@ public static class ModdedOptionsManager
         RegisterOption(option, group, property.Name, pluginInfo);
     }
 
-    private static void RegisterOption(
+    internal static void RegisterOption(
         IModdedOption option,
         AbstractOptionGroup group,
         string propertyName,
@@ -119,10 +119,7 @@ public static class ModdedOptionsManager
         option.ConfigDefinition = new ConfigDefinition(groupName, propertyName);
 
         option.ParentMod = pluginInfo.MiraPlugin;
-        option.AdvancedRole = group.AdvancedRole;
-
         pluginInfo.Options.Add(option);
-
         ModdedOptions.Add(option.Id, option);
         group.Options.Add(option);
     }

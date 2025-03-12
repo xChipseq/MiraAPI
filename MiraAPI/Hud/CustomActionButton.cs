@@ -47,9 +47,14 @@ public abstract class CustomActionButton
     public virtual int MaxUses => 0;
 
     /// <summary>
-    /// Gets the location of the button on the screen.
+    /// Gets the button's text outline color.
     /// </summary>
-    public virtual ButtonLocation Location { get; private set; } = ButtonLocation.BottomLeft;
+    public virtual Color TextOutlineColor => Color.clear;
+
+    /// <summary>
+    /// Gets or sets the location of the button on the screen.
+    /// </summary>
+    public virtual ButtonLocation Location { get; set; } = ButtonLocation.BottomLeft;
 
     /// <summary>
     /// Gets a value indicating whether the button has an effect ability.
@@ -64,27 +69,27 @@ public abstract class CustomActionButton
     /// <summary>
     /// Gets or sets a value indicating whether the effect is currently active, if there is one.
     /// </summary>
-    public bool EffectActive { get; protected set; }
+    public bool EffectActive { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether the timer is currently active.
     /// </summary>
-    public bool TimerPaused { get; protected set; }
+    public bool TimerPaused { get; set; }
 
     /// <summary>
     /// Gets or sets the amount of uses left.
     /// </summary>
-    public int UsesLeft { get; protected set; }
+    public int UsesLeft { get; set; }
 
     /// <summary>
     /// Gets or sets the timer variable to measure cooldowns and effects.
     /// </summary>
-    public float Timer { get; protected set; }
+    public float Timer { get; set; }
 
     /// <summary>
-    /// Gets the button object in game. This is created by Mira API automatically.
+    /// Gets or sets the button object in game. This is created by Mira API automatically.
     /// </summary>
-    protected ActionButton? Button { get; private set; }
+    public ActionButton? Button { get; set; }
 
     /// <summary>
     /// The method used to create the button.
@@ -112,6 +117,11 @@ public abstract class CustomActionButton
         if (MaxUses <= 0)
         {
             Button.SetInfiniteUses();
+        }
+
+        if (TextOutlineColor != Color.clear)
+        {
+            SetTextOutline(TextOutlineColor);
         }
 
         var pb = Button.GetComponent<PassiveButton>();
@@ -205,6 +215,16 @@ public abstract class CustomActionButton
         }
 
         EffectActive = false;
+    }
+
+    /// <summary>
+    /// A utility function to change the outline color of the button's text.
+    /// </summary>
+    /// <param name="color">The new color.</param>
+    /// <param name="thickness">The thickness of the outline. Set to 0 if you want to remove it.</param>
+    public virtual void SetTextOutline(Color color)
+    {
+        Button?.buttonLabelText.SetOutlineColor(color);
     }
 
     /// <summary>
@@ -443,7 +463,7 @@ public abstract class CustomActionButton<T> : CustomActionButton where T : MonoB
     /// <summary>
     /// Gets or sets the target object of the button.
     /// </summary>
-    public T? Target { get; protected set; }
+    public T? Target { get; set; }
 
     /// <summary>
     /// Gets the distance the player must be from the target object to use the button.

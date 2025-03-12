@@ -2,11 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using HarmonyLib;
+using MiraAPI.GameOptions;
+using MiraAPI.Modifiers;
 using MiraAPI.PluginLoading;
 using MiraAPI.Roles;
 using MiraAPI.Utilities;
 using MiraAPI.Utilities.Assets;
 using Reactor.Localization.Utilities;
+using Reactor.Utilities.Extensions;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -17,17 +20,38 @@ namespace MiraAPI.Patches.Options;
 [HarmonyPatch(typeof(LobbyViewSettingsPane))]
 public static class LobbyViewPanePatches
 {
-    private static int CurrentSelectedMod { get; set; }
+    private static int SelectedModIdx { get; set; }
 
-    private static MiraPluginInfo? SelectedMod => CurrentSelectedMod == 0
+    private static MiraPluginInfo? SelectedMod => SelectedModIdx == 0
         ? null
-        : MiraPluginManager.Instance.RegisteredPlugins()[CurrentSelectedMod - 1];
+        : MiraPluginManager.Instance.RegisteredPlugins()[SelectedModIdx - 1];
+
+    private static PassiveButton? ModifiersTabButton { get; set; }
+
+    private static StringNames ModifiersTabName { get; } = CustomStringName.CreateAndRegister("ModifiersTab");
 
     [HarmonyPostfix]
     [HarmonyPatch(nameof(LobbyViewSettingsPane.Awake))]
     public static void AwakePatch(LobbyViewSettingsPane __instance)
     {
         __instance.gameModeText.transform.localPosition = new Vector3(-2.3f, 2.4f, -2);
+        __instance.gameModeText.GetComponent<TextTranslatorTMP>().Destroy();
+
+        // create modifiers button
+        ModifiersTabButton = Object.Instantiate(__instance.rolesTabButton, __instance.rolesTabButton.transform.parent);
+        ModifiersTabButton.buttonText.gameObject.GetComponent<TextTranslatorTMP>().Destroy();
+        ModifiersTabButton.name = "ModifiersTabButton";
+        var pos = ModifiersTabButton.transform.localPosition;
+        pos.x = 2.1f;
+        ModifiersTabButton.transform.localPosition = pos;
+        ModifiersTabButton.buttonText.text = "Modifiers";
+        ModifiersTabButton.OnClick = new Button.ButtonClickedEvent();
+        ModifiersTabButton.OnClick.AddListener(
+            (UnityAction)(() =>
+            {
+                __instance.ChangeTab(ModifiersTabName);
+            }));
+        ModifiersTabButton.gameObject.SetActive(SelectedModIdx!=0);
 
         // Create the next button
         var nextButton = Object.Instantiate(__instance.BackButton, __instance.BackButton.transform.parent).gameObject;
@@ -49,14 +73,13 @@ public static class LobbyViewPanePatches
         passiveButton.OnClick.AddListener(
             (UnityAction)(() =>
             {
-                CurrentSelectedMod += 1;
-                if (CurrentSelectedMod > MiraPluginManager.Instance.RegisteredPlugins().Length)
+                SelectedModIdx += 1;
+                if (SelectedModIdx > MiraPluginManager.Instance.RegisteredPlugins().Length)
                 {
-                    CurrentSelectedMod = 0;
+                    SelectedModIdx = 0;
                 }
 
-                __instance.RefreshTab();
-                __instance.scrollBar.ScrollToTop();
+                Refresh(__instance);
             }));
 
         // Create the back button
@@ -72,34 +95,56 @@ public static class LobbyViewPanePatches
         passiveButton2.OnClick.AddListener(
             (UnityAction)(() =>
             {
-                CurrentSelectedMod -= 1;
-                if (CurrentSelectedMod < 0)
+                SelectedModIdx -= 1;
+                if (SelectedModIdx < 0)
                 {
-                    CurrentSelectedMod = MiraPluginManager.Instance.RegisteredPlugins().Length;
+                    SelectedModIdx = MiraPluginManager.Instance.RegisteredPlugins().Length;
                 }
 
-                __instance.RefreshTab();
-                __instance.scrollBar.ScrollToTop();
+                Refresh(__instance);
             }));
     }
 
-    [HarmonyPostfix]
-    [HarmonyPatch(nameof(LobbyViewSettingsPane.Update))]
-    public static void UpdatePatch(LobbyViewSettingsPane __instance)
+    private static void Refresh(LobbyViewSettingsPane menu)
     {
-        __instance.gameModeText.text = SelectedMod?.PluginInfo.Metadata.Name ?? "Default";
+        ModifiersTabButton?.gameObject.SetActive(SelectedModIdx != 0);
+        menu.gameModeText.text = SelectedMod?.PluginInfo.Metadata.Name ?? "Default";
+        menu.RefreshTab();
+        menu.scrollBar.ScrollToTop();
+    }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(LobbyViewSettingsPane.SetTab))]
+    public static bool SetTabPatch(LobbyViewSettingsPane __instance)
+    {
+        if (__instance.currentTab != ModifiersTabName || SelectedMod == null)
+        {
+            ModifiersTabButton?.SelectButton(false);
+            return true;
+        }
+
+        __instance.taskTabButton.SelectButton(false);
+        __instance.rolesTabButton.SelectButton(false);
+
+        ModifiersTabButton?.SelectButton(true);
+        var filteredGroups = SelectedMod.OptionGroups
+            .Where(x => x.GroupVisible() && (x.ShowInModifiersMenu || x.OptionableType?.IsAssignableTo(typeof(BaseModifier))==true));
+        DrawOptions(__instance, filteredGroups);
+        return false;
     }
 
     [HarmonyPrefix]
     [HarmonyPatch(nameof(LobbyViewSettingsPane.DrawNormalTab))]
     public static bool DrawNormalTabPatch(LobbyViewSettingsPane __instance)
     {
-        if (CurrentSelectedMod == 0)
+        if (SelectedModIdx == 0 || SelectedMod == null)
         {
             return true;
         }
 
-        DrawOptionsTab(__instance);
+        var filteredGroups = SelectedMod.OptionGroups
+            .Where(x => x.OptionableType == null && x.GroupVisible.Invoke());
+        DrawOptions(__instance, filteredGroups);
         return false;
     }
 
@@ -107,7 +152,7 @@ public static class LobbyViewPanePatches
     [HarmonyPatch(nameof(LobbyViewSettingsPane.DrawRolesTab))]
     public static bool DrawRolesTabPatch(LobbyViewSettingsPane __instance)
     {
-        if (CurrentSelectedMod == 0)
+        if (SelectedModIdx == 0)
         {
             return true;
         }
@@ -116,29 +161,22 @@ public static class LobbyViewPanePatches
         return false;
     }
 
-    private static void DrawOptionsTab(LobbyViewSettingsPane instance)
+    private static void DrawOptions(LobbyViewSettingsPane menu, IEnumerable<AbstractOptionGroup> groups)
     {
-        if (SelectedMod == null)
-        {
-            return;
-        }
-
         var num = 1.44f;
 
-        var filteredGroups = SelectedMod.OptionGroups.Where(x => x.GroupVisible.Invoke() && x.AdvancedRole is null);
-
-        foreach (var group in filteredGroups)
+        foreach (var group in groups)
         {
             var categoryHeaderMasked = Object.Instantiate(
-                instance.categoryHeaderOrigin,
-                instance.settingsContainer,
+                menu.categoryHeaderOrigin,
+                menu.settingsContainer,
                 true);
             categoryHeaderMasked.SetHeader(StringNames.Name, 61);
             categoryHeaderMasked.Title.text = group.GroupName;
             categoryHeaderMasked.transform.localScale = Vector3.one;
             categoryHeaderMasked.transform.localPosition = new Vector3(-9.77f, num, -2f);
-            instance.settingsInfo.Add(categoryHeaderMasked.gameObject);
-            num -= 0.85f;
+            menu.settingsInfo.Add(categoryHeaderMasked.gameObject);
+            num -= 1.05f;
 
             var i = 0;
 
@@ -150,8 +188,8 @@ public static class LobbyViewPanePatches
                 }
 
                 var viewSettingsInfoPanel = Object.Instantiate(
-                    instance.infoPanelOrigin,
-                    instance.settingsContainer,
+                    menu.infoPanelOrigin,
+                    menu.settingsContainer,
                     true);
                 viewSettingsInfoPanel.transform.localScale = Vector3.one;
                 float num2;
@@ -160,7 +198,7 @@ public static class LobbyViewPanePatches
                     num2 = -8.95f;
                     if (i > 0)
                     {
-                        num -= 0.59f;
+                        num -= 0.85f;
                     }
                 }
                 else
@@ -184,14 +222,14 @@ public static class LobbyViewPanePatches
                     viewSettingsInfoPanel.SetInfo(data.Title, data.GetValueString(option.GetFloatData()), 61);
                 }
 
-                instance.settingsInfo.Add(viewSettingsInfoPanel.gameObject);
+                menu.settingsInfo.Add(viewSettingsInfoPanel.gameObject);
                 i++;
             }
 
-            num -= 0.59f;
+            num -= 0.85f;
         }
 
-        instance.scrollBar.CalculateAndSetYBounds(instance.settingsInfo.Count + 10, 2f, 6f, 0.59f);
+        menu.scrollBar.CalculateAndSetYBounds(menu.settingsInfo.Count + 10, 2f, 6f, 0.85f);
     }
 
     private static void DrawRolesTab(LobbyViewSettingsPane instance)
@@ -277,8 +315,9 @@ public static class LobbyViewPanePatches
                 viewSettingsInfoPanelRoleVariant.transform.localScale = Vector3.one;
                 viewSettingsInfoPanelRoleVariant.transform.localPosition = new Vector3(num2, num, -2f);
 
-                var advancedRoleOptions = SelectedMod.Options
-                    .Where(x => x.AdvancedRole == customRole.GetType())
+                var advancedRoleOptions = SelectedMod.OptionGroups
+                    .Where(x => x.OptionableType == customRole.GetType())
+                    .SelectMany(x => x.Options)
                     .ToList();
 
                 if (numPerGame > 0 && advancedRoleOptions.Count > 0)
@@ -291,7 +330,7 @@ public static class LobbyViewPanePatches
                     numPerGame,
                     chancePerGame,
                     61,
-                    customRole.RoleColor,
+                    customRole.OptionsMenuColor,
                     customRole.Configuration.Icon.LoadAsset(),
                     true);
                 viewSettingsInfoPanelRoleVariant.iconSprite.transform.localScale = new Vector3(0.365f, 0.365f, 1f);
@@ -301,7 +340,7 @@ public static class LobbyViewPanePatches
                     viewSettingsInfoPanelRoleVariant.chanceTitle.color =
                         viewSettingsInfoPanelRoleVariant.chanceBackground.color =
                             viewSettingsInfoPanelRoleVariant.background.color =
-                                customRole.RoleColor.GetAlternateColor();
+                                customRole.OptionsMenuColor.FindAlternateColor();
                 instance.settingsInfo.Add(viewSettingsInfoPanelRoleVariant.gameObject);
                 num -= 0.664f;
             }
@@ -386,8 +425,9 @@ public static class LobbyViewPanePatches
         var num = viewPanel.yPosStart;
         var num2 = 1.08f;
 
-        var filteredOptions = SelectedMod.Options
-            .Where(x => x.AdvancedRole == roleType)
+        var filteredOptions = SelectedMod.OptionGroups
+            .Where(x => x.OptionableType == roleType)
+            .SelectMany(x=>x.Options)
             .ToList();
 
         for (var i = 0; i < filteredOptions.Count; i++)

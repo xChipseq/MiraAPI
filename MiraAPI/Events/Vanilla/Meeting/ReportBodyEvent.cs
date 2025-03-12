@@ -34,4 +34,3 @@ public class ReportBodyEvent : MiraCancelableEvent
         Body = body;
     }
 }
-
