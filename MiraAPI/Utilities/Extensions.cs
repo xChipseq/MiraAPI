@@ -245,6 +245,7 @@ public static class Extensions
     /// <param name="color">The original color.</param>
     /// <param name="amount">The amount to darken or lighten the original color by between 0.0 and 1.0.</param>
     /// <returns>An alternate color that has been darkened or lightened.</returns>
+    [Obsolete("Use FindAlternateColor for WACG compliance.")]
     public static Color GetAlternateColor(this Color color, float amount = 0.45f)
     {
         return color.IsColorDark() ? LightenColor(color, amount) : DarkenColor(color, amount);

@@ -202,7 +202,7 @@ public static class GameOptionsMenuPatch
         {
             categoryHeaderMasked.Background.color = group.GroupColor;
             categoryHeaderMasked.Divider.color = group.GroupColor;
-            categoryHeaderMasked.Title.color = group.GroupColor.GetAlternateColor();
+            categoryHeaderMasked.Title.color = group.GroupColor.FindAlternateColor();
         }
 
         categoryHeaderMasked.Background.size = new Vector2(
@@ -232,10 +232,10 @@ public static class GameOptionsMenuPatch
             {
                 if (group.GroupColor != Color.clear)
                 {
-                    renderer.color = group.GroupColor.GetAlternateColor();
+                    renderer.color = group.GroupColor.FindAlternateColor();
                     if (renderer.transform.parent.TryGetComponent<GameOptionButton>(out var btn))
                     {
-                        btn.interactableColor = group.GroupColor.GetAlternateColor();
+                        btn.interactableColor = group.GroupColor.FindAlternateColor();
                         btn.interactableHoveredColor = Color.white;
                     }
                 }

@@ -384,7 +384,7 @@ public static class RoleSettingMenuPatches
         }
 
         __instance.roleHeaderSprite.color = customRole.RoleColor;
-        __instance.roleHeaderText.color = customRole.RoleColor.GetAlternateColor();
+        __instance.roleHeaderText.color = customRole.RoleColor.FindAlternateColor();
 
         var categoryHeaderMasked = __instance.AdvancedRolesSettings.transform.Find("CategoryHeaderMasked").GetComponent<CategoryHeaderMasked>();
 
@@ -465,7 +465,7 @@ public static class RoleSettingMenuPatches
         __instance.roleChances.Add(roleOptionSetting);
 
         roleOptionSetting.titleText.transform.localPosition = new Vector3(-0.5376f, -0.2923f, 0f);
-        roleOptionSetting.titleText.color = customRole.RoleColor.GetAlternateColor();
+        roleOptionSetting.titleText.color = customRole.RoleColor.FindAlternateColor();
         roleOptionSetting.titleText.horizontalAlignment = HorizontalAlignmentOptions.Left;
 
         if (GameSettingMenuPatches.SelectedMod is null ||
@@ -483,7 +483,7 @@ public static class RoleSettingMenuPatches
 
             var passiveButton = newButton.GetComponent<GameOptionButton>();
             passiveButton.OnClick = new ButtonClickedEvent();
-            passiveButton.interactableColor = btnRend.color = customRole.RoleColor.GetAlternateColor();
+            passiveButton.interactableColor = btnRend.color = customRole.RoleColor.FindAlternateColor();
             passiveButton.interactableHoveredColor = Color.white;
 
             passiveButton.OnClick.AddListener((UnityAction)(() => { ChangeTab(role, __instance); }));
