@@ -173,7 +173,13 @@ internal static class MeetingHudPatches
     [HarmonyPatch(nameof(MeetingHud.CheckForEndVoting))]
     public static bool EndCheck(MeetingHud __instance)
     {
-        if (Helpers.GetAlivePlayers().Exists(plr => plr.GetVoteData().VotesRemaining > 0))
+        var shouldEnd = Helpers.GetAlivePlayers().Exists(plr => plr.GetVoteData().VotesRemaining > 0);
+
+        var checkEndEvent = new CheckForEndVotingEvent(shouldEnd);
+        MiraEventManager.InvokeEvent(checkEndEvent);
+        shouldEnd = checkEndEvent.ForceEndVoting || checkEndEvent is { IsCancelled: false, IsVotingComplete: true };
+
+        if (!shouldEnd)
         {
             return false;
         }
