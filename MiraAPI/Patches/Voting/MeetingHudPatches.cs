@@ -1,11 +1,11 @@
 ﻿using System.Linq;
 using HarmonyLib;
+using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using MiraAPI.Events;
 using MiraAPI.Events.Vanilla.Meeting;
 using MiraAPI.Events.Vanilla.Meeting.Voting;
 using MiraAPI.Utilities;
 using MiraAPI.Voting;
-using Reactor.Networking.Rpc;
 
 namespace MiraAPI.Patches.Voting;
 
@@ -201,21 +201,33 @@ internal static class MeetingHudPatches
             exiled = @event.ExiledPlayer;
         }
 
-        __instance.RpcVotingComplete(new MeetingHud.VoterState[__instance.playerStates.Length], exiled, isTie);
+        var voterStates = new Il2CppStructArray<MeetingHud.VoterState>([
+            .. votes.Select(
+            v=> new MeetingHud.VoterState
+            {
+                VoterId = v.Voter,
+                VotedForId = v.Suspect,
+            })
+        ]);
+
+        __instance.RpcVotingComplete(voterStates, exiled, isTie);
         return false;
     }
 
     [HarmonyPrefix]
     [HarmonyPatch(nameof(MeetingHud.PopulateResults))]
-    public static bool PopulateResultsPatch(MeetingHud __instance)
+    public static bool PopulateResultsPatch(MeetingHud __instance, ref Il2CppStructArray<MeetingHud.VoterState> states)
     {
-        if (!AmongUsClient.Instance.AmHost)
+        var votes = states.Select(x=> new CustomVote(x.VoterId, x.VotedForId)).ToList();
+        var @event = new PopulateResultsEvent(votes);
+        MiraEventManager.InvokeEvent(@event);
+
+        if (@event.IsCancelled)
         {
             return false;
         }
-        var votes = VotingUtils.CalculateVotes();
 
-        Rpc<PopulateResultsRpc>.Instance.Send([.. votes]);
+        VotingUtils.HandlePopulateResults(votes);
         return false;
     }
 
