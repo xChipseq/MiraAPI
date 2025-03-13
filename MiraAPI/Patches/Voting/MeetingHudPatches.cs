@@ -37,18 +37,13 @@ internal static class MeetingHudPatches
     {
         var voteData = PlayerControl.LocalPlayer.GetVoteData();
 
-        var @event = new MeetingSelectEvent(voteData, suspectStateIdx);
-        MiraEventManager.InvokeEvent(@event);
-
-        if (@event.IsCancelled)
-        {
-            return false;
-        }
-
         var hasVotes = voteData.VotesRemaining > 0;
         var hasVotedFor = voteData.VotedFor((byte)suspectStateIdx);
 
-        return hasVotes && !hasVotedFor;
+        var @event = new MeetingSelectEvent(voteData, suspectStateIdx, hasVotes && !hasVotedFor);
+        MiraEventManager.InvokeEvent(@event);
+
+        return @event.AllowVote;
     }
 
     [HarmonyPrefix]
