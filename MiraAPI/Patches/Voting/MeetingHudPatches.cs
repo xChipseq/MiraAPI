@@ -173,23 +173,29 @@ internal static class MeetingHudPatches
     [HarmonyPatch(nameof(MeetingHud.CheckForEndVoting))]
     public static bool EndCheck(MeetingHud __instance)
     {
-        if (Helpers.GetAlivePlayers().Exists(plr => plr.GetVoteData()!.VotesRemaining > 0))
+        if (Helpers.GetAlivePlayers().Exists(plr => plr.GetVoteData().VotesRemaining > 0))
         {
             return false;
         }
 
         var votes = VotingUtils.CalculateVotes();
+        var exiled = VotingUtils.GetExiled(votes, out var isTie);
 
-        var max = VotingUtils.CalculateNumVotes(votes).MaxPair(out var isTie);
-        var exiled = GameData.Instance.AllPlayers.ToArray().FirstOrDefault(v => !isTie && v.PlayerId == max.Key);
+        var @event = new ProcessVotesEvent(votes, exiled);
+        MiraEventManager.InvokeEvent(@event);
 
-        if (exiled is null || exiled.IsDead || exiled.Disconnected)
+        if (@event.VotesModified)
         {
-            exiled = null;
+            votes = @event.Votes;
+            exiled = VotingUtils.GetExiled(votes, out isTie);
+        }
+
+        if (@event.ExiledPlayerModified)
+        {
+            exiled = @event.ExiledPlayer;
         }
 
         __instance.RpcVotingComplete(new MeetingHud.VoterState[__instance.playerStates.Length], exiled, isTie);
-
         return false;
     }
 

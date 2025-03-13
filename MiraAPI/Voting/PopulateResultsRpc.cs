@@ -28,7 +28,6 @@ public class PopulateResultsRpc(MiraApiPlugin plugin, uint id) : PlayerCustomRpc
         {
             writer.Write(t.Voter);
             writer.Write(t.Suspect);
-            writer.Write(t.Weight);
         }
     }
 
@@ -39,7 +38,7 @@ public class PopulateResultsRpc(MiraApiPlugin plugin, uint id) : PlayerCustomRpc
 
         for (var i = 0; i < votes.Length; i++)
         {
-            votes[i] = new CustomVote(reader.ReadByte(), reader.ReadByte(), reader.ReadSingle());
+            votes[i] = new CustomVote(reader.ReadByte(), reader.ReadByte());
         }
 
         return votes;

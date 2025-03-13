@@ -17,7 +17,7 @@ public class HandleVoteEvent : MiraCancelableEvent
     /// <summary>
     /// Gets the player who voted.
     /// </summary>
-    public PlayerControl? Player { get; }
+    public PlayerControl Player { get; }
 
     /// <summary>
     /// Gets the player id of the target.

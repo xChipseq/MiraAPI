@@ -17,6 +17,26 @@ public static class VotingUtils
     private const byte SkipVoteId = 253;
 
     /// <summary>
+    /// Gets the exiled player from the list of votes. Returns null if no player is to be exiled.
+    /// </summary>
+    /// <param name="votes">>The list of votes to check.</param>
+    /// <param name="isTie">Whether the vote is a tie.</param>
+    /// <returns>The player to be exiled. Will be null if no player is to be exiled.</returns>
+    public static NetworkedPlayerInfo? GetExiled(List<CustomVote> votes, out bool isTie)
+    {
+        var max = CalculateNumVotes(votes).MaxPair(out var tie);
+        isTie = tie;
+        var exiled = GameData.Instance.AllPlayers.ToArray().FirstOrDefault(v => !tie && v.PlayerId == max.Key);
+
+        if (exiled is null || exiled.IsDead || exiled.Disconnected)
+        {
+            exiled = null;
+        }
+
+        return exiled;
+    }
+
+    /// <summary>
     /// Handles when a vote is added and allows for other mods to override/modify.
     /// </summary>
     /// <param name="voteData">The player's vote data.</param>
@@ -83,11 +103,11 @@ public static class VotingUtils
     {
         var dictionary = new Dictionary<byte, float>();
 
-        foreach (var vote in votes)
+        foreach (var vote in votes.Select(v=>v.Suspect))
         {
-            if (!dictionary.TryAdd(vote.Suspect, vote.Weight))
+            if (!dictionary.TryAdd(vote, 1))
             {
-                dictionary[vote.Suspect] += vote.Weight;
+                dictionary[vote] += 1;
             }
         }
 

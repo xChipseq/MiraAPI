@@ -56,10 +56,9 @@ public class PlayerVoteData(nint cppPtr) : MonoBehaviour(cppPtr)
     /// Adds the voted player to the list.
     /// </summary>
     /// <param name="playerId">The target's playerId.</param>
-    /// <param name="weight">The weight of the vote.</param>
-    public void VoteForPlayer(byte playerId, float weight=1f)
+    public void VoteForPlayer(byte playerId)
     {
-        Votes.Add(new CustomVote(Owner.PlayerId, playerId, weight));
+        Votes.Add(new CustomVote(Owner.PlayerId, playerId));
     }
 
     /// <summary>
