@@ -62,7 +62,7 @@ public static class CustomRoleManager
             pluginInfo.CustomRoles.Add((ushort)role.Role, role);
         }
 
-        SpriteAsset = Helpers.CreateSpriteAsset(_roleIcons, "RoleIcons");
+        SpriteAsset = Helpers.CreateSpriteAsset(_roleIcons, "CustomRoleIcons");
     }
 
     private static RoleBehaviour? RegisterRole(Type roleType, MiraPluginInfo parentMod)
@@ -105,7 +105,7 @@ public static class CustomRoleManager
             {
                 roleBehaviour.RoleIconSolid = asset;
                 roleBehaviour.RoleIconWhite = asset;
-                _roleIcons.Add(roleBehaviour.NiceName, asset);
+                _roleIcons.Add(customRole.RoleName, asset);
             }
         }
 

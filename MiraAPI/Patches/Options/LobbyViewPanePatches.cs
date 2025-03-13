@@ -331,7 +331,7 @@ public static class LobbyViewPanePatches
                     chancePerGame,
                     61,
                     customRole.RoleColor,
-                    customRole.Configuration.Icon != null ? customRole.Configuration.Icon.LoadAsset() : MiraAssets.Empty.LoadAsset(),
+                    customRole.Configuration.Icon?.LoadAsset() ?? MiraAssets.Empty.LoadAsset(),
                     true);
                 viewSettingsInfoPanelRoleVariant.iconSprite.transform.localScale = new Vector3(0.365f, 0.365f, 1f);
                 viewSettingsInfoPanelRoleVariant.iconSprite.transform.localPosition = new Vector3(0.7144f, -0.028f, -2);

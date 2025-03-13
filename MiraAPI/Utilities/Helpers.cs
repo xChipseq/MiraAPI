@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using HarmonyLib;
 using MiraAPI.Roles;
+using Reactor.Utilities;
 using Reactor.Utilities.Extensions;
 using TMPro;
 using UnityEngine;
@@ -30,6 +31,23 @@ public static class Helpers
 
     internal static readonly List<TMP_SpriteAsset> RegisteredSpriteAssets = [];
 
+    public static void Dump(this Texture2D texture, string path) => File.WriteAllBytes(path, texture.Decompress().EncodeToPNG());
+
+    public static Texture2D Decompress(this Texture2D source)
+    {
+        var renderTex = RenderTexture.GetTemporary(source.width, source.height, 0, RenderTextureFormat.Default, RenderTextureReadWrite.Linear);
+        Graphics.Blit(source, renderTex);
+        var previous = RenderTexture.active;
+        RenderTexture.active = renderTex;
+        var readableText = new Texture2D(source.width, source.height);
+        readableText.ReadPixels(new(0, 0, renderTex.width, renderTex.height), 0, 0);
+        readableText.Apply();
+        RenderTexture.active = previous;
+        RenderTexture.ReleaseTemporary(renderTex);
+        readableText.name = source.name;
+        return readableText;
+    }
+
     /// <summary>
     /// Allows you to create a custom sprite asset. Normally used for TextMeshPro.
     /// Ensure you set the TMP object's sprite asset to this one and use the sprite name tag.
@@ -44,11 +62,15 @@ public static class Helpers
         var asset = ScriptableObject.CreateInstance<TMP_SpriteAsset>();
         var image = new Texture2D(2048, 2048) { name = spriteAssetName };
         var rects = image.PackTextures(textures, 2);
+        Dump(image, $"{spriteAssetName}.png");
 
         for (var i = 0; i < rects.Length; i++)
         {
             var rect = rects[i];
             var pair = sprites.ElementAt(i);
+            var sprite = pair.Value;
+            var spriteRect = sprite.rect;
+            var pivot = sprite.pivot;
 
             var glyph = new TMP_SpriteGlyph
             {
@@ -61,17 +83,19 @@ public static class Helpers
                 },
                 metrics = new GlyphMetrics
                 {
-                    width = (int)(rect.width * image.width),
-                    height = (int)(rect.height * image.height),
-                    horizontalBearingY = (int)(rect.height * image.height) * 0.75f,
-                    horizontalBearingX = 0,
-                    horizontalAdvance = (int)(rect.width * image.width),
+                    width = spriteRect.width,
+                    height = spriteRect.height,
+                    horizontalBearingX = pivot.x,
+                    horizontalBearingY = spriteRect.height - pivot.y, // Top of the sprite relative to baseline
+                    horizontalAdvance = spriteRect.width,
                 },
                 index = (uint)i,
-                sprite = pair.Value,
+                sprite = sprite,
             };
 
-            var character = new TMP_SpriteCharacter(0, asset, glyph)
+            // Assign unique Unicode from the Private Use Area
+            var unicode = 0xE000 + (uint)i;
+            var character = new TMP_SpriteCharacter(unicode, asset, glyph)
             {
                 name = pair.Key,
                 glyphIndex = (uint)i,
@@ -84,7 +108,7 @@ public static class Helpers
         asset.name = spriteAssetName;
         asset.hashCode = TMP_TextUtilities.GetSimpleHashCode(asset.name);
         asset.material = new Material(Shader.Find("TextMeshPro/Sprite"));
-        AccessTools.Property(asset.GetType(), "version").SetValue(asset, "1.1.0");
+        asset.version = "1.1.0";
         asset.material.mainTexture = asset.spriteSheet = image;
         asset.UpdateLookupTables();
         RegisteredSpriteAssets.Add(asset);

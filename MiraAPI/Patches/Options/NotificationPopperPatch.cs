@@ -23,7 +23,7 @@ public static class NotificationPopperPatch
         [HarmonyArgument(4)] bool playSound)
     {
         var role = CustomRoleManager.CustomRoles.Values.FirstOrDefault(x => x.StringName == key);
-        if (!role || role is not ICustomRole)
+        if (!role || role is not ICustomRole customRole)
         {
             return true;
         }
@@ -37,7 +37,7 @@ public static class NotificationPopperPatch
         var item = TranslationController.Instance.GetString(
             StringNames.LobbyChangeSettingNotificationRole,
             string.Concat(
-                $"<sprite name=\"{role.NiceName}\">",
+                $"<sprite name=\"{customRole.RoleName}\">",
                 "<font=\"Barlow-Black SDF\" material=\"Barlow-Black Outline\">",
                 text,
                 TranslationController.Instance.GetString(key, Array.Empty<Object>()),
