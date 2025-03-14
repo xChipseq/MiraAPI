@@ -23,21 +23,21 @@ public class MeetingSelectEvent : MiraEvent
     public NetworkedPlayerInfo TargetPlayerInfo { get; }
 
     /// <summary>
-    /// Gets or sets a value indicating whether the player is allowed to vote for the target.
+    /// Gets or sets a value indicating whether the player is allowed to select the target.
     /// </summary>
-    public bool AllowVote { get; set; }
+    public bool AllowSelect { get; set; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="MeetingSelectEvent"/> class.
     /// </summary>
     /// <param name="playerVoteData">The voter's data.</param>
     /// <param name="targetId">The target's playerId.</param>
-    /// <param name="allowVote">>Whether the player is allowed to vote for the target.</param>
-    public MeetingSelectEvent(PlayerVoteData playerVoteData, int targetId, bool allowVote)
+    /// <param name="allowSelect">>Whether the player is allowed to select the target.</param>
+    public MeetingSelectEvent(PlayerVoteData playerVoteData, int targetId, bool allowSelect)
     {
         VoteData = playerVoteData;
         TargetId = targetId;
         TargetPlayerInfo = GameData.Instance.GetPlayerById((byte)targetId);
-        AllowVote = allowVote;
+        AllowSelect = allowSelect;
     }
 }

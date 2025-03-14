@@ -43,7 +43,7 @@ internal static class MeetingHudPatches
         var @event = new MeetingSelectEvent(voteData, suspectStateIdx, hasVotes && !hasVotedFor);
         MiraEventManager.InvokeEvent(@event);
 
-        return @event.AllowVote;
+        return @event.AllowSelect;
     }
 
     [HarmonyPrefix]
