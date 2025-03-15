@@ -47,7 +47,7 @@ internal static class MeetingHudPatches
     }
 
     [HarmonyPrefix]
-    [HarmonyPatch(nameof(MeetingHud.HandleDisconnect), [typeof(PlayerControl), typeof(DisconnectReasons)])]
+    [HarmonyPatch(nameof(MeetingHud.HandleDisconnect), typeof(PlayerControl), typeof(DisconnectReasons))]
     public static bool HandleDisconnect(MeetingHud __instance, PlayerControl pc)
     {
         if (!AmongUsClient.Instance.AmHost || __instance.playerStates is null || !pc || !GameData.Instance)
