@@ -104,6 +104,11 @@ public static class CustomRoleManager
             }
         }
 
+        if (customRole.Configuration.IntroSound != null)
+        {
+            roleBehaviour.IntroSound = customRole.Configuration.IntroSound.LoadAsset();
+        }
+
         if (roleBehaviour.IsDead)
         {
             RoleManager.GhostRoles.Add(roleBehaviour.Role);

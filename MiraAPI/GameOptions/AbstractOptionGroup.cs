@@ -35,7 +35,7 @@ public abstract class AbstractOptionGroup
     /// <summary>
     /// Gets the group color. This is used to color the group in the options menu.
     /// </summary>
-    public virtual Color GroupColor => Color.clear;
+    public virtual Color GroupColor => MiraApiPlugin.DefaultHeaderColor;
 
     /// <summary>
     /// Gets the group priority. This is used to determine the order in which groups are displayed in the options menu.

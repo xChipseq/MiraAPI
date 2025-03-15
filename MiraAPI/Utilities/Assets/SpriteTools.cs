@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Reflection;
 using Reactor.Utilities.Extensions;
 using UnityEngine;
@@ -34,5 +35,21 @@ public static class SpriteTools
         var sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f), pixelsPerUnit);
         sprite.name = resourcePath;
         return sprite;
+    }
+    public static void Dump(this Sprite sprite, string path) => File.WriteAllBytes(path, sprite.texture.Decompress().EncodeToPNG());
+
+    public static Texture2D Decompress(this Texture2D source)
+    {
+        var renderTex = RenderTexture.GetTemporary(source.width, source.height, 0, RenderTextureFormat.Default, RenderTextureReadWrite.Linear);
+        Graphics.Blit(source, renderTex);
+        var previous = RenderTexture.active;
+        RenderTexture.active = renderTex;
+        var readableText = new Texture2D(source.width, source.height);
+        readableText.ReadPixels(new(0, 0, renderTex.width, renderTex.height), 0, 0);
+        readableText.Apply();
+        RenderTexture.active = previous;
+        RenderTexture.ReleaseTemporary(renderTex);
+        readableText.name = source.name;
+        return readableText;
     }
 }

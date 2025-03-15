@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using HarmonyLib;
 using MiraAPI.GameOptions;
 using MiraAPI.Networking;
@@ -40,6 +41,30 @@ public static class Extensions
     }
 
     /// <summary>
+    /// Gets a PlayerControl from their PlayerVoteArea in a meeting.
+    /// </summary>
+    /// <param name="state">The vote area.</param>
+    /// <returns>The player's PlayerControl.</returns>
+    public static PlayerControl? GetPlayer(this PlayerVoteArea state) => GameData.Instance.GetPlayerById(state.TargetPlayerId)?.Object;
+
+    /// <summary>
+    /// Gets an int representing the amount of tasks a player has left.
+    /// </summary>
+    /// <param name="player">The player.</param>
+    /// <returns>A count of how many tasks the player has left.</returns>
+    public static int GetTasksLeft(this PlayerControl player) => player.Data.Tasks.ToArray().Count(x => !x.Complete);
+
+    /// <summary>
+    /// Checks if a PlayerControl is the game's host.
+    /// </summary>
+    /// <param name="playerControl">The player you're checking for.</param>
+    /// <returns>If the player is the host, true, else false.</returns>
+    public static bool IsHost(this PlayerControl playerControl)
+    {
+        return TutorialManager.InstanceExists || AmongUsClient.Instance.HostId == playerControl.OwnerId;
+    }
+
+    /// <summary>
     /// Determines if a float is an integer.
     /// </summary>
     /// <param name="number">The float number.</param>
@@ -63,6 +88,17 @@ public static class Extensions
                     .Select((p, i) => GetInheritanceDistance(args[i].GetType(), p.ParameterType))
                     .Sum())
             .FirstOrDefault();
+    }
+
+    /// <summary>
+    /// Gets a proper string for an enum. (with spaces).
+    /// </summary>
+    /// <param name="enum">The enum you would like to change.</param>
+    /// <returns>A proper string for the enum.</returns>
+    public static string ToDisplayString(this Enum @enum)
+    {
+        var regex = new Regex(@"([^\^])([A-Z][a-z$])");
+        return regex.Replace(@enum.ToString(), m => $"{m.Groups[1].Value} {m.Groups[2].Value}");
     }
 
     /// <summary>

@@ -27,6 +27,7 @@ namespace MiraAPI;
 public partial class MiraApiPlugin : BasePlugin
 {
     public static Color MiraColor { get; } = new Color32(238, 154, 112, 255);
+    public static Color DefaultHeaderColor = new Color32(77, 77, 77, 255);
     private static MiraPluginManager? PluginManager { get; set; }
     internal Harmony Harmony { get; } = new(Id);
 
