@@ -206,7 +206,7 @@ public interface ICustomRole : IOptionable
     /// Get the custom Role Tab text for this role.
     /// </summary>
     /// <returns>A StringBuilder with the role tab text.</returns>
-    StringBuilder SetTabText() => Helpers.CreateForRole(this);
+    StringBuilder SetTabText() => CustomRoleUtils.CreateForRole(this);
 
     /// <summary>
     /// Determine whether a given modifier can be applied to this role.

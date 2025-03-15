@@ -42,7 +42,7 @@ public static class GameOptionsMenuPatch
         {
             var filteredGroups =
                 GameSettingMenuPatches.SelectedMod?.OptionGroups
-                    .Where(x => x.OptionableType == null) ?? [];
+                    .Where(x => x.OptionableType == null && !x.ShowInModifiersMenu) ?? [];
 
             foreach (var group in filteredGroups)
             {
@@ -144,7 +144,7 @@ public static class GameOptionsMenuPatch
         }
 
         var filteredGroups = GameSettingMenuPatches.SelectedMod?.OptionGroups
-            .Where(x => x.OptionableType == null) ?? [];
+            .Where(x => x.OptionableType == null && !x.ShowInModifiersMenu) ?? [];
 
         foreach (var group in filteredGroups)
         {
@@ -198,16 +198,16 @@ public static class GameOptionsMenuPatch
             menu.settingsContainer);
 
         categoryHeaderMasked.SetHeader(CustomStringName.CreateAndRegister(group.GroupName), 20);
-        if (group.GroupColor != Color.clear)
-        {
-            categoryHeaderMasked.Background.color = group.GroupColor;
-            categoryHeaderMasked.Divider.color = group.GroupColor;
-            categoryHeaderMasked.Title.color = group.GroupColor.FindAlternateColor();
-        }
+        categoryHeaderMasked.Background.color = group.GroupColor;
+        categoryHeaderMasked.Divider.color = group.GroupColor;
+        categoryHeaderMasked.Title.color = group.GroupColor.Equals(MiraApiPlugin.DefaultHeaderColor) ? Color.white : group.GroupColor.FindAlternateColor();
 
+        categoryHeaderMasked.Background.sprite = MiraAssets.CategoryHeader.LoadAsset();
+        categoryHeaderMasked.Background.transform.localPosition = new Vector3(0.55f, -0.1833f, 0);
         categoryHeaderMasked.Background.size = new Vector2(
             categoryHeaderMasked.Background.size.x + 1.5f,
             categoryHeaderMasked.Background.size.y);
+
         categoryHeaderMasked.gameObject.SetActive(false);
         group.Header = categoryHeaderMasked;
 
@@ -230,7 +230,7 @@ public static class GameOptionsMenuPatch
             SpriteRenderer[] componentsInChildren = newOpt.GetComponentsInChildren<SpriteRenderer>(true);
             foreach (var renderer in componentsInChildren)
             {
-                if (group.GroupColor != Color.clear)
+                if (group.GroupColor != MiraApiPlugin.DefaultHeaderColor)
                 {
                     renderer.color = group.GroupColor.FindAlternateColor();
                     if (renderer.transform.parent.TryGetComponent<GameOptionButton>(out var btn))
@@ -245,7 +245,7 @@ public static class GameOptionsMenuPatch
 
             foreach (var textMeshPro in newOpt.GetComponentsInChildren<TextMeshPro>(true))
             {
-                if (group.GroupColor != Color.clear)
+                if (group.GroupColor != MiraApiPlugin.DefaultHeaderColor)
                 {
                     textMeshPro.color = group.GroupColor;
                 }
@@ -257,12 +257,11 @@ public static class GameOptionsMenuPatch
             if (newOpt is ToggleOption toggle)
             {
                 toggle.CheckMark.sprite = MiraAssets.Checkmark.LoadAsset();
-                toggle.CheckMark.color =
-                    group.GroupColor != Color.clear ? group.GroupColor : MiraAssets.AcceptedTeal;
+                toggle.CheckMark.color = group.GroupColor != MiraApiPlugin.DefaultHeaderColor ? group.GroupColor : MiraAssets.AcceptedTeal;
                 var rend = toggle.CheckMark.transform.parent.FindChild("ActiveSprite")
                     .GetComponent<SpriteRenderer>();
                 rend.sprite = MiraAssets.CheckmarkBox.LoadAsset();
-                rend.color = group.GroupColor != Color.clear ? group.GroupColor : MiraAssets.AcceptedTeal;
+                rend.color = group.GroupColor != MiraApiPlugin.DefaultHeaderColor ? group.GroupColor : MiraAssets.AcceptedTeal;
             }
 
             menu.Children.Add(newOpt);

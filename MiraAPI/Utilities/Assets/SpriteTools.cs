@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Reflection;
 using Reactor.Utilities.Extensions;
 using UnityEngine;
@@ -30,6 +31,9 @@ public static class SpriteTools
             throw new ArgumentException($"Resource not found: {resourcePath}");
         }
 
-        return Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f), pixelsPerUnit);
+        tex.name = resourcePath;
+        var sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f), pixelsPerUnit);
+        sprite.name = resourcePath;
+        return sprite;
     }
 }

@@ -168,7 +168,7 @@ public abstract class CustomActionButton
     /// Allows you to change the button's location.
     /// </summary>
     /// <param name="location">The new location.</param>
-    /// <param name="moveButton">Whether the button's position should change ingame.</param>
+    /// <param name="moveButton">Whether the button's position should change in-game.</param>
     public virtual void SetButtonLocation(ButtonLocation location, bool moveButton = true)
     {
         if (!HudManager.InstanceExists || Button == null)
@@ -221,7 +221,6 @@ public abstract class CustomActionButton
     /// A utility function to change the outline color of the button's text.
     /// </summary>
     /// <param name="color">The new color.</param>
-    /// <param name="thickness">The thickness of the outline. Set to 0 if you want to remove it.</param>
     public virtual void SetTextOutline(Color color)
     {
         Button?.buttonLabelText.SetOutlineColor(color);
@@ -364,7 +363,7 @@ public abstract class CustomActionButton
     /// <returns>A value that represents whether the button should light up or not.</returns>
     public virtual bool CanUse()
     {
-        return !LimitedUses || UsesLeft > 0;
+        return PlayerControl.LocalPlayer.moveable && (!LimitedUses || UsesLeft > 0);
     }
 
     /// <summary>

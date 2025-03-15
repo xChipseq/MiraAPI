@@ -13,6 +13,7 @@ using Reactor.Utilities;
 using Reactor.Utilities.Extensions;
 using TMPro;
 using UnityEngine;
+using UnityEngine.TextCore;
 using Object = UnityEngine.Object;
 
 namespace MiraAPI.Roles;
@@ -92,6 +93,21 @@ public static class CustomRoleManager
         roleBehaviour.DefaultGhostRole = customRole.Configuration.GhostRole;
         roleBehaviour.MaxCount = customRole.Configuration.MaxRoleCount;
         roleBehaviour.RoleScreenshot = customRole.Configuration.OptionsScreenshot?.LoadAsset();
+
+        if (customRole.Configuration.Icon != null)
+        {
+            var asset = customRole.Configuration.Icon.LoadAsset();
+            if (asset != null)
+            {
+                roleBehaviour.RoleIconSolid = asset;
+                roleBehaviour.RoleIconWhite = asset;
+            }
+        }
+
+        if (customRole.Configuration.IntroSound != null)
+        {
+            roleBehaviour.IntroSound = customRole.Configuration.IntroSound.LoadAsset();
+        }
 
         if (roleBehaviour.IsDead)
         {
