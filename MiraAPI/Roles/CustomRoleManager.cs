@@ -25,9 +25,7 @@ public static class CustomRoleManager
 {
     internal static readonly Dictionary<ushort, RoleBehaviour> CustomRoles = [];
     internal static readonly Dictionary<Type, ushort> RoleIds = [];
-    internal static TMP_SpriteAsset SpriteAsset;
 
-    private static Dictionary<string, Sprite> _roleIcons = [];
     private static ushort _roleId = 100;
 
     private static ushort GetNextRoleId()
@@ -61,8 +59,6 @@ public static class CustomRoleManager
 
             pluginInfo.CustomRoles.Add((ushort)role.Role, role);
         }
-
-        SpriteAsset = Helpers.CreateSpriteAsset(_roleIcons, "CustomRoleIcons");
     }
 
     private static RoleBehaviour? RegisterRole(Type roleType, MiraPluginInfo parentMod)
@@ -105,7 +101,6 @@ public static class CustomRoleManager
             {
                 roleBehaviour.RoleIconSolid = asset;
                 roleBehaviour.RoleIconWhite = asset;
-                _roleIcons.Add(customRole.RoleName, asset);
             }
         }
 
