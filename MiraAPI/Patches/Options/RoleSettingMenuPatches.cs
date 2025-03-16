@@ -128,7 +128,10 @@ public static class RoleSettingMenuPatches
             countLabel.Destroy();
 
             categoryHeaderMasked.Background.sprite = MiraAssets.CategoryHeader.LoadAsset();
-            categoryHeaderMasked.Background.transform.localPosition = new Vector3(0.55f, -0.1833f, 0);
+            categoryHeaderMasked.Background.sprite.texture.filterMode = FilterMode.Bilinear;
+            categoryHeaderMasked.Background.sprite.texture.wrapMode = TextureWrapMode.Clamp;
+
+            categoryHeaderMasked.Background.transform.localPosition = new Vector3(0.5f, -0.1833f, 0);
 
             switch (name)
             {
@@ -243,7 +246,7 @@ public static class RoleSettingMenuPatches
     [HarmonyPatch(nameof(RolesSettingsMenu.OpenChancesTab))]
     public static void OpenChancesTabPostfix(RolesSettingsMenu __instance)
     {
-        if (GameSettingMenuPatches.SelectedModIdx == 0)
+        if (GameSettingMenuPatches.SelectedModIdx == 0 || !__instance.scrollBar)
         {
             return;
         }

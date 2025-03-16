@@ -203,7 +203,10 @@ public static class GameOptionsMenuPatch
         categoryHeaderMasked.Title.color = group.GroupColor.Equals(MiraApiPlugin.DefaultHeaderColor) ? Color.white : group.GroupColor.FindAlternateColor();
 
         categoryHeaderMasked.Background.sprite = MiraAssets.CategoryHeader.LoadAsset();
-        categoryHeaderMasked.Background.transform.localPosition = new Vector3(0.55f, -0.1833f, 0);
+        categoryHeaderMasked.Background.sprite.texture.filterMode = FilterMode.Bilinear;
+        categoryHeaderMasked.Background.sprite.texture.wrapMode = TextureWrapMode.Clamp;
+
+        categoryHeaderMasked.Background.transform.localPosition = new Vector3(0.5f, -0.1833f, 0);
         categoryHeaderMasked.Background.size = new Vector2(
             categoryHeaderMasked.Background.size.x + 1.5f,
             categoryHeaderMasked.Background.size.y);

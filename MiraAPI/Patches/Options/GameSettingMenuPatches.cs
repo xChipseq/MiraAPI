@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Linq;
 using HarmonyLib;
 using MiraAPI.Modifiers;
 using MiraAPI.PluginLoading;
 using MiraAPI.Utilities.Assets;
+using Reactor.Utilities;
 using Reactor.Utilities.Extensions;
 using TMPro;
 using UnityEngine;
@@ -22,6 +24,8 @@ internal static class GameSettingMenuPatches
     private static TextMeshPro? _text;
 
     private static Vector3 _roleBtnOgPos;
+    private static Vector3 _smallRoleBtnOgPos;
+    private static Vector3 _modifierBtnOgPos;
 
     private static GameOptionsMenu? _modifiersTab;
     private static PassiveButton? _modifiersButton;
@@ -33,9 +37,20 @@ internal static class GameSettingMenuPatches
     {
         if ((previewOnly && Controller.currentTouchType == Controller.TouchType.Joystick) || !previewOnly)
         {
-            if (_modifiersTab) _modifiersTab?.gameObject.SetActive(tabNum == 3);
+            if (_modifiersTab) _modifiersTab!.gameObject.SetActive(tabNum == 3);
             _modifiersButton?.SelectButton(tabNum == 3);
             _smallRolesButton?.SelectButton(tabNum == 2);
+            if (tabNum == 3)
+            {
+                if (__instance.RoleSettingsButton.gameObject.active)
+                {
+                    __instance.RoleSettingsButton.SelectButton(true);
+                }
+                else
+                {
+                    _modifiersButton?.SelectButton(true);
+                }
+            }
         }
 
         if (previewOnly)
@@ -45,6 +60,17 @@ internal static class GameSettingMenuPatches
 
         _modifiersButton?.SelectButton(tabNum == 3);
         _smallRolesButton?.SelectButton(tabNum == 2);
+
+        if (tabNum != 3) return;
+
+        if (__instance.RoleSettingsButton.gameObject.active)
+        {
+            __instance.RoleSettingsButton.SelectButton(true);
+        }
+        else
+        {
+            _modifiersButton?.SelectButton(true);
+        }
     }
 
     /// <summary>
@@ -117,6 +143,7 @@ internal static class GameSettingMenuPatches
         _modifiersTab.name = "MODIFIERS TAB";
 
         // create button for modifiers
+        __instance.RoleSettingsButton.buttonText.gameObject.GetComponent<TextTranslatorTMP>().Destroy();
         __instance.RoleSettingsButton.gameObject.SetActive(false);
         _smallRolesButton = Object.Instantiate(
             __instance.RoleSettingsButton,
@@ -136,6 +163,8 @@ internal static class GameSettingMenuPatches
             {
                 __instance.ChangeTab(2, true);
             }));
+
+        _smallRoleBtnOgPos = _smallRolesButton.transform.localPosition;
 
         var roleText = _smallRolesButton.buttonText;
         roleText.text = "Roles";
@@ -178,9 +207,45 @@ internal static class GameSettingMenuPatches
         _modifiersButton.transform.localPosition = pos;
         _modifiersButton.name = "ModifiersButton";
 
+        _modifierBtnOgPos = _modifiersButton.transform.localPosition;
+
         UpdateText(__instance, __instance.GameSettingsTab, __instance.RoleSettingsTab);
     }
 
+    private static void ChangeRoleSettingButton(bool replace, GameSettingMenu __instance)
+    {
+        __instance.RoleSettingsButton.OnClick = new ButtonClickedEvent();
+        __instance.RoleSettingsButton.OnMouseOver = new UnityEvent();
+
+        if (replace)
+        {
+            __instance.RoleSettingsButton.buttonText.text = "Modifiers Settings";
+            __instance.RoleSettingsButton.OnClick.AddListener(
+                (UnityAction)(() =>
+                {
+                    __instance.ChangeTab(3, false);
+                }));
+            __instance.RoleSettingsButton.OnMouseOver.AddListener(
+                (UnityAction)(() =>
+                {
+                    __instance.ChangeTab(3, true);
+                }));
+        }
+        else
+        {
+            __instance.RoleSettingsButton.buttonText.text = "Roles Settings";
+            __instance.RoleSettingsButton.OnClick.AddListener(
+                (UnityAction)(() =>
+                {
+                    __instance.ChangeTab(2, false);
+                }));
+            __instance.RoleSettingsButton.OnMouseOver.AddListener(
+                (UnityAction)(() =>
+                {
+                    __instance.ChangeTab(2, true);
+                }));
+        }
+    }
     private static void UpdateText(GameSettingMenu menu, GameOptionsMenu settings, RolesSettingsMenu roles)
     {
         if (_text is not null && SelectedModIdx == 0)
@@ -197,106 +262,182 @@ internal static class GameSettingMenuPatches
             _text.text = name[..Math.Min(name.Length, 25)];
         }
 
-        _modifiersButton.gameObject.SetActive(false);
-        _smallRolesButton.gameObject.SetActive(false);
-        menu.RoleSettingsButton.gameObject.SetActive(false);
-        if (SelectedModIdx != 0 &&
-            SelectedMod?.OptionGroups.Exists(x => x.ShowInModifiersMenu || x.OptionableType?.IsAssignableTo(typeof(BaseModifier)) == true) == true)
+        bool replaceWithModifiers = true;
+        _smallRolesButton!.transform.localPosition = _smallRoleBtnOgPos;
+        _modifiersButton!.transform.localPosition = _modifierBtnOgPos;
+        menu.RoleSettingsButton.transform.localPosition = _roleBtnOgPos;
+
+        if (SelectedModIdx != 0)
         {
+            var modHasRoles = SelectedMod!.CustomRoles.Count != 0;
+            var modHasModifiers = SelectedMod.OptionGroups.Exists(x => x.ShowInModifiersMenu || x.OptionableType?.IsAssignableTo(typeof(BaseModifier)) == true);
+            var modHasOptions = SelectedMod.OptionGroups.Exists(x => x.OptionableType == null && !x.ShowInModifiersMenu);
+
             _modifiersButton.gameObject.SetActive(true);
             _smallRolesButton.gameObject.SetActive(true);
+            menu.GameSettingsButton.gameObject.SetActive(true);
+            menu.RoleSettingsButton.gameObject.SetActive(false);
+
+            // If there are no registered custom roles in the selected mod, hide the button.
+            if (!modHasRoles)
+            {
+                _smallRolesButton.gameObject.SetActive(false);
+
+                if (roles.gameObject.active)
+                {
+                    menu.ChangeTab(0, false);
+                }
+
+                // If the mod has modifiers, we can disable the smaller modifier button and enable the bigger one.
+                if (modHasModifiers)
+                {
+                    _modifiersButton.gameObject.SetActive(false);
+                    menu.RoleSettingsButton.gameObject.SetActive(true);
+
+                    if (_modifiersTab!.gameObject.active)
+                    {
+                        menu.RoleSettingsButton.SelectButton(true);
+                    }
+                }
+            }
+
+            // If there are no modifiers in the selected mod, hide the modifiers button.
+            if (!modHasModifiers)
+            {
+                replaceWithModifiers = false;
+                _modifiersButton.gameObject.SetActive(false);
+
+                if (_modifiersTab!.gameObject.active)
+                {
+                    menu.ChangeTab(0, false);
+                }
+                // If the mod has roles, we can enable the bigger role button and disable the small one.
+                if (modHasRoles)
+                {
+                    menu.RoleSettingsButton.gameObject.SetActive(true);
+                    _smallRolesButton.gameObject.SetActive(false);
+                }
+            }
+
+            // If there are no custom game options registered (that aren't modifier options), hide game settings button.
+            if (!modHasOptions)
+            {
+                menu.GameSettingsButton.gameObject.SetActive(false);
+
+                if (settings.gameObject.active)
+                {
+                    menu.ChangeTab(0, false);
+                }
+
+                // If the mod has roles and modifiers, we can move their buttons to the game settings button position, since nothing is there.
+                if (menu.RoleSettingsButton.gameObject.active)
+                {
+                    menu.RoleSettingsButton.transform.localPosition = menu.GameSettingsButton.transform.localPosition;
+                }
+                else if (_modifiersButton.gameObject.active && _smallRolesButton.gameObject.active)
+                {
+                    _modifiersButton.transform.localPosition = new Vector3(
+                        _modifiersButton.transform.localPosition.x,
+                        menu.GameSettingsButton.transform.localPosition.y,
+                        _modifiersButton.transform.localPosition.z);
+
+                    _smallRolesButton.transform.localPosition = new Vector3(
+                        _smallRolesButton.transform.localPosition.x,
+                        menu.GameSettingsButton.transform.localPosition.y,
+                        _smallRolesButton.transform.localPosition.z);
+                }
+            }
         }
         else
         {
+            _modifiersButton.gameObject.SetActive(false);
+            _smallRolesButton.gameObject.SetActive(false);
             menu.RoleSettingsButton.gameObject.SetActive(true);
-            if (SelectedModIdx == 0 && _modifiersTab.gameObject.active)
+            menu.GameSettingsButton.gameObject.SetActive(true);
+            replaceWithModifiers = false;
+
+            if (_modifiersTab!.gameObject.active)
             {
                 menu.ChangeTab(0, false);
             }
         }
 
-        //menu.RoleSettingsButton.transform.localPosition = _roleBtnOgPos;
-        //menu.GameSettingsButton.gameObject.SetActive(true);
-        //menu.RoleSettingsButton.gameObject.SetActive(true);
-
-        // TODO: reimplement this
-        /*
-        if (SelectedModIdx != 0)
+        if (menu.RoleSettingsButton.gameObject.active)
         {
-            if (SelectedMod?.Options.Where(x=>x.AdvancedRole==null).ToList().Count == 0)
-            {
-                menu.GameSettingsButton.gameObject.SetActive(false);
-            }
-
-            if (SelectedMod?.CustomRoles.Count == 0)
-            {
-                menu.RoleSettingsButton.gameObject.SetActive(false);
-            }
-
-            if (!menu.GameSettingsButton.gameObject.active && menu.RoleSettingsButton.gameObject.active)
-            {
-                menu.RoleSettingsButton.transform.localPosition = menu.GameSettingsButton.transform.localPosition;
-            }
-        }*/
-
-        if (roles.roleChances != null && SelectedMod != null && SelectedMod.CustomRoles.Count != 0)
-        {
-            if (roles.advancedSettingChildren is not null)
-            {
-                foreach (var child in roles.advancedSettingChildren)
-                {
-                    child.gameObject.DestroyImmediate();
-                }
-
-                roles.advancedSettingChildren.Clear();
-                roles.advancedSettingChildren = null;
-            }
-
-            foreach (var header in roles.RoleChancesSettings.transform
-                         .GetComponentsInChildren<CategoryHeaderEditRole>())
-            {
-                header.gameObject.DestroyImmediate();
-            }
-
-            foreach (var roleChance in roles.roleChances)
-            {
-                roleChance.gameObject.DestroyImmediate();
-            }
-
-            roles.roleChances.Clear();
-            roles.AdvancedRolesSettings.gameObject.SetActive(false);
-            roles.RoleChancesSettings.gameObject.SetActive(true);
-            roles.SetQuotaTab();
-            roles.scrollBar.ScrollToTop();
+            ChangeRoleSettingButton(replaceWithModifiers, menu);
         }
 
-        if (settings.Children != null && SelectedMod?.OptionGroups.Count != 0)
+        CleanupTab(settings, roles);
+    }
+
+    private static void ClearOptions(Il2CppSystem.Collections.Generic.List<OptionBehaviour> options)
+    {
+        foreach (var child in options)
         {
-            foreach (var child in settings.Children)
+            if (child.TryCast<GameOptionsMapPicker>() || !child.gameObject)
             {
-                if (child.TryCast<GameOptionsMapPicker>())
-                {
-                    continue;
-                }
+                continue;
+            }
+            child.gameObject.DestroyImmediate();
+        }
+        options.Clear();
+    }
 
-                if (!child.gameObject)
-                {
-                    continue;
-                }
-
-                child.gameObject.DestroyImmediate();
+    private static void CleanupTab(GameOptionsMenu settings, RolesSettingsMenu roles)
+    {
+        void CleanupRoleSettings(RolesSettingsMenu rolesMenu)
+        {
+            if (rolesMenu.advancedSettingChildren != null)
+            {
+                ClearOptions(rolesMenu.advancedSettingChildren);
+                rolesMenu.advancedSettingChildren = null;
             }
 
-            foreach (var header in settings.settingsContainer.GetComponentsInChildren<CategoryHeaderMasked>())
+            rolesMenu.RoleChancesSettings
+                .transform
+                .GetComponentsInChildren<CategoryHeaderEditRole>()
+                .ToList()
+                .ForEach(header => header.gameObject.DestroyImmediate());
+
+            foreach (var role in rolesMenu.roleChances)
             {
-                header.gameObject.DestroyImmediate();
+                role.gameObject.DestroyImmediate();
             }
+            rolesMenu.roleChances?.Clear();
 
-            settings.Children.Clear();
-            settings.Children = null;
+            rolesMenu.AdvancedRolesSettings.gameObject.SetActive(false);
+            rolesMenu.RoleChancesSettings.gameObject.SetActive(true);
+            rolesMenu.SetQuotaTab();
+            rolesMenu.scrollBar.ScrollToTop();
+        }
 
-            settings.Initialize();
-            settings.scrollBar.ScrollToTop();
+        void CleanupSettings(GameOptionsMenu gameOptMenu)
+        {
+            ClearOptions(gameOptMenu.Children);
+            gameOptMenu.Children = null;
+
+            gameOptMenu.settingsContainer
+                .GetComponentsInChildren<CategoryHeaderMasked>()
+                .ToList()
+                .ForEach(header => header.gameObject.DestroyImmediate());
+
+            gameOptMenu.Initialize();
+            gameOptMenu.scrollBar.ScrollToTop();
+        }
+
+        if (roles.roleChances != null && SelectedMod?.CustomRoles.Count > 0)
+        {
+            CleanupRoleSettings(roles);
+        }
+
+        if (settings.Children != null && SelectedMod?.OptionGroups.Count > 0)
+        {
+            CleanupSettings(settings);
+        }
+
+        if (_modifiersTab?.Children?.Count > 0)
+        {
+            CleanupSettings(_modifiersTab);
         }
     }
 }
