@@ -34,6 +34,9 @@ public record struct CustomRoleConfiguration
         TasksCountForProgress = role.Team is ModdedRoleTeams.Crewmate;
         HideSettings = roleBehaviour?.IsDead == true;
         ShowInFreeplay = roleBehaviour?.IsDead == false;
+        IntroSound = role.Team is ModdedRoleTeams.Crewmate
+            ? CustomRoleManager.CrewmateIntroSound
+            : CustomRoleManager.ImpostorIntroSound;
     }
 
     /// <summary>

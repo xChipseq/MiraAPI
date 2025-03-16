@@ -7,6 +7,7 @@ using Il2CppInterop.Runtime.Injection;
 using MiraAPI.Networking;
 using MiraAPI.PluginLoading;
 using MiraAPI.Utilities;
+using MiraAPI.Utilities.Assets;
 using Reactor.Localization.Utilities;
 using Reactor.Networking.Rpc;
 using Reactor.Utilities;
@@ -23,6 +24,18 @@ namespace MiraAPI.Roles;
 /// </summary>
 public static class CustomRoleManager
 {
+    /// <summary>
+    /// The default Among Us Crewmate Intro Sound.
+    /// </summary>
+    public static readonly LoadableAsset<AudioClip> CrewmateIntroSound =
+        CustomRoleUtils.GetIntroSound(RoleTypes.Crewmate)!;
+
+    /// <summary>
+    /// The default Among Us Impostor Intro Sound.
+    /// </summary>
+    public static readonly LoadableAsset<AudioClip> ImpostorIntroSound =
+        CustomRoleUtils.GetIntroSound(RoleTypes.Impostor)!;
+
     internal static readonly Dictionary<ushort, RoleBehaviour> CustomRoles = [];
     internal static readonly Dictionary<Type, ushort> RoleIds = [];
 
