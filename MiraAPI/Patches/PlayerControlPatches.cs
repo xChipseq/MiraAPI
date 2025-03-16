@@ -6,6 +6,7 @@ using MiraAPI.Events.Vanilla.Player;
 using MiraAPI.Hud;
 using MiraAPI.Modifiers;
 using MiraAPI.Roles;
+using MiraAPI.Voting;
 using Reactor.Utilities.Extensions;
 
 namespace MiraAPI.Patches;
@@ -24,12 +25,18 @@ public static class PlayerControlPatches
     [HarmonyPatch(nameof(PlayerControl.Start))]
     public static void PlayerControlStartPostfix(PlayerControl __instance)
     {
-        if (__instance.gameObject.TryGetComponent<ModifierComponent>(out var comp))
+        if (__instance.gameObject.TryGetComponent<ModifierComponent>(out var modifierComp))
         {
-            comp.DestroyImmediate();
+            modifierComp.DestroyImmediate();
+        }
+
+        if (__instance.gameObject.TryGetComponent<PlayerVoteData>(out var voteComp))
+        {
+            voteComp.DestroyImmediate();
         }
 
         __instance.gameObject.AddComponent<ModifierComponent>();
+        __instance.gameObject.AddComponent<PlayerVoteData>();
     }
 
     /// <summary>
