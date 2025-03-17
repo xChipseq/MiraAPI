@@ -16,29 +16,19 @@ public abstract class ModdedOption<T> : IModdedOption
 {
     private IMiraPlugin? _parentMod;
 
-    /// <summary>
-    /// Gets the unique identifier of the option.
-    /// </summary>
+    /// <inheritdoc />
     public uint Id { get; }
 
-    /// <summary>
-    /// Gets the title of the option.
-    /// </summary>
+    /// <inheritdoc />
     public string Title { get; }
 
-    /// <summary>
-    /// Gets the StringName object of the option.
-    /// </summary>
+    /// <inheritdoc />
     public StringNames StringName { get; }
 
-    /// <summary>
-    /// Gets the BaseGameSetting data of the option.
-    /// </summary>
-    public BaseGameSetting Data { get; protected init; }
+    /// <inheritdoc />
+    public BaseGameSetting Data { get; protected init; } = null!;
 
-    /// <summary>
-    /// Gets or sets the parent mod of the option.
-    /// </summary>
+    /// <inheritdoc />
     public IMiraPlugin? ParentMod
     {
         get => _parentMod;
@@ -66,19 +56,16 @@ public abstract class ModdedOption<T> : IModdedOption
     /// </summary>
     public Action<T>? ChangedEvent { get; set; }
 
-    /// <summary>
-    /// Gets or sets the visibility of the option.
-    /// </summary>
+    /// <inheritdoc />
     public Func<bool> Visible { get; set; }
 
-    /// <summary>
-    /// Gets or sets the option behaviour of the option.
-    /// </summary>
+    /// <inheritdoc />
+    public bool IncludeInPreset { get; set; }
+
+    /// <inheritdoc />
     public OptionBehaviour? OptionBehaviour { get; protected set; }
 
-    /// <summary>
-    /// Gets or sets the config definition of the option.
-    /// </summary>
+    /// <inheritdoc />
     public ConfigDefinition? ConfigDefinition
     {
         get => _configDefinition;
@@ -96,7 +83,8 @@ public abstract class ModdedOption<T> : IModdedOption
     /// </summary>
     /// <param name="title">The option title.</param>
     /// <param name="defaultValue">The default value.</param>
-    protected ModdedOption(string title, T defaultValue)
+    /// <param name="includeInPreset">Whether to include the option in the preset.</param>
+    protected ModdedOption(string title, T defaultValue, bool includeInPreset = true)
     {
         Id = ModdedOptionsManager.NextId;
         Title = title;
@@ -104,6 +92,7 @@ public abstract class ModdedOption<T> : IModdedOption
         Value = defaultValue;
         StringName = CustomStringName.CreateAndRegister(Title);
         Visible = () => true;
+        IncludeInPreset = includeInPreset;
     }
 
     internal void ValueChanged(OptionBehaviour optionBehaviour)
@@ -138,22 +127,13 @@ public abstract class ModdedOption<T> : IModdedOption
         OnValueChanged(newValue);
     }
 
-    /// <summary>
-    /// Gets the float data of the option.
-    /// </summary>
-    /// <returns>A float object representing the option's value.</returns>
+    /// <inheritdoc />
     public abstract float GetFloatData();
 
-    /// <summary>
-    /// Gets the net data of the option.
-    /// </summary>
-    /// <returns>A NetData object representing this option's data.</returns>
+    /// <inheritdoc />
     public abstract NetData GetNetData();
 
-    /// <summary>
-    /// Handles incoming net data.
-    /// </summary>
-    /// <param name="data">The NetData's byte array.</param>
+    /// <inheritdoc />
     public abstract void HandleNetData(byte[] data);
 
     /// <summary>
@@ -169,14 +149,7 @@ public abstract class ModdedOption<T> : IModdedOption
     /// <returns>The value.</returns>
     public abstract T GetValueFromOptionBehaviour(OptionBehaviour optionBehaviour);
 
-    /// <summary>
-    /// Creates the option behaviour.
-    /// </summary>
-    /// <param name="toggleOpt">The ToggleOption prefab.</param>
-    /// <param name="numberOpt">The NumberOption prefab.</param>
-    /// <param name="stringOpt">The StringOption prefab.</param>
-    /// <param name="container">The options container.</param>
-    /// <returns>A new OptionBehaviour for this modded option.</returns>
+    /// <inheritdoc />
     public abstract OptionBehaviour CreateOption(
         ToggleOption toggleOpt,
         NumberOption numberOpt,

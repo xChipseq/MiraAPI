@@ -47,6 +47,11 @@ public interface IModdedOption
     Func<bool> Visible { get; set; }
 
     /// <summary>
+    /// Gets or sets a value indicating whether the option should be included with presets.
+    /// </summary>
+    bool IncludeInPreset { get; set; }
+
+    /// <summary>
     /// Gets or sets the ConfigDefinition for the option, used for BepInEx configuration.
     /// </summary>
     ConfigDefinition? ConfigDefinition { get; set; }
