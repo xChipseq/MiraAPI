@@ -79,17 +79,7 @@ public abstract class ModdedOption<T> : IModdedOption
     /// <summary>
     /// Gets or sets the config definition of the option.
     /// </summary>
-    public ConfigDefinition? ConfigDefinition
-    {
-        get => _configDefinition;
-        set
-        {
-            if (_configDefinition is not null) return;
-            _configDefinition = value;
-        }
-    }
-
-    private ConfigDefinition? _configDefinition;
+    public ConfigDefinition? ConfigDefinition { get; set; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ModdedOption{T}"/> class.
