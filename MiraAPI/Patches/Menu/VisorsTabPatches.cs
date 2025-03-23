@@ -4,7 +4,6 @@ using MiraAPI.Utilities;
 using Reactor.Utilities.Extensions;
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using TMPro;
 using UnityEngine;
@@ -12,35 +11,33 @@ using Object = UnityEngine.Object;
 
 namespace MiraAPI.Patches.Menu;
 
-[HarmonyPatch(typeof(HatsTab))]
-public static class HatsTabPatches
+[HarmonyPatch(typeof(VisorsTab))]
+public static class VisorsTabPatches
 {
-    private static SortedList<string, List<HatData>> sortedHats = [];
+    private static readonly SortedList<string, List<VisorData>> SortedVisors = new(new ControllableComparer<string>(["vanilla"], [], StringComparer.InvariantCulture));
 
-    [HarmonyPatch(nameof(HatsTab.OnEnable))]
-    [HarmonyPrefix]
-    public static bool OnEnablePrefix(HatsTab __instance)
+    internal static void AddRange(IEnumerable<(string Key, VisorData Visor)> data)
     {
-        __instance.currentHat = HatManager.Instance.GetHatById(DataManager.Player.Customization.Hat);
-        var allHats = HatManager.Instance.GetUnlockedHats().ToImmutableList();
-
-        if (sortedHats.Count == 0)
+        foreach (var item in data)
         {
-            var comparer = new ControllableComparer<string>(["vanilla"], [], StringComparer.InvariantCulture);
-            sortedHats = new SortedList<string, List<HatData>>(comparer);
-            foreach (var hat in allHats)
-            {
-                if (!sortedHats.ContainsKey(hat.StoreName)) sortedHats[hat.StoreName] = [];
-                sortedHats[hat.StoreName].Add(hat);
-            }
+            if (!SortedVisors.ContainsKey(item.Key)) SortedVisors.Add(item.Key, []);
+            SortedVisors[item.Key].Add(item.Visor);
         }
+    }
 
+    [HarmonyPatch(nameof(VisorsTab.OnEnable))]
+    [HarmonyPrefix]
+    public static bool OnEnablePrefix(VisorsTab __instance)
+    {
+        __instance.visorId = HatManager.Instance.GetVisorById(DataManager.Player.Customization.Visor).ProdId;
+
+        if (!SortedVisors.ContainsKey("Vanilla")) AddRange(DestroyableSingleton<HatManager>.Instance.GetUnlockedVisors().Select(x => ("Vanilla", x)));
         GenerateHats(__instance);
 
         return false;
     }
 
-    private static void GenerateHats(HatsTab __instance)
+    private static void GenerateHats(VisorsTab __instance)
     {
         foreach (ColorChip instanceColorChip in __instance.ColorChips) instanceColorChip.gameObject.Destroy();
         __instance.ColorChips.Clear();
@@ -50,7 +47,7 @@ public static class HatsTabPatches
 
         int hatIndex = 0;
 
-        foreach ((string groupName, List<HatData> hats) in sortedHats)
+        foreach ((string groupName, List<VisorData> visors) in SortedVisors)
         {
             hatIndex = (hatIndex + 4) / 5 * 5; // yes it looks redundant, but consider hatindex = 0, symbolically it would be 4, the computer calculates 0.
             var text = Object.Instantiate(groupNameText, __instance.scroller.Inner);
@@ -68,34 +65,34 @@ public static class HatsTabPatches
             text.transform.localPosition = new Vector3(xLerp, yLerp, -1f);
 
             hatIndex += 5;
-            foreach (var hat in hats.OrderBy(HatManager.Instance.allHats.IndexOf))
+            foreach (var visor in visors.OrderBy(HatManager.Instance.allVisors.IndexOf))
             {
                 float hatXposition = __instance.XRange.Lerp(hatIndex % __instance.NumPerRow / (__instance.NumPerRow - 1f));
                 float hatYposition = __instance.YStart - hatIndex / __instance.NumPerRow * __instance.YOffset;
-                GenerateColorChip(__instance, new Vector2(hatXposition, hatYposition), hat);
+                GenerateColorChip(__instance, new Vector2(hatXposition, hatYposition), visor);
                 hatIndex += 1;
             }
         }
 
         __instance.scroller.ContentYBounds.max = -(__instance.YStart - (hatIndex + 1) / __instance.NumPerRow * __instance.YOffset) - 3f;
-        __instance.currentHatIsEquipped = true;
+        __instance.currentVisorIsEquipped = true;
     }
 
-    private static void GenerateColorChip(HatsTab __instance, Vector2 position, HatData hat)
+    private static void GenerateColorChip(VisorsTab __instance, Vector2 position, VisorData visor)
     {
         var colorChip = Object.Instantiate(__instance.ColorTabPrefab, __instance.scroller.Inner);
-        colorChip.gameObject.name = hat.ProductId;
+        colorChip.gameObject.name = visor.ProductId;
         colorChip.Button.OnClick.AddListener((Action)(() => __instance.ClickEquip()));
-        colorChip.Button.OnMouseOver.AddListener((Action)(() => __instance.SelectHat(hat)));
-        colorChip.Button.OnMouseOut.AddListener((Action)(() => __instance.SelectHat(HatManager.Instance.GetHatById(DataManager.Player.Customization.Hat))));
-        colorChip.Inner.SetHat(hat, __instance.HasLocalPlayer() ? PlayerControl.LocalPlayer.Data.DefaultOutfit.ColorId : DataManager.Player.Customization.Color);
+        colorChip.Button.OnMouseOver.AddListener((Action)(() => __instance.SelectVisor(visor)));
+        colorChip.Button.OnMouseOut.AddListener((Action)(() => __instance.SelectVisor(HatManager.Instance.GetVisorById(DataManager.Player.Customization.Visor))));
         colorChip.Button.ClickMask = __instance.scroller.Hitbox;
+        colorChip.ProductId = visor.ProductId;
         colorChip.SelectionHighlight.gameObject.SetActive(false);
-        __instance.UpdateMaterials(colorChip.Inner.FrontLayer, hat);
-        colorChip.Inner.SetMaskType(PlayerMaterial.MaskType.SimpleUI);
+        __instance.UpdateMaterials(colorChip.Inner.FrontLayer, visor);
+        visor.SetPreview(colorChip.Inner.FrontLayer, __instance.HasLocalPlayer() ? PlayerControl.LocalPlayer.Data.DefaultOutfit.ColorId : DataManager.Player.Customization.Color);
         colorChip.transform.localPosition = new Vector3(position.x, position.y, -1f);
-        colorChip.Inner.transform.localPosition = hat.ChipOffset + new Vector2(0f, -0.3f);
-        colorChip.Tag = hat;
+        colorChip.Inner.transform.localPosition = visor.ChipOffset + new Vector2(0f, -0.3f);
+        colorChip.Tag = visor;
         __instance.ColorChips.Add(colorChip);
     }
 }

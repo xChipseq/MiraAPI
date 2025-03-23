@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MiraAPI.Utilities;
 
@@ -18,7 +16,8 @@ internal sealed class ControllableComparer<T> : IComparer<T> where T : IComparab
         _fallbackComparer = fallbackComparer;
     }
 
-    public int Compare(T x, T y)
+    /// <inheritdoc/>
+    public int Compare(T? x, T? y)
     {
         if ((_forcedToBottom.Contains(x) && _forcedToBottom.Contains(y)) || (_forcedToTop.Contains(x) && _forcedToTop.Contains(y)))
             return _fallbackComparer.Compare(x, y);

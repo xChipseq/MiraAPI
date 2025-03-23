@@ -1,12 +1,9 @@
-﻿using BepInEx.Unity.IL2CPP.Utils;
-using Il2CppInterop.Runtime.Attributes;
+﻿using Il2CppInterop.Runtime.Attributes;
+using MiraAPI.Patches.Menu;
 using Reactor.Utilities;
-using Reactor.Utilities.Attributes;
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 
@@ -15,14 +12,14 @@ namespace MiraAPI.Utilities.Assets;
 /// <summary>
 /// The component for loading Addressables, and cosmetics.
 /// </summary>
-public class AddressablesLoader
+public static class AddressablesLoader
 {
     private static readonly List<(string Location, string ProviderSuffix)> CatalogLocations = [];
     private static readonly List<string> LoadedLocations = [];
 
     private static readonly List<string> RegisteredHatKeys = [];
-    private static readonly List<string> RegisteredVisorKeys = [];
-    private static readonly List<string> RegisteredNameplateKeys = [];
+    private static readonly List<(string, string)> RegisteredVisorKeys = [];
+    private static readonly List<(string, string)> RegisteredNameplateKeys = [];
     private static readonly List<string> RegisteredSkinKeys = [];
 
     /// <summary>
@@ -30,29 +27,47 @@ public class AddressablesLoader
     /// </summary>
     /// <param name="location">The location, remote or otherwise, of the addressables.</param>
     /// <param name="providerSuffix">The suffix of the provider for an addressables package.</param>
-    public static void RegisterToLoad(string location, string providerSuffix = "")
+    public static void RegisterCatalog(string location, string providerSuffix = "")
     {
         CatalogLocations.Add((location, providerSuffix));
     }
 
+    /// <summary>
+    /// Registers a specific addressables key as only containing <see cref="HatData"/>'s to load.
+    /// </summary>
+    /// <param name="addressables_key">The key/label/group for a List <see cref="HatData"/>.</param>
     public static void RegisterHats(string addressables_key)
     {
         RegisteredHatKeys.Add(addressables_key);
     }
 
+    /// <summary>
+    /// Registers a specific addressables key as only containing <see cref="SkinData"/>'s to load.
+    /// </summary>
+    /// <param name="addressables_key">The key/label/group for a List <see cref="SkinData"/>.</param>
     public static void RegisterSkins(string addressables_key)
     {
         RegisteredSkinKeys.Add(addressables_key);
     }
 
-    public static void RegisterNameplates(string addressables_key)
+    /// <summary>
+    /// Registers a specific addressables key as only containing <see cref="NamePlateData"/>'s to load.
+    /// </summary>
+    /// <param name="addressables_key">The key/label/group for a List <see cref="NamePlateData"/>.</param>
+    /// /// <param name="group_title">The title of the group for visors.</param>
+    public static void RegisterNameplates(string addressables_key, string group_title)
     {
-        RegisteredNameplateKeys.Add(addressables_key);
+        RegisteredNameplateKeys.Add((addressables_key, group_title));
     }
 
-    public static void RegisterVisors(string addressables_key)
+    /// <summary>
+    /// Registers a specific addressables key as only containing <see cref="VisorData"/>'s to load.
+    /// </summary>
+    /// <param name="addressables_key">The key/label/group for a List <see cref="VisorData"/>.</param>
+    /// <param name="group_title">The title of the group for visors.</param>
+    public static void RegisterVisors(string addressables_key, string group_title)
     {
-        RegisteredVisorKeys.Add(addressables_key);
+        RegisteredVisorKeys.Add((addressables_key, group_title));
     }
 
     internal static void LoadAll()
@@ -89,8 +104,8 @@ public class AddressablesLoader
 
         var hatBehaviours = DiscoverData<HatData>(RegisteredHatKeys);
         var skinBehaviours = DiscoverData<SkinData>(RegisteredSkinKeys);
-        var namePlateBehaviours = DiscoverData<NamePlateData>(RegisteredNameplateKeys);
-        var visorBehaviours = DiscoverData<VisorData>(RegisteredVisorKeys);
+        var namePlateBehaviours = DiscoverAndReportData<NamePlateData>(RegisteredNameplateKeys);
+        var visorBehaviours = DiscoverAndReportData<VisorData>(RegisteredVisorKeys);
 
         var hatData = new List<HatData>();
         hatData.AddRange(DestroyableSingleton<HatManager>.Instance.allHats);
@@ -99,15 +114,18 @@ public class AddressablesLoader
 
         var skinData = new List<SkinData>();
         skinData.AddRange(DestroyableSingleton<HatManager>.Instance.allSkins);
+        skinData.ForEach(x => x.StoreName = "Vanilla");
         DestroyableSingleton<HatManager>.Instance.allSkins = PrepareArray(skinData, skinBehaviours);
 
         var visorData = new List<VisorData>();
         visorData.AddRange(DestroyableSingleton<HatManager>.Instance.allVisors);
-        DestroyableSingleton<HatManager>.Instance.allVisors = PrepareArray(visorData, visorBehaviours);
+        VisorsTabPatches.AddRange(visorBehaviours);
+        DestroyableSingleton<HatManager>.Instance.allVisors = PrepareArray(visorData, visorBehaviours.Select(x=>x.Data).ToList());
 
         var namePlateData = new List<NamePlateData>();
         namePlateData.AddRange(DestroyableSingleton<HatManager>.Instance.allNamePlates);
-        DestroyableSingleton<HatManager>.Instance.allNamePlates = PrepareArray(namePlateData, namePlateBehaviours);
+        NameplatesTabPatches.AddRange(namePlateBehaviours);
+        DestroyableSingleton<HatManager>.Instance.allNamePlates = PrepareArray(namePlateData, namePlateBehaviours.Select(x => x.Data).ToList());
     }
 
     private static T[] PrepareArray<T>(List<T> data, List<T> behaviours) where T : CosmeticData
@@ -133,6 +151,27 @@ public class AddressablesLoader
                 var assets = Addressables.LoadAssetsAsync<T>(all_locations, null, false).WaitForCompletion();
                 var array = new Il2CppSystem.Collections.Generic.List<T>(assets.Pointer);
                 behaviours.AddRange(array.ToArray());
+            }
+            catch
+            {
+                Logger<MiraApiPlugin>.Error($"Failed to find tag {tag}");
+            }
+        }
+        return behaviours;
+    }
+
+    private static List<(string Category, T Data)> DiscoverAndReportData<T>(List<(string Tag, string Category)> tags)
+    {
+        var behaviours = new List<(string, T)>();
+
+        foreach (var tag in tags)
+        {
+            try
+            {
+                var all_locations = Addressables.LoadResourceLocationsAsync(tag.Tag).WaitForCompletion();
+                var assets = Addressables.LoadAssetsAsync<T>(all_locations, null, false).WaitForCompletion();
+                var array = new Il2CppSystem.Collections.Generic.List<T>(assets.Pointer);
+                behaviours.AddRange(array.ToArray().Select(x => (tag.Category, x)));
             }
             catch
             {

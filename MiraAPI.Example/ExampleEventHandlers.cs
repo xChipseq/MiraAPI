@@ -4,7 +4,10 @@ using MiraAPI.Events.Vanilla.Gameplay;
 using MiraAPI.Events.Vanilla.Map;
 using MiraAPI.Events.Vanilla.Player;
 using MiraAPI.Example.Buttons.Freezer;
+using MiraAPI.Utilities.Assets;
 using Reactor.Utilities;
+using TMPro;
+using UnityEngine;
 
 namespace MiraAPI.Example;
 
@@ -16,6 +19,8 @@ public static class ExampleEventHandlers
         MiraEventManager.RegisterEventHandler<BeforeMurderEvent>(@event =>
         {
             Logger<ExamplePlugin>.Info($"{@event.Source.Data.PlayerName} is about to kill {@event.Target.Data.PlayerName}");
+            var asset = new LoadableAddressableAsset<GameObject>("Assets/Prefabs/SomeText.prefab");
+            Logger<ExamplePlugin>.Info($"{asset.LoadAsset().GetComponent<TextMeshPro>().text}");
         });
 
         MiraEventManager.RegisterEventHandler<AfterMurderEvent>(@event =>

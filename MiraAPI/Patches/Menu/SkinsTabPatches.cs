@@ -12,26 +12,26 @@ using Object = UnityEngine.Object;
 
 namespace MiraAPI.Patches.Menu;
 
-[HarmonyPatch(typeof(HatsTab))]
-public static class HatsTabPatches
+[HarmonyPatch(typeof(SkinsTab))]
+public static class SkinsTabPatches
 {
-    private static SortedList<string, List<HatData>> sortedHats = [];
+    private static SortedList<string, List<SkinData>> sortedSkins = [];
 
-    [HarmonyPatch(nameof(HatsTab.OnEnable))]
+    [HarmonyPatch(nameof(SkinsTab.OnEnable))]
     [HarmonyPrefix]
-    public static bool OnEnablePrefix(HatsTab __instance)
+    public static bool OnEnablePrefix(SkinsTab __instance)
     {
-        __instance.currentHat = HatManager.Instance.GetHatById(DataManager.Player.Customization.Hat);
-        var allHats = HatManager.Instance.GetUnlockedHats().ToImmutableList();
+        __instance.skinId = HatManager.Instance.GetSkinById(DataManager.Player.Customization.Skin).ProdId;
+        var allSkins = HatManager.Instance.GetUnlockedSkins().ToImmutableList();
 
-        if (sortedHats.Count == 0)
+        if (sortedSkins.Count == 0)
         {
             var comparer = new ControllableComparer<string>(["vanilla"], [], StringComparer.InvariantCulture);
-            sortedHats = new SortedList<string, List<HatData>>(comparer);
-            foreach (var hat in allHats)
+            sortedSkins = new SortedList<string, List<SkinData>>(comparer);
+            foreach (var skin in allSkins)
             {
-                if (!sortedHats.ContainsKey(hat.StoreName)) sortedHats[hat.StoreName] = [];
-                sortedHats[hat.StoreName].Add(hat);
+                if (!sortedSkins.ContainsKey(skin.StoreName)) sortedSkins[skin.StoreName] = [];
+                sortedSkins[skin.StoreName].Add(skin);
             }
         }
 
@@ -40,7 +40,7 @@ public static class HatsTabPatches
         return false;
     }
 
-    private static void GenerateHats(HatsTab __instance)
+    private static void GenerateHats(SkinsTab __instance)
     {
         foreach (ColorChip instanceColorChip in __instance.ColorChips) instanceColorChip.gameObject.Destroy();
         __instance.ColorChips.Clear();
@@ -50,7 +50,7 @@ public static class HatsTabPatches
 
         int hatIndex = 0;
 
-        foreach ((string groupName, List<HatData> hats) in sortedHats)
+        foreach ((string groupName, List<SkinData> skins) in sortedSkins)
         {
             hatIndex = (hatIndex + 4) / 5 * 5; // yes it looks redundant, but consider hatindex = 0, symbolically it would be 4, the computer calculates 0.
             var text = Object.Instantiate(groupNameText, __instance.scroller.Inner);
@@ -68,34 +68,34 @@ public static class HatsTabPatches
             text.transform.localPosition = new Vector3(xLerp, yLerp, -1f);
 
             hatIndex += 5;
-            foreach (var hat in hats.OrderBy(HatManager.Instance.allHats.IndexOf))
+            foreach (var skin in skins.OrderBy(HatManager.Instance.allSkins.IndexOf))
             {
                 float hatXposition = __instance.XRange.Lerp(hatIndex % __instance.NumPerRow / (__instance.NumPerRow - 1f));
                 float hatYposition = __instance.YStart - hatIndex / __instance.NumPerRow * __instance.YOffset;
-                GenerateColorChip(__instance, new Vector2(hatXposition, hatYposition), hat);
+                GenerateColorChip(__instance, new Vector2(hatXposition, hatYposition), skin);
                 hatIndex += 1;
             }
         }
 
         __instance.scroller.ContentYBounds.max = -(__instance.YStart - (hatIndex + 1) / __instance.NumPerRow * __instance.YOffset) - 3f;
-        __instance.currentHatIsEquipped = true;
+        __instance.currentSkinIsEquipped = true;
     }
 
-    private static void GenerateColorChip(HatsTab __instance, Vector2 position, HatData hat)
+    private static void GenerateColorChip(SkinsTab __instance, Vector2 position, SkinData skin)
     {
         var colorChip = Object.Instantiate(__instance.ColorTabPrefab, __instance.scroller.Inner);
-        colorChip.gameObject.name = hat.ProductId;
+        colorChip.gameObject.name = skin.ProductId;
         colorChip.Button.OnClick.AddListener((Action)(() => __instance.ClickEquip()));
-        colorChip.Button.OnMouseOver.AddListener((Action)(() => __instance.SelectHat(hat)));
-        colorChip.Button.OnMouseOut.AddListener((Action)(() => __instance.SelectHat(HatManager.Instance.GetHatById(DataManager.Player.Customization.Hat))));
-        colorChip.Inner.SetHat(hat, __instance.HasLocalPlayer() ? PlayerControl.LocalPlayer.Data.DefaultOutfit.ColorId : DataManager.Player.Customization.Color);
+        colorChip.Button.OnMouseOver.AddListener((Action)(() => __instance.SelectSkin(skin)));
+        colorChip.Button.OnMouseOut.AddListener((Action)(() => __instance.SelectSkin(HatManager.Instance.GetSkinById(DataManager.Player.Customization.Skin))));
         colorChip.Button.ClickMask = __instance.scroller.Hitbox;
+        colorChip.ProductId = skin.ProductId;
         colorChip.SelectionHighlight.gameObject.SetActive(false);
-        __instance.UpdateMaterials(colorChip.Inner.FrontLayer, hat);
-        colorChip.Inner.SetMaskType(PlayerMaterial.MaskType.SimpleUI);
+        __instance.UpdateMaterials(colorChip.Inner.FrontLayer, skin);
+        skin.SetPreview(colorChip.Inner.FrontLayer, __instance.HasLocalPlayer() ? PlayerControl.LocalPlayer.Data.DefaultOutfit.ColorId : DataManager.Player.Customization.Color);
         colorChip.transform.localPosition = new Vector3(position.x, position.y, -1f);
-        colorChip.Inner.transform.localPosition = hat.ChipOffset + new Vector2(0f, -0.3f);
-        colorChip.Tag = hat;
+        colorChip.Inner.transform.localPosition = skin.ChipOffset + new Vector2(0f, -0.3f);
+        colorChip.Tag = skin;
         __instance.ColorChips.Add(colorChip);
     }
 }
