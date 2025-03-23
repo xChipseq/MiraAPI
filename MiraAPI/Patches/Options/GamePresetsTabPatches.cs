@@ -6,6 +6,7 @@ using Reactor.Utilities.Extensions;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
+using Object = UnityEngine.Object;
 
 namespace MiraAPI.Patches.Options;
 
@@ -23,6 +24,19 @@ internal static class GamePresetsTabPatches
                 Logger<MiraApiPlugin>.Error("GameSettingsButton prefab is null");
                 return;
             }
+
+            var saveButton = Object.Instantiate(prefab, __instance.transform);
+            saveButton.buttonText.text = "Save Settings";
+            if (saveButton.buttonText.TryGetComponent<TextTranslatorTMP>(out var textTranslator))
+            {
+                textTranslator.DestroyImmediate();
+            }
+            saveButton.OnClick = new Button.ButtonClickedEvent();
+            saveButton.OnClick.AddListener(
+                (UnityAction)(() =>
+                {
+                    
+                }));
 
             var holder = new GameObject("PresetHolder");
             holder.transform.SetParent(__instance.transform, false);
