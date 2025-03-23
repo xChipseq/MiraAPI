@@ -283,12 +283,13 @@ public static class Extensions
 
             if (count + length > chunkSize)
             {
-                chunks.Enqueue(current.ToArray());
+                chunks.Enqueue([.. current]);
                 current.Clear();
                 count = 0;
             }
 
             current.Add(netData);
+            count += length;
         }
 
         if (current.Count > 0)
