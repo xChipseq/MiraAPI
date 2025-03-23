@@ -35,7 +35,6 @@ internal static class GamePresetsTabPatches
             saveButton.OnClick.AddListener(
                 (UnityAction)(() =>
                 {
-                    
                 }));
 
             var holder = new GameObject("PresetHolder");
