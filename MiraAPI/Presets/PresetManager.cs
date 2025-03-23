@@ -40,6 +40,14 @@ public static class PresetManager
     /// <param name="plugin">>The plugin for which the presets should be loaded.</param>
     public static void LoadPresets(MiraPluginInfo plugin)
     {
+        foreach (var btn in plugin.InternalPresets.Select(x=>x.PresetButton))
+        {
+            if (btn != null)
+            {
+                Object.DestroyImmediate(btn);
+            }
+        }
+
         plugin.InternalPresets.Clear();
         if (!Directory.Exists(PresetDirectory))
         {

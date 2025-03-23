@@ -253,6 +253,7 @@ internal static class GameSettingMenuPatches
         {
             _text.text = "Default";
             _text.fontSizeMax = 3.2f;
+            SelectedMod = null;
         }
         else if (_text is not null)
         {
