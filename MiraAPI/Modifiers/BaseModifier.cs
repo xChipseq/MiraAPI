@@ -38,8 +38,8 @@ public abstract class BaseModifier : IOptionable
     /// Gets the parent mod of the modifier.
     /// </summary>
     public MiraPluginInfo ParentMod => Array.Find(
-        MiraPluginManager.Instance.RegisteredPlugins(),
-        x => x.Modifiers.Exists(y => y.TypeId == TypeId)
+        MiraPluginManager.Instance.RegisteredPlugins,
+        x => x.InternalModifiers.Exists(y => y.TypeId == TypeId)
         ) ?? throw new InvalidOperationException("Modifier is not registered.");
 
     /// <summary>

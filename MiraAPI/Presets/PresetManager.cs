@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
+using System.Linq;
 using BepInEx.Configuration;
 using MiraAPI.PluginLoading;
 using UnityEngine;
@@ -16,10 +16,23 @@ public static class PresetManager
     /// </summary>
     public static string PresetDirectory { get; } = Path.Join(Application.persistentDataPath, "mira_presets");
 
-    /// <summary>
-    /// Gets the list of available presets for the game options.
-    /// </summary>
-    public static List<OptionPreset> Presets { get; } = [];
+    internal static void CreateDefaultPreset(MiraPluginInfo plugin)
+    {
+        var presetPath = Path.Join(PresetManager.PresetDirectory, plugin.PluginId);
+        if (!Directory.Exists(presetPath))
+        {
+            Directory.CreateDirectory(presetPath);
+        }
+
+        var presetConfig = new ConfigFile(Path.Join(presetPath, "Default.cfg"), true);
+
+        foreach (var option in plugin.InternalOptions.Where(x => x.IncludeInPreset))
+        {
+            option.SaveToPreset(presetConfig, true);
+        }
+
+        presetConfig.Save();
+    }
 
     /// <summary>
     /// Loads the presets for the specified plugin by reading the configuration files from the preset directory.
@@ -27,7 +40,7 @@ public static class PresetManager
     /// <param name="plugin">>The plugin for which the presets should be loaded.</param>
     public static void LoadPresets(MiraPluginInfo plugin)
     {
-        Presets.Clear();
+        plugin.InternalPresets.Clear();
         if (!Directory.Exists(PresetDirectory))
         {
             Directory.CreateDirectory(PresetDirectory);
@@ -43,7 +56,8 @@ public static class PresetManager
         {
             var presetName = Path.GetFileNameWithoutExtension(file);
             var presetConfig = new ConfigFile(file, true);
-            Presets.Add(new OptionPreset(presetName, plugin, presetConfig));
+            plugin.InternalPresets.Add(new OptionPreset(presetName, plugin, presetConfig));
         }
+        plugin.Presets = [.. plugin.InternalPresets];
     }
 }

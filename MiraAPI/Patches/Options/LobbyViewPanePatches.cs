@@ -24,7 +24,7 @@ public static class LobbyViewPanePatches
 
     private static MiraPluginInfo? SelectedMod => SelectedModIdx == 0
         ? null
-        : MiraPluginManager.Instance.RegisteredPlugins()[SelectedModIdx - 1];
+        : MiraPluginManager.Instance.RegisteredPlugins[SelectedModIdx - 1];
 
     private static PassiveButton? ModifiersTabButton { get; set; }
 
@@ -74,7 +74,7 @@ public static class LobbyViewPanePatches
             (UnityAction)(() =>
             {
                 SelectedModIdx += 1;
-                if (SelectedModIdx > MiraPluginManager.Instance.RegisteredPlugins().Length)
+                if (SelectedModIdx > MiraPluginManager.Instance.RegisteredPlugins.Length)
                 {
                     SelectedModIdx = 0;
                 }
@@ -98,7 +98,7 @@ public static class LobbyViewPanePatches
                 SelectedModIdx -= 1;
                 if (SelectedModIdx < 0)
                 {
-                    SelectedModIdx = MiraPluginManager.Instance.RegisteredPlugins().Length;
+                    SelectedModIdx = MiraPluginManager.Instance.RegisteredPlugins.Length;
                 }
 
                 Refresh(__instance);
@@ -127,7 +127,7 @@ public static class LobbyViewPanePatches
         __instance.rolesTabButton.SelectButton(false);
 
         ModifiersTabButton?.SelectButton(true);
-        var filteredGroups = SelectedMod.OptionGroups
+        var filteredGroups = SelectedMod.InternalOptionGroups
             .Where(x => x.GroupVisible() && (x.ShowInModifiersMenu || x.OptionableType?.IsAssignableTo(typeof(BaseModifier))==true));
         DrawOptions(__instance, filteredGroups);
         return false;
@@ -142,7 +142,7 @@ public static class LobbyViewPanePatches
             return true;
         }
 
-        var filteredGroups = SelectedMod.OptionGroups
+        var filteredGroups = SelectedMod.InternalOptionGroups
             .Where(x => x.OptionableType == null && x.GroupVisible.Invoke());
         DrawOptions(__instance, filteredGroups);
         return false;
@@ -250,7 +250,7 @@ public static class LobbyViewPanePatches
 
         var list = new List<Type>();
 
-        var roleGroups = GameSettingMenuPatches.SelectedMod?.CustomRoles.Values.OfType<ICustomRole>()
+        var roleGroups = GameSettingMenuPatches.SelectedMod?.InternalRoles.Values.OfType<ICustomRole>()
             .ToLookup(x => x.RoleOptionsGroup);
 
         if (roleGroups is null)
@@ -315,7 +315,7 @@ public static class LobbyViewPanePatches
                 viewSettingsInfoPanelRoleVariant.transform.localScale = Vector3.one;
                 viewSettingsInfoPanelRoleVariant.transform.localPosition = new Vector3(num2, num, -2f);
 
-                var advancedRoleOptions = SelectedMod.OptionGroups
+                var advancedRoleOptions = SelectedMod.InternalOptionGroups
                     .Where(x => x.OptionableType == customRole.GetType())
                     .SelectMany(x => x.Options)
                     .ToList();
@@ -402,7 +402,7 @@ public static class LobbyViewPanePatches
             return 0;
         }
 
-        var role = SelectedMod.CustomRoles.Values.FirstOrDefault(x => x.GetType() == roleType);
+        var role = SelectedMod.InternalRoles.Values.FirstOrDefault(x => x.GetType() == roleType);
 
         if (role == null)
         {
@@ -425,7 +425,7 @@ public static class LobbyViewPanePatches
         var num = viewPanel.yPosStart;
         var num2 = 1.08f;
 
-        var filteredOptions = SelectedMod.OptionGroups
+        var filteredOptions = SelectedMod.InternalOptionGroups
             .Where(x => x.OptionableType == roleType)
             .SelectMany(x=>x.Options)
             .ToList();

@@ -4,6 +4,7 @@ using MiraAPI.Networking;
 using MiraAPI.PluginLoading;
 using Reactor.Localization.Utilities;
 using Reactor.Networking.Rpc;
+using Reactor.Utilities;
 using UnityEngine;
 
 namespace MiraAPI.GameOptions.OptionTypes;
@@ -125,6 +126,24 @@ public abstract class ModdedOption<T> : IModdedOption
         }
 
         OnValueChanged(newValue);
+    }
+
+    /// <inheritdoc />
+    public void SaveToPreset(ConfigFile presetConfig, bool saveDefault=false)
+    {
+        if (ConfigDefinition is null)
+        {
+            Logger<MiraApiPlugin>.Error($"Attempted to save {Title} to preset, but ConfigDefinition is null.");
+            return;
+        }
+        var value = saveDefault ? DefaultValue : Value;
+
+        if (!presetConfig.ContainsKey(ConfigDefinition))
+        {
+            presetConfig.Bind(ConfigDefinition, DefaultValue);
+        }
+
+        presetConfig[ConfigDefinition].BoxedValue = value;
     }
 
     /// <inheritdoc />

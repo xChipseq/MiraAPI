@@ -29,7 +29,7 @@ public static class CustomButtonManager
         }
 
         CustomButtons.Add(button);
-        pluginInfo.Buttons.Add(button);
+        pluginInfo.InternalButtons.Add(button);
         typeof(CustomButtonSingleton<>).MakeGenericType(buttonType)
             .GetField("_instance", BindingFlags.Static | BindingFlags.NonPublic)!
             .SetValue(null, button);

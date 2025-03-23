@@ -4,7 +4,6 @@ using HarmonyLib;
 using MiraAPI.Modifiers;
 using MiraAPI.PluginLoading;
 using MiraAPI.Utilities.Assets;
-using Reactor.Utilities;
 using Reactor.Utilities.Extensions;
 using TMPro;
 using UnityEngine;
@@ -33,6 +32,7 @@ internal static class GameSettingMenuPatches
 
     [HarmonyPostfix]
     [HarmonyPatch(nameof(GameSettingMenu.ChangeTab))]
+    // ReSharper disable once InconsistentNaming
     public static void ChangeTabPostfix(GameSettingMenu __instance, int tabNum, bool previewOnly)
     {
         if ((previewOnly && Controller.currentTouchType == Controller.TouchType.Joystick) || !previewOnly)
@@ -79,6 +79,7 @@ internal static class GameSettingMenuPatches
     /// <param name="__instance">The GameSettingMenu instance.</param>
     [HarmonyPrefix]
     [HarmonyPatch(nameof(GameSettingMenu.Start))]
+    // ReSharper disable once InconsistentNaming
     public static void StartPrefix(GameSettingMenu __instance)
     {
         _roleBtnOgPos = __instance.RoleSettingsButton.transform.localPosition;
@@ -112,7 +113,7 @@ internal static class GameSettingMenuPatches
             (UnityAction)(() =>
             {
                 SelectedModIdx += 1;
-                if (SelectedModIdx > MiraPluginManager.Instance.RegisteredPlugins().Length)
+                if (SelectedModIdx > MiraPluginManager.Instance.RegisteredPlugins.Length)
                 {
                     SelectedModIdx = 0;
                 }
@@ -132,7 +133,7 @@ internal static class GameSettingMenuPatches
                 SelectedModIdx -= 1;
                 if (SelectedModIdx < 0)
                 {
-                    SelectedModIdx = MiraPluginManager.Instance.RegisteredPlugins().Length;
+                    SelectedModIdx = MiraPluginManager.Instance.RegisteredPlugins.Length;
                 }
 
                 UpdateText(__instance, __instance.GameSettingsTab, __instance.RoleSettingsTab);
@@ -212,37 +213,37 @@ internal static class GameSettingMenuPatches
         UpdateText(__instance, __instance.GameSettingsTab, __instance.RoleSettingsTab);
     }
 
-    private static void ChangeRoleSettingButton(bool replace, GameSettingMenu __instance)
+    private static void ChangeRoleSettingButton(bool replace, GameSettingMenu menu)
     {
-        __instance.RoleSettingsButton.OnClick = new ButtonClickedEvent();
-        __instance.RoleSettingsButton.OnMouseOver = new UnityEvent();
+        menu.RoleSettingsButton.OnClick = new ButtonClickedEvent();
+        menu.RoleSettingsButton.OnMouseOver = new UnityEvent();
 
         if (replace)
         {
-            __instance.RoleSettingsButton.buttonText.text = "Modifiers Settings";
-            __instance.RoleSettingsButton.OnClick.AddListener(
+            menu.RoleSettingsButton.buttonText.text = "Modifiers Settings";
+            menu.RoleSettingsButton.OnClick.AddListener(
                 (UnityAction)(() =>
                 {
-                    __instance.ChangeTab(3, false);
+                    menu.ChangeTab(3, false);
                 }));
-            __instance.RoleSettingsButton.OnMouseOver.AddListener(
+            menu.RoleSettingsButton.OnMouseOver.AddListener(
                 (UnityAction)(() =>
                 {
-                    __instance.ChangeTab(3, true);
+                    menu.ChangeTab(3, true);
                 }));
         }
         else
         {
-            __instance.RoleSettingsButton.buttonText.text = "Roles Settings";
-            __instance.RoleSettingsButton.OnClick.AddListener(
+            menu.RoleSettingsButton.buttonText.text = "Roles Settings";
+            menu.RoleSettingsButton.OnClick.AddListener(
                 (UnityAction)(() =>
                 {
-                    __instance.ChangeTab(2, false);
+                    menu.ChangeTab(2, false);
                 }));
-            __instance.RoleSettingsButton.OnMouseOver.AddListener(
+            menu.RoleSettingsButton.OnMouseOver.AddListener(
                 (UnityAction)(() =>
                 {
-                    __instance.ChangeTab(2, true);
+                    menu.ChangeTab(2, true);
                 }));
         }
     }
@@ -256,7 +257,7 @@ internal static class GameSettingMenuPatches
         else if (_text is not null)
         {
             _text.fontSizeMax = 2.3f;
-            SelectedMod = MiraPluginManager.Instance.RegisteredPlugins()[SelectedModIdx - 1];
+            SelectedMod = MiraPluginManager.Instance.RegisteredPlugins[SelectedModIdx - 1];
 
             var name = SelectedMod.MiraPlugin.OptionsTitleText;
             _text.text = name[..Math.Min(name.Length, 25)];
@@ -269,9 +270,9 @@ internal static class GameSettingMenuPatches
 
         if (SelectedModIdx != 0)
         {
-            var modHasRoles = SelectedMod!.CustomRoles.Count != 0;
-            var modHasModifiers = SelectedMod.OptionGroups.Exists(x => x.ShowInModifiersMenu || x.OptionableType?.IsAssignableTo(typeof(BaseModifier)) == true);
-            var modHasOptions = SelectedMod.OptionGroups.Exists(x => x.OptionableType == null && !x.ShowInModifiersMenu);
+            var modHasRoles = SelectedMod!.InternalRoles.Count != 0;
+            var modHasModifiers = SelectedMod.InternalOptionGroups.Exists(x => x.ShowInModifiersMenu || x.OptionableType?.IsAssignableTo(typeof(BaseModifier)) == true);
+            var modHasOptions = SelectedMod.InternalOptionGroups.Exists(x => x.OptionableType == null && !x.ShowInModifiersMenu);
 
             _modifiersButton.gameObject.SetActive(true);
             _smallRolesButton.gameObject.SetActive(true);
@@ -367,6 +368,11 @@ internal static class GameSettingMenuPatches
             ChangeRoleSettingButton(replaceWithModifiers, menu);
         }
 
+        if (menu.PresetsTab.gameObject.active)
+        {
+            menu.ChangeTab(0, false);
+        }
+
         CleanupTab(settings, roles);
     }
 
@@ -385,6 +391,34 @@ internal static class GameSettingMenuPatches
 
     private static void CleanupTab(GameOptionsMenu settings, RolesSettingsMenu roles)
     {
+        if (roles.roleChances != null && SelectedMod?.InternalRoles.Count > 0)
+        {
+            CleanupRoleSettings(roles);
+        }
+
+        if (settings.Children != null && SelectedMod?.InternalOptionGroups.Count > 0)
+        {
+            CleanupSettings(settings);
+        }
+
+        if (_modifiersTab?.Children?.Count > 0)
+        {
+            CleanupSettings(_modifiersTab);
+        }
+        void CleanupSettings(GameOptionsMenu gameOptMenu)
+        {
+            ClearOptions(gameOptMenu.Children);
+            gameOptMenu.Children = null;
+
+            gameOptMenu.settingsContainer
+                .GetComponentsInChildren<CategoryHeaderMasked>()
+                .ToList()
+                .ForEach(header => header.gameObject.DestroyImmediate());
+
+            gameOptMenu.Initialize();
+            gameOptMenu.scrollBar.ScrollToTop();
+        }
+
         void CleanupRoleSettings(RolesSettingsMenu rolesMenu)
         {
             if (rolesMenu.advancedSettingChildren != null)
@@ -409,35 +443,6 @@ internal static class GameSettingMenuPatches
             rolesMenu.RoleChancesSettings.gameObject.SetActive(true);
             rolesMenu.SetQuotaTab();
             rolesMenu.scrollBar.ScrollToTop();
-        }
-
-        void CleanupSettings(GameOptionsMenu gameOptMenu)
-        {
-            ClearOptions(gameOptMenu.Children);
-            gameOptMenu.Children = null;
-
-            gameOptMenu.settingsContainer
-                .GetComponentsInChildren<CategoryHeaderMasked>()
-                .ToList()
-                .ForEach(header => header.gameObject.DestroyImmediate());
-
-            gameOptMenu.Initialize();
-            gameOptMenu.scrollBar.ScrollToTop();
-        }
-
-        if (roles.roleChances != null && SelectedMod?.CustomRoles.Count > 0)
-        {
-            CleanupRoleSettings(roles);
-        }
-
-        if (settings.Children != null && SelectedMod?.OptionGroups.Count > 0)
-        {
-            CleanupSettings(settings);
-        }
-
-        if (_modifiersTab?.Children?.Count > 0)
-        {
-            CleanupSettings(_modifiersTab);
         }
     }
 }

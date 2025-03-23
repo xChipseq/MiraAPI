@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using BepInEx.Configuration;
 using MiraAPI.PluginLoading;
+using UnityEngine;
 
 namespace MiraAPI.Presets;
 
@@ -28,6 +29,11 @@ public class OptionPreset
     /// Gets the configuration file for the preset.
     /// </summary>
     public ConfigFile PresetConfig { get; }
+
+    /// <summary>
+    /// Gets or sets the button associated with the preset in the UI.
+    /// </summary>
+    public GameObject? PresetButton { get; set; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="OptionPreset"/> class with the specified name and configuration file.

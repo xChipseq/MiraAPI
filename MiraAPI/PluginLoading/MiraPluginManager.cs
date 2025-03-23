@@ -12,6 +12,7 @@ using MiraAPI.GameOptions;
 using MiraAPI.GameOptions.Attributes;
 using MiraAPI.Hud;
 using MiraAPI.Modifiers;
+using MiraAPI.Presets;
 using MiraAPI.Roles;
 using MiraAPI.Utilities;
 using Reactor.Networking;
@@ -26,8 +27,9 @@ public sealed class MiraPluginManager
 {
     private readonly Dictionary<Assembly, MiraPluginInfo> _registeredPlugins = [];
 
-    internal MiraPluginInfo[] RegisteredPlugins() => [.. _registeredPlugins.Values];
-    internal Dictionary<MiraPluginInfo, List<Type>> QueuedRoleRegistrations { get; } = new();
+    internal MiraPluginInfo[] RegisteredPlugins { get; private set; } = null!;
+
+    internal Dictionary<MiraPluginInfo, List<Type>> QueuedRoleRegistrations { get; } = [];
     internal static MiraPluginManager Instance { get; private set; } = new();
 
     internal void Initialize()
@@ -96,17 +98,25 @@ public sealed class MiraPluginManager
                 RegisterColorClasses(type);
             }
 
-            info.OptionGroups.Sort((x, y) => x.GroupPriority.CompareTo(y.GroupPriority));
+            info.InternalOptionGroups.Sort((x, y) => x.GroupPriority.CompareTo(y.GroupPriority));
             QueuedRoleRegistrations.Add(info, roles);
 
             _registeredPlugins.Add(assembly, info);
+
+            info.SavePublicCollections();
+            PresetManager.CreateDefaultPreset(info);
+            PresetManager.LoadPresets(info);
             Logger<MiraApiPlugin>.Info($"Registering mod {pluginInfo.Metadata.GUID} with Mira API.");
         };
         IL2CPPChainloader.Instance.Finished += PaletteManager.RegisterAllColors;
         IL2CPPChainloader.Instance.Finished += MiraEventManager.SortAllHandlers;
         IL2CPPChainloader.Instance.Finished += () =>
         {
+            // Save all buttons into a read-only collection for easy access
             CustomButtonManager.Buttons = new ReadOnlyCollection<CustomActionButton>(CustomButtonManager.CustomButtons);
+
+            // Cache all the registered plugins into an array for easy access
+            RegisteredPlugins = [.._registeredPlugins.Values];
         };
     }
 

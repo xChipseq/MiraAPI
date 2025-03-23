@@ -83,4 +83,11 @@ public interface IModdedOption
     /// </summary>
     /// <param name="data">>The byte array representing the network data.</param>
     void HandleNetData(byte[] data);
+
+    /// <summary>
+    /// Saves the option to a preset configuration file.
+    /// </summary>
+    /// <param name="presetConfig">The ConfigFile representing the preset configuration.</param>
+    /// <param name="saveDefault">Indicates whether to save the default value instead of the current value.</param>
+    void SaveToPreset(ConfigFile presetConfig, bool saveDefault = false);
 }

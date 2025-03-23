@@ -75,7 +75,7 @@ public static class ModifierManager
             modifier = (BaseModifier)FormatterServices.GetUninitializedObject(modifierType);
         }
 
-        info.Modifiers.Add(modifier);
+        info.InternalModifiers.Add(modifier);
 
         if (modifier is not GameModifier gameModifier)
         {

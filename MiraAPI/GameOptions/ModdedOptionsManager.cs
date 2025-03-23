@@ -42,7 +42,7 @@ public static class ModdedOptionsManager
 
         Groups.Add(group);
         TypeToGroup.Add(type, group);
-        pluginInfo.OptionGroups.Add(group);
+        pluginInfo.InternalOptionGroups.Add(group);
 
         typeof(OptionGroupSingleton<>).MakeGenericType(type)
             .GetField("_instance", BindingFlags.Static | BindingFlags.NonPublic)!
@@ -119,7 +119,7 @@ public static class ModdedOptionsManager
         option.ConfigDefinition = new ConfigDefinition(groupName, propertyName);
 
         option.ParentMod = pluginInfo.MiraPlugin;
-        pluginInfo.Options.Add(option);
+        pluginInfo.InternalOptions.Add(option);
         ModdedOptions.Add(option.Id, option);
         group.Options.Add(option);
     }
@@ -140,7 +140,7 @@ public static class ModdedOptionsManager
         // we dont know how other plugins handle their configs
         // this way, all the options are saved at once, instead of one by one
         var oldConfigSetting = new Dictionary<MiraPluginInfo, bool>();
-        foreach (var plugin in MiraPluginManager.Instance.RegisteredPlugins())
+        foreach (var plugin in MiraPluginManager.Instance.RegisteredPlugins)
         {
             oldConfigSetting.Add(plugin, plugin.PluginConfig.SaveOnConfigSet);
             plugin.PluginConfig.SaveOnConfigSet = false;
@@ -156,7 +156,7 @@ public static class ModdedOptionsManager
             option.HandleNetData(netData.Data);
         }
 
-        foreach (var plugin in MiraPluginManager.Instance.RegisteredPlugins())
+        foreach (var plugin in MiraPluginManager.Instance.RegisteredPlugins)
         {
             plugin.PluginConfig.Save();
             plugin.PluginConfig.SaveOnConfigSet = oldConfigSetting[plugin];
@@ -173,6 +173,7 @@ public static class ModdedOptionsManager
     /// </summary>
     /// <param name="__originalMethod">The original setter method.</param>
     /// <param name="value">The new object value.</param>
+    // ReSharper disable once InconsistentNaming
     public static void PropertySetterPatch(MethodBase __originalMethod, object value)
     {
         var attribute = OptionAttributes.First(pair => pair.Key.GetSetMethod() == __originalMethod).Value;
@@ -185,6 +186,7 @@ public static class ModdedOptionsManager
     /// <param name="__originalMethod">The original getter method.</param>
     /// <param name="__result">The result of the property getter.</param>
     /// <returns>False so the original getter gets skipped.</returns>
+    // ReSharper disable InconsistentNaming
     public static bool PropertyGetterPatch(MethodBase __originalMethod, ref object __result)
     {
         var attribute = OptionAttributes.First(pair => pair.Key.GetGetMethod() == __originalMethod).Value;
