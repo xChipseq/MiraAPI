@@ -67,17 +67,7 @@ public abstract class ModdedOption<T> : IModdedOption
     public OptionBehaviour? OptionBehaviour { get; protected set; }
 
     /// <inheritdoc />
-    public ConfigDefinition? ConfigDefinition
-    {
-        get => _configDefinition;
-        set
-        {
-            if (_configDefinition is not null) return;
-            _configDefinition = value;
-        }
-    }
-
-    private ConfigDefinition? _configDefinition;
+    public ConfigDefinition? ConfigDefinition { get; set; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ModdedOption{T}"/> class.
