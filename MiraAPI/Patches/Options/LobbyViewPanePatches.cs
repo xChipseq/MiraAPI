@@ -250,13 +250,8 @@ public static class LobbyViewPanePatches
 
         var list = new List<Type>();
 
-        var roleGroups = GameSettingMenuPatches.SelectedMod?.CustomRoles.Values.OfType<ICustomRole>()
+        var roleGroups = SelectedMod.CustomRoles.Values.OfType<ICustomRole>()
             .ToLookup(x => x.RoleOptionsGroup);
-
-        if (roleGroups is null)
-        {
-            return;
-        }
 
         // sort the groups by priority
         var sortedRoleGroups = roleGroups
