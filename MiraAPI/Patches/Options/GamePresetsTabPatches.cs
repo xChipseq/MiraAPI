@@ -79,10 +79,20 @@ internal static class GamePresetsTabPatches
             saveButton.OnClick.AddListener(
                 (UnityAction)(() =>
                 {
+                    if (GameSettingMenuPatches.SelectedModIdx == 0)
+                    {
+                        return;
+                    }
+
                     input.CreateDialog(
                         "Preset Name",
                         name =>
                         {
+                            if (GameSettingMenuPatches.SelectedMod == null)
+                            {
+                                return;
+                            }
+
                             var presetFile = new ConfigFile(
                                 Path.Join(
                                     PresetManager.PresetDirectory,
