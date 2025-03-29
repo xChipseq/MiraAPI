@@ -14,6 +14,8 @@ namespace MiraAPI.Utilities.Assets;
 /// </summary>
 public static class AddressablesLoader
 {
+    private static bool _isInitialized;
+
     private static readonly List<(string Location, string ProviderSuffix)> CatalogLocations = [];
     private static readonly List<string> LoadedLocations = [];
 
@@ -29,49 +31,86 @@ public static class AddressablesLoader
     /// <param name="providerSuffix">The suffix of the provider for an addressables package.</param>
     public static void RegisterCatalog(string location, string providerSuffix = "")
     {
+        if (_isInitialized)
+        {
+            Logger<MiraApiPlugin>.Error("AddressablesLoader has already been initialized, cannot register more catalogs.");
+            return;
+        }
+
         CatalogLocations.Add((location, providerSuffix));
     }
 
     /// <summary>
     /// Registers a specific addressables key as only containing <see cref="HatData"/>'s to load.
     /// </summary>
-    /// <param name="addressables_key">The key/label/group for a List <see cref="HatData"/>.</param>
-    public static void RegisterHats(string addressables_key)
+    /// <param name="addressablesKey">The key/label/group for a List <see cref="HatData"/>.</param>
+    public static void RegisterHats(string addressablesKey)
     {
-        RegisteredHatKeys.Add(addressables_key);
+        if (_isInitialized)
+        {
+            Logger<MiraApiPlugin>.Error("AddressablesLoader has already been initialized, cannot register more keys for hats.");
+            return;
+        }
+
+        RegisteredHatKeys.Add(addressablesKey);
     }
 
     /// <summary>
     /// Registers a specific addressables key as only containing <see cref="SkinData"/>'s to load.
     /// </summary>
-    /// <param name="addressables_key">The key/label/group for a List <see cref="SkinData"/>.</param>
-    public static void RegisterSkins(string addressables_key)
+    /// <param name="addressablesKey">The key/label/group for a List <see cref="SkinData"/>.</param>
+    public static void RegisterSkins(string addressablesKey)
     {
-        RegisteredSkinKeys.Add(addressables_key);
+        if (_isInitialized)
+        {
+            Logger<MiraApiPlugin>.Error("AddressablesLoader has already been initialized, cannot register more keys for skins.");
+            return;
+        }
+
+        RegisteredSkinKeys.Add(addressablesKey);
     }
 
     /// <summary>
     /// Registers a specific addressables key as only containing <see cref="NamePlateData"/>'s to load.
     /// </summary>
-    /// <param name="addressables_key">The key/label/group for a List <see cref="NamePlateData"/>.</param>
-    /// /// <param name="group_title">The title of the group for visors.</param>
-    public static void RegisterNameplates(string addressables_key, string group_title)
+    /// <param name="addressablesKey">The key/label/group for a List <see cref="NamePlateData"/>.</param>
+    /// /// <param name="groupTitle">The title of the group for visors.</param>
+    public static void RegisterNameplates(string addressablesKey, string groupTitle)
     {
-        RegisteredNameplateKeys.Add((addressables_key, group_title));
+        if (_isInitialized)
+        {
+            Logger<MiraApiPlugin>.Error("AddressablesLoader has already been initialized, cannot register more keys for nameplates.");
+            return;
+        }
+
+        RegisteredNameplateKeys.Add((addressablesKey, groupTitle));
     }
 
     /// <summary>
     /// Registers a specific addressables key as only containing <see cref="VisorData"/>'s to load.
     /// </summary>
-    /// <param name="addressables_key">The key/label/group for a List <see cref="VisorData"/>.</param>
-    /// <param name="group_title">The title of the group for visors.</param>
-    public static void RegisterVisors(string addressables_key, string group_title)
+    /// <param name="addressablesKey">The key/label/group for a List <see cref="VisorData"/>.</param>
+    /// <param name="groupTitle">The title of the group for visors.</param>
+    public static void RegisterVisors(string addressablesKey, string groupTitle)
     {
-        RegisteredVisorKeys.Add((addressables_key, group_title));
+        if (_isInitialized)
+        {
+            Logger<MiraApiPlugin>.Error("AddressablesLoader has already been initialized, cannot register more keys for visors.");
+            return;
+        }
+
+        RegisteredVisorKeys.Add((addressablesKey, groupTitle));
     }
 
     internal static void LoadAll()
     {
+        if (_isInitialized)
+        {
+            Logger<MiraApiPlugin>.Error("AddressablesLoader has already been initialized.");
+            return;
+        }
+
+        _isInitialized = true;
         foreach (var (location, providerSuffix) in CatalogLocations)
         {
             Coroutines.Start(CoLoadAddressables(location, providerSuffix));
@@ -147,8 +186,8 @@ public static class AddressablesLoader
         {
             try
             {
-                var all_locations = Addressables.LoadResourceLocationsAsync(tag).WaitForCompletion();
-                var assets = Addressables.LoadAssetsAsync<T>(all_locations, null, false).WaitForCompletion();
+                var allLocations = Addressables.LoadResourceLocationsAsync(tag).WaitForCompletion();
+                var assets = Addressables.LoadAssetsAsync<T>(allLocations, null, false).WaitForCompletion();
                 var array = new Il2CppSystem.Collections.Generic.List<T>(assets.Pointer);
                 behaviours.AddRange(array.ToArray());
             }
@@ -168,8 +207,8 @@ public static class AddressablesLoader
         {
             try
             {
-                var all_locations = Addressables.LoadResourceLocationsAsync(tag.Tag).WaitForCompletion();
-                var assets = Addressables.LoadAssetsAsync<T>(all_locations, null, false).WaitForCompletion();
+                var allLocations = Addressables.LoadResourceLocationsAsync(tag.Tag).WaitForCompletion();
+                var assets = Addressables.LoadAssetsAsync<T>(allLocations, null, false).WaitForCompletion();
                 var array = new Il2CppSystem.Collections.Generic.List<T>(assets.Pointer);
                 behaviours.AddRange(array.ToArray().Select(x => (tag.Category, x)));
             }
