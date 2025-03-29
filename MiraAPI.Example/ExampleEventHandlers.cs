@@ -24,8 +24,6 @@ public static class ExampleEventHandlers
         MiraEventManager.RegisterEventHandler<BeforeMurderEvent>(@event =>
         {
             Logger<ExamplePlugin>.Info($"{@event.Source.Data.PlayerName} is about to kill {@event.Target.Data.PlayerName}");
-            var asset = new LoadableAddressableAsset<GameObject>("Assets/Prefabs/SomeText.prefab");
-            Logger<ExamplePlugin>.Info($"{asset.LoadAsset().GetComponent<TextMeshPro>().text}");
         });
 
         MiraEventManager.RegisterEventHandler<AfterMurderEvent>(@event =>
