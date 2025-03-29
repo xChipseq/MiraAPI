@@ -13,7 +13,7 @@ namespace MiraAPI.Utilities.Assets;
 /// <typeparam name="T">The type of the asset to be loaded.</typeparam>
 public class LoadableAddressableAssets<T>(string key) where T : UnityEngine.Object
 {
-    private readonly Action<LoadableAddressableAssets<T>>? gcAction;
+    private readonly Action<LoadableAddressableAssets<T>>? _gcAction;
 
     /// <summary>
     /// Gets or sets reference to the loaded asset. Intended to be used for caching purposes.
@@ -28,7 +28,7 @@ public class LoadableAddressableAssets<T>(string key) where T : UnityEngine.Obje
     /// <param name="garbageCollection">A lambda that allows GCHandle.Alloc calls without garbage collection interferences.</param>
     public LoadableAddressableAssets(string key, Action<LoadableAddressableAssets<T>> garbageCollection) : this(key)
     {
-        gcAction = garbageCollection;
+        _gcAction = garbageCollection;
     }
 
     /// <summary>
@@ -57,10 +57,7 @@ public class LoadableAddressableAssets<T>(string key) where T : UnityEngine.Obje
         var assetsList = new Il2CppSystem.Collections.Generic.List<T>(assetsIList.Pointer);
         LoadedAssets = assetsList.ToArray().ToList();
 
-        if (gcAction != null)
-        {
-            gcAction.Invoke(this);
-        }
+        _gcAction?.Invoke(this);
         GC.EndNoGCRegion();
 
         return LoadedAssets.AsReadOnly();

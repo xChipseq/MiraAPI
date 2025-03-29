@@ -11,7 +11,7 @@ namespace MiraAPI.Utilities.Assets;
 /// <typeparam name="T">The type of the asset to be loaded.</typeparam>
 public class LoadableAddressableAsset<T>(string uid) : LoadableAsset<T> where T : UnityEngine.Object
 {
-    private readonly Action<LoadableAddressableAsset<T>>? gcAction;
+    private readonly Action<LoadableAddressableAsset<T>>? _gcAction;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="LoadableAddressableAsset{T}"/> class, with added garbageCollector logic,
@@ -21,7 +21,7 @@ public class LoadableAddressableAsset<T>(string uid) : LoadableAsset<T> where T 
     /// <param name="garbageCollection">A lambda that allows GCHandle.Alloc calls without garbage collection interferences.</param>
     public LoadableAddressableAsset(string uid, Action<LoadableAddressableAsset<T>> garbageCollection) : this(uid)
     {
-        gcAction = garbageCollection;
+        _gcAction = garbageCollection;
     }
 
     /// <summary>
@@ -47,10 +47,7 @@ public class LoadableAddressableAsset<T>(string uid) : LoadableAsset<T> where T 
             throw new InvalidOperationException($"INVALID ASSET: {uid}");
         }
 
-        if (gcAction != null)
-        {
-            gcAction.Invoke(this);
-        }
+        _gcAction?.Invoke(this);
         GC.EndNoGCRegion();
 
         return LoadedAsset;
