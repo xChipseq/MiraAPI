@@ -3,7 +3,6 @@ using BepInEx.Configuration;
 using MiraAPI.GameOptions;
 using MiraAPI.Modifiers;
 using MiraAPI.PluginLoading;
-using MiraAPI.Utilities;
 using Reactor.Utilities;
 using UnityEngine;
 

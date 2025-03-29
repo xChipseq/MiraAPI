@@ -1,8 +1,6 @@
 ﻿using AmongUs.GameOptions;
-using Il2CppSystem.Web.Util;
 using MiraAPI.Utilities.Assets;
 using UnityEngine;
-using Helpers = MiraAPI.Utilities.Helpers;
 
 namespace MiraAPI.Roles;
 
