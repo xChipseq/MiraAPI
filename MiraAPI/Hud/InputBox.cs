@@ -1,4 +1,5 @@
 ﻿using System;
+using MiraAPI.Utilities.Assets;
 using Reactor.Utilities.Attributes;
 using UnityEngine;
 using UnityEngine.Events;
@@ -12,10 +13,9 @@ namespace MiraAPI.Hud;
 [RegisterInIl2Cpp]
 public class InputBox : MonoBehaviour
 {
-    public GameObject dialog;
-    public InputField inputField;
+    public InputField inputField = null!;
 
-    public void CreateDialog(string title, Action<string> onSubmit)
+    public void CreateDialog(string title, string placeholder, string submitText, Action<string> onSubmit)
     {
         var canvasObj = new GameObject("DialogCanvas");
         canvasObj.transform.SetParent(transform);
@@ -31,9 +31,10 @@ public class InputBox : MonoBehaviour
         var panelRect = panelObj.AddComponent<RectTransform>();
         var img = panelObj.AddComponent<Image>();
 
-        img.color = new Color(0.1f, 0.1f, 0.1f, 0.9f);
+        img.color = new Color(1, 1, 1, 0.9f);
         img.raycastTarget = true;
-        img.sprite = CreateRoundedSprite();
+        img.sprite = MiraAssets.RoundedBox.LoadAsset();
+        img.type = Image.Type.Sliced;
 
         panelRect.sizeDelta = new Vector2(300, 200);
         panelRect.anchoredPosition = Vector2.zero;
@@ -58,8 +59,8 @@ public class InputBox : MonoBehaviour
         inputBg.color = new Color(1, 1, 1, 0.8f);
 
         inputField = inputObj.AddComponent<InputField>();
-        inputField.textComponent = CreateText(inputObj, "", 18, Color.black);
-        inputField.placeholder = CreateText(inputObj, "Enter text here...", 18, new Color(0.5f, 0.5f, 0.5f));
+        inputField.textComponent = CreateText(inputObj, string.Empty, 18, Color.black);
+        inputField.placeholder = CreateText(inputObj, placeholder, 18, new Color(0.5f, 0.5f, 0.5f));
 
         var buttonObj = new GameObject("SubmitButton");
         buttonObj.transform.SetParent(panelObj.transform);
@@ -69,15 +70,16 @@ public class InputBox : MonoBehaviour
         buttonRect.anchoredPosition = new Vector2(0, -50);
 
         var buttonImg = buttonObj.AddComponent<Image>();
-        buttonImg.color = new Color(0.2f, 0.6f, 1f, 1f);
-        buttonImg.sprite = CreateRoundedSprite();
+        buttonImg.color = new Color(1f, 1f, 1f, 1f);
+        buttonImg.sprite = MiraAssets.RoundedBox.LoadAsset();
+        buttonImg.type = Image.Type.Sliced;
 
-        var buttonText = CreateText(buttonObj, "Submit", 20, Color.white);
+        var buttonText = CreateText(buttonObj, submitText, 20, Color.white);
         buttonText.alignment = TextAnchor.MiddleCenter;
 
         var colors = button.colors;
-        colors.highlightedColor = new Color(0.3f, 0.7f, 1f, 1f);
-        colors.pressedColor = new Color(0.1f, 0.4f, 0.8f, 1f);
+        colors.highlightedColor = Color.green;
+        colors.pressedColor = MiraAssets.AcceptedTeal;
         button.colors = colors;
 
         button.onClick.AddListener((UnityAction)(() =>
@@ -89,13 +91,13 @@ public class InputBox : MonoBehaviour
         inputField.ActivateInputField();
     }
 
-    private static Text CreateText(GameObject parent, string textContent = "", int fontSize = 20, Color? textColor = null)
+    private static Text CreateText(GameObject parent, string textContent = "", int fontSize = 20, Color? textColor = null, Font? font = null)
     {
         var textObj = new GameObject("Text");
         textObj.transform.SetParent(parent.transform);
 
         var text = textObj.AddComponent<Text>();
-        text.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+        text.font = font ?? Resources.GetBuiltinResource<Font>("Arial.ttf");
         text.text = textContent;
         text.color = textColor ?? Color.white;
         text.fontSize = fontSize;
@@ -105,13 +107,5 @@ public class InputBox : MonoBehaviour
         rect.sizeDelta = new Vector2(200, 40);
         rect.anchoredPosition = Vector2.zero;
         return text;
-    }
-
-    private static Sprite CreateRoundedSprite()
-    {
-        var texture = new Texture2D(1, 1);
-        texture.SetPixel(0, 0, Color.white);
-        texture.Apply();
-        return Sprite.Create(texture, new Rect(0, 0, 1, 1), new Vector2(0.5f, 0.5f));
     }
 }

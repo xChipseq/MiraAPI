@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using BepInEx.Configuration;
 using HarmonyLib;
@@ -73,6 +74,27 @@ internal static class GamePresetsTabPatches
             var refreshText = refreshButton.buttonText;
             refreshText.text = "Refresh";
 
+            var openFolderButton = Object.Instantiate(saveButton, __instance.transform);
+            openFolderButton.gameObject.name = "OpenFolderButton";
+            openFolderButton.gameObject.transform.localPosition = new Vector3(3.4f, 0.5f, -2);
+            var openFolderText = openFolderButton.buttonText;
+            openFolderText.text = "Presets Folder";
+            openFolderText.fontSizeMax = 4;
+
+            openFolderButton.OnClick = new Button.ButtonClickedEvent();
+            openFolderButton.OnClick.AddListener(
+                (UnityAction)(() =>
+                {
+                    Directory.CreateDirectory(PresetManager.PresetDirectory);
+                    Process.Start(
+                        new ProcessStartInfo
+                        {
+                            FileName = PresetManager.PresetDirectory,
+                            UseShellExecute = true,
+                            Verb = "open",
+                        });
+                }));
+
             // add the click event to save the preset
             saveButton.OnClick = new Button.ButtonClickedEvent();
             var input = saveButton.gameObject.AddComponent<InputBox>();
@@ -86,6 +108,8 @@ internal static class GamePresetsTabPatches
 
                     input.CreateDialog(
                         "Preset Name",
+                        "Enter preset name...",
+                        "Save Preset",
                         name =>
                         {
                             if (GameSettingMenuPatches.SelectedMod == null)
