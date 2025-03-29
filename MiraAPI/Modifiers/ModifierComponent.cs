@@ -29,9 +29,9 @@ public class ModifierComponent(IntPtr cppPtr) : MonoBehaviour(cppPtr)
     [HideFromIl2Cpp]
     private List<BaseModifier> Modifiers { get; set; } = [];
 
-    private PlayerControl? _player;
+    private PlayerControl _player = null!;
 
-    private TextMeshPro? _modifierText;
+    private TextMeshPro _modifierText = null!;
 
     private readonly List<BaseModifier> _toRemove = [];
 
@@ -42,9 +42,18 @@ public class ModifierComponent(IntPtr cppPtr) : MonoBehaviour(cppPtr)
         _toRemove.AddRange(Modifiers);
     }
 
-    private void Start()
+    private void Awake()
     {
         _player = GetComponent<PlayerControl>();
+        if (_player == null)
+        {
+            Logger<MiraApiPlugin>.Error("ModifierComponent could not find PlayerControl on the same GameObject.");
+            Destroy(this);
+            return;
+        }
+
+        ModifierExtensions.ModifierComponents.Add(_player, this);
+
         Modifiers = [];
 
         if (!_player.AmOwner)
@@ -78,9 +87,9 @@ public class ModifierComponent(IntPtr cppPtr) : MonoBehaviour(cppPtr)
 
         if (_toAdd.Count > 0 || _toRemove.Count > 0)
         {
-            if (_player?.AmOwner == true)
+            if (_player.AmOwner && HudManager.InstanceExists)
             {
-                HudManager.Instance?.SetHudActive(_player, _player.Data.Role, HudManager.Instance.TaskPanel.isActiveAndEnabled);
+                HudManager.Instance.SetHudActive(_player, _player.Data.Role, HudManager.Instance.TaskPanel.isActiveAndEnabled);
             }
             _toAdd.Clear();
             _toRemove.Clear();
@@ -101,7 +110,7 @@ public class ModifierComponent(IntPtr cppPtr) : MonoBehaviour(cppPtr)
             modifier.Update();
         }
 
-        if (!_modifierText || _player?.AmOwner == false)
+        if (!_modifierText || !_player.AmOwner)
         {
             return;
         }
@@ -125,7 +134,13 @@ public class ModifierComponent(IntPtr cppPtr) : MonoBehaviour(cppPtr)
             builder.AppendLine(modifier.GetHudString());
         }
 
-        _modifierText!.text = showText ? builder.ToString() : string.Empty;
+        _modifierText.text = showText ? builder.ToString() : string.Empty;
+    }
+
+    private void OnDestroy()
+    {
+        // Remove this component from the global list when destroyed
+        ModifierExtensions.ModifierComponents.Remove(_player);
     }
 
     /// <summary>

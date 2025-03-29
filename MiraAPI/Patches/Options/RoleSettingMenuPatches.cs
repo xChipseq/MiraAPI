@@ -83,10 +83,9 @@ public static class RoleSettingMenuPatches
         var quotaThing = __instance.categoryHeaderEditRoleOrigin.transform.FindChild("QuotaHeader");
         var template = __instance.transform.parent.parent.GetComponent<GameSettingMenu>().GameSettingsTab.categoryHeaderOrigin;
 
-
         foreach (var grouping in sortedRoleGroups)
         {
-            if (!grouping.Any())
+            if (!grouping.Any() || grouping.All(x=>x.Configuration.HideSettings))
             {
                 continue;
             }

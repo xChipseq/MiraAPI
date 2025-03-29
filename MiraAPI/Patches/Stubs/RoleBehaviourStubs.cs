@@ -4,6 +4,9 @@ using Il2CppSystem.Text;
 
 namespace MiraAPI.Patches.Stubs;
 
+/// <summary>
+/// Stub methods for the RoleBehaviour class. Needed because of Il2Cpp limitations on injected classes.
+/// </summary>
 [HarmonyPatch]
 public static class RoleBehaviourStubs
 {
@@ -57,7 +60,7 @@ public static class RoleBehaviourStubs
     [MethodImpl(MethodImplOptions.NoInlining)]
     public static bool CanUse(RoleBehaviour instance, IUsable console)
     {
-        return default;
+        return false;
     }
 
     /// <summary>
@@ -84,7 +87,7 @@ public static class RoleBehaviourStubs
     [MethodImpl(MethodImplOptions.NoInlining)]
     public static bool DidWin(RoleBehaviour instance, GameOverReason gameOverReason)
     {
-        return default;
+        return false;
     }
 
     /// <summary>
@@ -97,7 +100,7 @@ public static class RoleBehaviourStubs
     [MethodImpl(MethodImplOptions.NoInlining)]
     public static PlayerControl FindClosestTarget(RoleBehaviour instance)
     {
-        return null;
+        return null!;
     }
 
     /// <summary>
@@ -110,7 +113,7 @@ public static class RoleBehaviourStubs
     [MethodImpl(MethodImplOptions.NoInlining)]
     public static float GetAbilityDistance(RoleBehaviour instance)
     {
-        return default;
+        return 0;
     }
 
     /// <summary>
@@ -124,7 +127,7 @@ public static class RoleBehaviourStubs
     [MethodImpl(MethodImplOptions.NoInlining)]
     public static bool IsValidTarget(RoleBehaviour instance, NetworkedPlayerInfo target)
     {
-        return default;
+        return false;
     }
 
     /// <summary>

@@ -250,13 +250,8 @@ public static class LobbyViewPanePatches
 
         var list = new List<Type>();
 
-        var roleGroups = GameSettingMenuPatches.SelectedMod?.InternalRoles.Values.OfType<ICustomRole>()
+        var roleGroups = SelectedMod.InternalRoles.Values.OfType<ICustomRole>()
             .ToLookup(x => x.RoleOptionsGroup);
-
-        if (roleGroups is null)
-        {
-            return;
-        }
 
         // sort the groups by priority
         var sortedRoleGroups = roleGroups
@@ -265,7 +260,7 @@ public static class LobbyViewPanePatches
 
         foreach (var grouping in sortedRoleGroups)
         {
-            if (!grouping.Any())
+            if (!grouping.Any() || grouping.All(x => x.Configuration.HideSettings))
             {
                 continue;
             }
@@ -340,7 +335,7 @@ public static class LobbyViewPanePatches
                     viewSettingsInfoPanelRoleVariant.chanceTitle.color =
                         viewSettingsInfoPanelRoleVariant.chanceBackground.color =
                             viewSettingsInfoPanelRoleVariant.background.color =
-                                customRole.RoleColor.GetAlternateColor();
+                                customRole.RoleColor.FindAlternateColor();
                 instance.settingsInfo.Add(viewSettingsInfoPanelRoleVariant.gameObject);
                 num -= 0.664f;
             }

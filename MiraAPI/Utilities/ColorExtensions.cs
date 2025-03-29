@@ -8,10 +8,10 @@ namespace MiraAPI.Utilities;
 public static class ColorExtensions
 {
     /// <summary>
-    /// Gets the relative luminance of a color (WCAG 2.1 specification).
+    /// Gets the relative luminance of a color (WCAG 2.1 specification). 0 is black, 1 is white.
     /// </summary>
     /// <param name="color">Color to calculate luminance for.</param>
-    /// <returns>Relative luminance value.</returns>
+    /// <returns>Luminance value between 0 and 1.</returns>
     public static float GetRelativeLuminance(this Color color)
     {
         var r = color.r <= 0.03928f ? color.r / 12.92f : Mathf.Pow((color.r + 0.055f) / 1.055f, 2.4f);
