@@ -260,7 +260,7 @@ public static class LobbyViewPanePatches
 
         foreach (var grouping in sortedRoleGroups)
         {
-            if (!grouping.Any())
+            if (!grouping.Any() || grouping.All(x => x.Configuration.HideSettings))
             {
                 continue;
             }
