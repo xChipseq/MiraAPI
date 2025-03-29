@@ -8,17 +8,13 @@ using UnityEngine;
 namespace MiraAPI.Patches;
 
 /// <summary>
-/// Vent patches to make sure the player is able to use the vent.
+/// Used to change vent behaviour for the event system, custom roles, and modifiers.
 /// </summary>
-[HarmonyPatch(typeof(Vent))]
-public static class VentPatches
+[HarmonyPatch(typeof(Vent), nameof(Vent.CanUse))]
+internal static class VentCanUsePatch
 {
-    /// <summary>
-    /// CanUse patch.
-    /// </summary>
-    [HarmonyPostfix]
-    [HarmonyPatch(nameof(Vent.CanUse))]
-    public static void VentCanUsePostfix(Vent __instance, ref float __result, [HarmonyArgument(0)] NetworkedPlayerInfo pc, [HarmonyArgument(1)] ref bool canUse, [HarmonyArgument(2)] ref bool couldUse)
+    // ReSharper disable InconsistentNaming
+    public static void Postfix(Vent __instance, ref float __result, [HarmonyArgument(0)] NetworkedPlayerInfo pc, [HarmonyArgument(1)] ref bool canUse, [HarmonyArgument(2)] ref bool couldUse)
     {
         var @event = new PlayerCanUseEvent(__instance.Cast<IUsable>());
         MiraEventManager.InvokeEvent(@event);
