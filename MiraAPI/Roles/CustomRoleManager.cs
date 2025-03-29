@@ -7,6 +7,7 @@ using Il2CppInterop.Runtime.Injection;
 using MiraAPI.Networking;
 using MiraAPI.PluginLoading;
 using MiraAPI.Utilities;
+using MiraAPI.Utilities.Assets;
 using Reactor.Localization.Utilities;
 using Reactor.Networking.Rpc;
 using Reactor.Utilities;
@@ -22,6 +23,18 @@ namespace MiraAPI.Roles;
 /// </summary>
 public static class CustomRoleManager
 {
+    /// <summary>
+    /// The default Among Us Crewmate Intro Sound.
+    /// </summary>
+    public static readonly LoadableAsset<AudioClip> CrewmateIntroSound =
+        CustomRoleUtils.GetIntroSound(RoleTypes.Crewmate)!;
+
+    /// <summary>
+    /// The default Among Us Impostor Intro Sound.
+    /// </summary>
+    public static readonly LoadableAsset<AudioClip> ImpostorIntroSound =
+        CustomRoleUtils.GetIntroSound(RoleTypes.Impostor)!;
+
     internal static readonly Dictionary<ushort, RoleBehaviour> CustomRoles = [];
     internal static readonly Dictionary<Type, ushort> RoleIds = [];
 
@@ -92,6 +105,21 @@ public static class CustomRoleManager
         roleBehaviour.DefaultGhostRole = customRole.Configuration.GhostRole;
         roleBehaviour.MaxCount = customRole.Configuration.MaxRoleCount;
         roleBehaviour.RoleScreenshot = customRole.Configuration.OptionsScreenshot?.LoadAsset();
+
+        if (customRole.Configuration.Icon != null)
+        {
+            var asset = customRole.Configuration.Icon.LoadAsset();
+            if (asset != null)
+            {
+                roleBehaviour.RoleIconSolid = asset;
+                roleBehaviour.RoleIconWhite = asset;
+            }
+        }
+
+        if (customRole.Configuration.IntroSound != null)
+        {
+            roleBehaviour.IntroSound = customRole.Configuration.IntroSound.LoadAsset();
+        }
 
         if (roleBehaviour.IsDead)
         {

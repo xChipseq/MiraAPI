@@ -2,10 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using HarmonyLib;
 using MiraAPI.GameOptions;
 using MiraAPI.Networking;
 using MiraAPI.Roles;
+using MiraAPI.Voting;
 using Reactor.Utilities;
 using TMPro;
 using UnityEngine;
@@ -40,6 +42,30 @@ public static class Extensions
     }
 
     /// <summary>
+    /// Gets a PlayerControl from their PlayerVoteArea in a meeting.
+    /// </summary>
+    /// <param name="state">The vote area.</param>
+    /// <returns>The player's PlayerControl.</returns>
+    public static PlayerControl? GetPlayer(this PlayerVoteArea state) => GameData.Instance.GetPlayerById(state.TargetPlayerId)?.Object;
+
+    /// <summary>
+    /// Gets an int representing the amount of tasks a player has left.
+    /// </summary>
+    /// <param name="player">The player.</param>
+    /// <returns>A count of how many tasks the player has left.</returns>
+    public static int GetTasksLeft(this PlayerControl player) => player.Data.Tasks.ToArray().Count(x => !x.Complete);
+
+    /// <summary>
+    /// Checks if a PlayerControl is the game's host.
+    /// </summary>
+    /// <param name="playerControl">The player you're checking for.</param>
+    /// <returns>If the player is the host, true, else false.</returns>
+    public static bool IsHost(this PlayerControl playerControl)
+    {
+        return TutorialManager.InstanceExists || AmongUsClient.Instance.HostId == playerControl.OwnerId;
+    }
+
+    /// <summary>
     /// Determines if a float is an integer.
     /// </summary>
     /// <param name="number">The float number.</param>
@@ -47,6 +73,71 @@ public static class Extensions
     public static bool IsInteger(this float number)
     {
         return Mathf.Approximately(number, Mathf.Round(number));
+    }
+
+    /// <summary>
+    /// Gets a cache of player's vote data components to improve performance.
+    /// </summary>
+    public static Dictionary<PlayerControl, PlayerVoteData> VoteDataComponents { get; } = [];
+
+    /// <summary>
+    /// Gets the PlayerVoteData of a player.
+    /// </summary>
+    /// <param name="player">The PlayerControl object.</param>
+    /// <returns>A PlayerVoteData if there is one, null otherwise.</returns>
+    public static PlayerVoteData GetVoteData(this PlayerControl player)
+    {
+        if (VoteDataComponents.TryGetValue(player, out var component))
+        {
+            return component;
+        }
+
+        component = player.GetComponent<PlayerVoteData>();
+        if (!component)
+        {
+            throw new InvalidOperationException("PlayerVoteData is not attached to the player.");
+        }
+
+        VoteDataComponents[player] = component;
+        return component;
+    }
+
+    public static KeyValuePair<byte, int> MaxPair(this Dictionary<byte, int> self, out bool tie)
+    {
+        tie = true;
+        var result = new KeyValuePair<byte, int>(byte.MaxValue, int.MinValue);
+        foreach (var keyValuePair in self)
+        {
+            if (keyValuePair.Value > result.Value)
+            {
+                result = keyValuePair;
+                tie = false;
+            }
+            else if (keyValuePair.Value == result.Value)
+            {
+                tie = true;
+            }
+        }
+        return result;
+    }
+
+    public static KeyValuePair<byte, float> MaxPair(this Dictionary<byte, float> self, out bool tie)
+    {
+        tie = true;
+        var result = new KeyValuePair<byte, float>(byte.MaxValue, int.MinValue);
+        foreach (var keyValuePair in self)
+        {
+            if (keyValuePair.Value > result.Value)
+            {
+                result = keyValuePair;
+                tie = false;
+            }
+            else if (Math.Abs(keyValuePair.Value - result.Value) < .05)
+            {
+                tie = true;
+            }
+        }
+        return result;
     }
 
     /// <summary>
@@ -63,6 +154,17 @@ public static class Extensions
                     .Select((p, i) => GetInheritanceDistance(args[i].GetType(), p.ParameterType))
                     .Sum())
             .FirstOrDefault();
+    }
+
+    /// <summary>
+    /// Gets a proper string for an enum. (with spaces).
+    /// </summary>
+    /// <param name="enum">The enum you would like to change.</param>
+    /// <returns>A proper string for the enum.</returns>
+    public static string ToDisplayString(this Enum @enum)
+    {
+        var regex = new Regex(@"([^\^])([A-Z][a-z$])");
+        return regex.Replace(@enum.ToString(), m => $"{m.Groups[1].Value} {m.Groups[2].Value}");
     }
 
     /// <summary>
@@ -181,12 +283,13 @@ public static class Extensions
 
             if (count + length > chunkSize)
             {
-                chunks.Enqueue(current.ToArray());
+                chunks.Enqueue([.. current]);
                 current.Clear();
                 count = 0;
             }
 
             current.Add(netData);
+            count += length;
         }
 
         if (current.Count > 0)
@@ -245,6 +348,7 @@ public static class Extensions
     /// <param name="color">The original color.</param>
     /// <param name="amount">The amount to darken or lighten the original color by between 0.0 and 1.0.</param>
     /// <returns>An alternate color that has been darkened or lightened.</returns>
+    [Obsolete("Use FindAlternateColor for WACG compliance.")]
     public static Color GetAlternateColor(this Color color, float amount = 0.45f)
     {
         return color.IsColorDark() ? LightenColor(color, amount) : DarkenColor(color, amount);

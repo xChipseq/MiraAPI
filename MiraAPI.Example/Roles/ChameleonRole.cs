@@ -1,4 +1,5 @@
-﻿using MiraAPI.Roles;
+﻿using AmongUs.GameOptions;
+using MiraAPI.Roles;
 using TMPro;
 using UnityEngine;
 
@@ -12,9 +13,10 @@ public class ChameloenRole : CrewmateRole, ICustomRole
     public Color RoleColor => Palette.AcceptedGreen;
     public ModdedRoleTeams Team => ModdedRoleTeams.Crewmate;
 
-    public CustomRoleConfiguration Configuration => new CustomRoleConfiguration(this)
+    public CustomRoleConfiguration Configuration => new(this)
     {
         OptionsScreenshot = ExampleAssets.Banner,
+        IntroSound = CustomRoleUtils.GetIntroSound(RoleTypes.Shapeshifter),
     };
 
     public void PlayerControlFixedUpdate(PlayerControl playerControl)

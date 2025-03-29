@@ -19,7 +19,16 @@ namespace MiraAPI;
 [ReactorModFlags(ModFlags.RequireOnAllClients)]
 public partial class MiraApiPlugin : BasePlugin
 {
+    /// <summary>
+    /// Gets the branding Mira API color.
+    /// </summary>
     public static Color MiraColor { get; } = new Color32(238, 154, 112, 255);
+
+    /// <summary>
+    /// Gets the default color for headers in the options menu.
+    /// </summary>
+    public static Color DefaultHeaderColor { get; } = new Color32(77, 77, 77, 255);
+
     private static MiraPluginManager? PluginManager { get; set; }
     internal Harmony Harmony { get; } = new(Id);
 

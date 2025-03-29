@@ -3,7 +3,6 @@ using BepInEx.Configuration;
 using MiraAPI.GameOptions;
 using MiraAPI.Modifiers;
 using MiraAPI.PluginLoading;
-using MiraAPI.Utilities;
 using Reactor.Utilities;
 using UnityEngine;
 
@@ -33,6 +32,11 @@ public interface ICustomRole : IOptionable
     /// Gets the color of the role.
     /// </summary>
     Color RoleColor { get; }
+
+    /// <summary>
+    /// Gets the color that should be used in the options menu.
+    /// </summary>
+    Color OptionsMenuColor => RoleColor;
 
     /// <summary>
     /// Gets the team of the role.
@@ -201,7 +205,7 @@ public interface ICustomRole : IOptionable
     /// Get the custom Role Tab text for this role.
     /// </summary>
     /// <returns>A StringBuilder with the role tab text.</returns>
-    StringBuilder SetTabText() => Helpers.CreateForRole(this);
+    StringBuilder SetTabText() => CustomRoleUtils.CreateForRole(this);
 
     /// <summary>
     /// Determine whether a given modifier can be applied to this role.

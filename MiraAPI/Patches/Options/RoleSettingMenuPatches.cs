@@ -83,10 +83,9 @@ public static class RoleSettingMenuPatches
         var quotaThing = __instance.categoryHeaderEditRoleOrigin.transform.FindChild("QuotaHeader");
         var template = __instance.transform.parent.parent.GetComponent<GameSettingMenu>().GameSettingsTab.categoryHeaderOrigin;
 
-
         foreach (var grouping in sortedRoleGroups)
         {
-            if (!grouping.Any())
+            if (!grouping.Any() || grouping.All(x=>x.Configuration.HideSettings))
             {
                 continue;
             }
@@ -127,32 +126,37 @@ public static class RoleSettingMenuPatches
             chanceLabel.Destroy();
             countLabel.Destroy();
 
-            if (name is StringNames.CrewmateRolesHeader)
-            {
-                categoryHeaderMasked.Title.color = Palette.CrewmateRoleHeaderTextBlue;
-                categoryHeaderMasked.Background.color = Palette.CrewmateRoleHeaderBlue;
-            }
-            else if (name is StringNames.ImpostorRolesHeader)
-            {
-                categoryHeaderMasked.Title.color = Palette.ImpostorRoleHeaderTextRed;
-                categoryHeaderMasked.Background.color = Palette.ImpostorRoleHeaderRed;
-            }
-            else
-            {
-                categoryHeaderMasked.Title.color = group.Color;
-                categoryHeaderMasked.Divider.color = group.Color;
-                categoryHeaderMasked.Background.color = group.Color;
-            }
+            categoryHeaderMasked.Background.sprite = MiraAssets.CategoryHeader.LoadAsset();
+            categoryHeaderMasked.Background.sprite.texture.filterMode = FilterMode.Bilinear;
+            categoryHeaderMasked.Background.sprite.texture.wrapMode = TextureWrapMode.Clamp;
 
-            categoryHeaderMasked.Title.color = categoryHeaderMasked.Title.color.IsColorDark() ?
-                categoryHeaderMasked.Title.color.LightenColor(0.3f) : categoryHeaderMasked.Title.color.LightenColor(0.1f);
+            categoryHeaderMasked.Background.transform.localPosition = new Vector3(0.5f, -0.1833f, 0);
+
+            switch (name)
+            {
+                case StringNames.CrewmateRolesHeader:
+                    categoryHeaderMasked.Title.color = Palette.CrewmateRoleHeaderTextBlue;
+                    categoryHeaderMasked.Background.color = Palette.CrewmateRoleHeaderBlue;
+                    break;
+                case StringNames.ImpostorRolesHeader:
+                    categoryHeaderMasked.Title.color = Palette.ImpostorRoleHeaderTextRed;
+                    categoryHeaderMasked.Background.color = Palette.ImpostorRoleHeaderRed;
+                    break;
+                default:
+                    categoryHeaderMasked.Title.color = group.Color.Equals(MiraApiPlugin.DefaultHeaderColor) ? Color.white : group.Color.FindAlternateColor();
+                    categoryHeaderMasked.Divider.color = group.Color;
+                    categoryHeaderMasked.Background.color = group.Color;
+                    break;
+            }
 
             categoryHeaderMasked.Title.fontStyle = __instance.categoryHeaderEditRoleOrigin.Title.fontStyle;
             categoryHeaderMasked.Title.font = __instance.categoryHeaderEditRoleOrigin.Title.font;
             categoryHeaderMasked.Title.fontMaterial = __instance.categoryHeaderEditRoleOrigin.Title.fontMaterial;
 
             categoryHeaderMasked.Divider.color = categoryHeaderMasked.Background.color;
+            categoryHeaderMasked.Background.transform.localPosition = new Vector3(0.55f, -0.1833f, 0);
             categoryHeaderMasked.Background.size = new Vector2(categoryHeaderMasked.Background.size.x + 1.5f, categoryHeaderMasked.Background.size.y);
+
             categoryHeaderMasked.transform.localScale = Vector3.one * 0.63f;
             categoryHeaderMasked.transform.localPosition = new Vector3(-0.44f, ScrollerNum, -2f);
             categoryHeaderMasked.gameObject.SetActive(true);
@@ -241,7 +245,7 @@ public static class RoleSettingMenuPatches
     [HarmonyPatch(nameof(RolesSettingsMenu.OpenChancesTab))]
     public static void OpenChancesTabPostfix(RolesSettingsMenu __instance)
     {
-        if (GameSettingMenuPatches.SelectedModIdx == 0)
+        if (GameSettingMenuPatches.SelectedModIdx == 0 || !__instance.scrollBar)
         {
             return;
         }
@@ -383,8 +387,8 @@ public static class RoleSettingMenuPatches
             __instance.roleScreenshot.drawMode = SpriteDrawMode.Sliced;
         }
 
-        __instance.roleHeaderSprite.color = customRole.RoleColor;
-        __instance.roleHeaderText.color = customRole.RoleColor.GetAlternateColor();
+        __instance.roleHeaderSprite.color = customRole.OptionsMenuColor;
+        __instance.roleHeaderText.color = customRole.OptionsMenuColor.FindAlternateColor();
 
         var categoryHeaderMasked = __instance.AdvancedRolesSettings.transform.Find("CategoryHeaderMasked").GetComponent<CategoryHeaderMasked>();
 
@@ -459,13 +463,13 @@ public static class RoleSettingMenuPatches
         roleOptionSetting.transform.localPosition = new Vector3(-0.1f, ScrollerNum, -2f);
 
         roleOptionSetting.SetRole(GameOptionsManager.Instance.CurrentGameOptions.RoleOptions, role, 20);
-        roleOptionSetting.labelSprite.color = customRole.RoleColor;
+        roleOptionSetting.labelSprite.color = customRole.OptionsMenuColor;
         roleOptionSetting.OnValueChanged = new Action<OptionBehaviour>(ValueChanged);
         roleOptionSetting.SetClickMask(__instance.ButtonClickMask);
         __instance.roleChances.Add(roleOptionSetting);
 
         roleOptionSetting.titleText.transform.localPosition = new Vector3(-0.5376f, -0.2923f, 0f);
-        roleOptionSetting.titleText.color = customRole.RoleColor.GetAlternateColor();
+        roleOptionSetting.titleText.color = customRole.OptionsMenuColor.FindAlternateColor();
         roleOptionSetting.titleText.horizontalAlignment = HorizontalAlignmentOptions.Left;
 
         if (GameSettingMenuPatches.SelectedMod is null ||
@@ -483,7 +487,7 @@ public static class RoleSettingMenuPatches
 
             var passiveButton = newButton.GetComponent<GameOptionButton>();
             passiveButton.OnClick = new ButtonClickedEvent();
-            passiveButton.interactableColor = btnRend.color = customRole.RoleColor.GetAlternateColor();
+            passiveButton.interactableColor = btnRend.color = customRole.OptionsMenuColor.FindAlternateColor();
             passiveButton.interactableHoveredColor = Color.white;
 
             passiveButton.OnClick.AddListener((UnityAction)(() => { ChangeTab(role, __instance); }));

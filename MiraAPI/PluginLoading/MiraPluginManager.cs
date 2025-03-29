@@ -27,7 +27,7 @@ public sealed class MiraPluginManager
     private readonly Dictionary<Assembly, MiraPluginInfo> _registeredPlugins = [];
 
     internal MiraPluginInfo[] RegisteredPlugins() => [.. _registeredPlugins.Values];
-
+    internal Dictionary<MiraPluginInfo, List<Type>> QueuedRoleRegistrations { get; } = new();
     internal static MiraPluginManager Instance { get; private set; } = new();
 
     internal void Initialize()
@@ -97,7 +97,7 @@ public sealed class MiraPluginManager
             }
 
             info.OptionGroups.Sort((x, y) => x.GroupPriority.CompareTo(y.GroupPriority));
-            CustomRoleManager.RegisterRoleTypes(roles, info);
+            QueuedRoleRegistrations.Add(info, roles);
 
             _registeredPlugins.Add(assembly, info);
             Logger<MiraApiPlugin>.Info($"Registering mod {pluginInfo.Metadata.GUID} with Mira API.");

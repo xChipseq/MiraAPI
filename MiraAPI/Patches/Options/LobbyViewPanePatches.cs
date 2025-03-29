@@ -250,13 +250,8 @@ public static class LobbyViewPanePatches
 
         var list = new List<Type>();
 
-        var roleGroups = GameSettingMenuPatches.SelectedMod?.CustomRoles.Values.OfType<ICustomRole>()
+        var roleGroups = SelectedMod.CustomRoles.Values.OfType<ICustomRole>()
             .ToLookup(x => x.RoleOptionsGroup);
-
-        if (roleGroups is null)
-        {
-            return;
-        }
 
         // sort the groups by priority
         var sortedRoleGroups = roleGroups
@@ -265,7 +260,7 @@ public static class LobbyViewPanePatches
 
         foreach (var grouping in sortedRoleGroups)
         {
-            if (!grouping.Any())
+            if (!grouping.Any() || grouping.All(x => x.Configuration.HideSettings))
             {
                 continue;
             }
@@ -331,7 +326,7 @@ public static class LobbyViewPanePatches
                     chancePerGame,
                     61,
                     customRole.RoleColor,
-                    customRole.Configuration.Icon.LoadAsset(),
+                    customRole.Configuration.Icon?.LoadAsset() ?? MiraAssets.Empty.LoadAsset(),
                     true);
                 viewSettingsInfoPanelRoleVariant.iconSprite.transform.localScale = new Vector3(0.365f, 0.365f, 1f);
                 viewSettingsInfoPanelRoleVariant.iconSprite.transform.localPosition = new Vector3(0.7144f, -0.028f, -2);
@@ -340,7 +335,7 @@ public static class LobbyViewPanePatches
                     viewSettingsInfoPanelRoleVariant.chanceTitle.color =
                         viewSettingsInfoPanelRoleVariant.chanceBackground.color =
                             viewSettingsInfoPanelRoleVariant.background.color =
-                                customRole.RoleColor.GetAlternateColor();
+                                customRole.RoleColor.FindAlternateColor();
                 instance.settingsInfo.Add(viewSettingsInfoPanelRoleVariant.gameObject);
                 num -= 0.664f;
             }
@@ -418,7 +413,7 @@ public static class LobbyViewPanePatches
             role.StringName,
             maskLayer,
             role.TeamType == RoleTeamTypes.Crewmate,
-            customRole.Configuration.Icon.LoadAsset());
+            customRole.Configuration.Icon != null ? customRole.Configuration.Icon.LoadAsset() : MiraAssets.Empty.LoadAsset());
         viewPanel.header.icon.transform.localScale = new Vector3(0.465f, 0.465f, 1f);
         viewPanel.divider.material.SetInt(PlayerMaterial.MaskLayer, maskLayer);
 

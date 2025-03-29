@@ -181,6 +181,30 @@ public static class ModifierExtensions
     }
 
     /// <summary>
+    /// Clears all modifiers from a player.
+    /// </summary>
+    /// <param name="plr">The player you want to clear modifiers for.</param>
+    public static void ClearModifiers(this PlayerControl plr)
+    {
+        foreach (var mod in plr.GetModifierComponent().ActiveModifiers)
+        {
+            plr.RemoveModifier(mod);
+        }
+    }
+
+    /// <summary>
+    /// Clears all modifiers from a player.
+    /// </summary>
+    /// <param name="plr">The player you want to clear modifiers for.</param>
+    public static void RpcClearModifiers(this PlayerControl plr)
+    {
+        foreach (var mod in plr.GetModifierComponent().ActiveModifiers)
+        {
+            plr.RpcRemoveModifier(mod.UniqueId);
+        }
+    }
+
+    /// <summary>
     /// Checks if the player has a specific modifier by its GUID.
     /// </summary>
     /// <param name="player">The PlayerControl instance.</param>

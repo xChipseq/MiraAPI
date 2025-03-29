@@ -1,9 +1,12 @@
-﻿using MiraAPI.Events;
+﻿using System.Linq;
+using MiraAPI.Events;
 using MiraAPI.Events.Mira;
 using MiraAPI.Events.Vanilla.Gameplay;
 using MiraAPI.Events.Vanilla.Map;
+using MiraAPI.Events.Vanilla.Meeting;
 using MiraAPI.Events.Vanilla.Player;
 using MiraAPI.Example.Buttons.Freezer;
+using MiraAPI.Example.Roles;
 using MiraAPI.Utilities.Assets;
 using Reactor.Utilities;
 using TMPro;
@@ -34,6 +37,38 @@ public static class ExampleEventHandlers
         });
     }
 
+    // If you want to add extra votes to a player, do something like this.
+    [RegisterEvent]
+    public static void StartMeetingEvent(StartMeetingEvent _)
+    {
+        foreach (var plr in PlayerControl.AllPlayerControls.ToArray().Where(player => player.Data.Role is MayorRole))
+        {
+            plr.GetVoteData().IncreaseRemainingVotes(1);
+        }
+    }
+
+    // Example of using the Voting API to make a role similar to the Prosecutor from Town of Us.
+    [RegisterEvent(15)]
+    public static void HandleVoteEvent(HandleVoteEvent @event)
+    {
+        if (@event.VoteData.Owner.Data.Role is not NeutralKillerRole) return;
+
+        @event.VoteData.SetRemainingVotes(0);
+
+        for (var i = 0; i < 5; i++)
+        {
+            @event.VoteData.VoteForPlayer(@event.TargetId);
+        }
+
+        foreach (var plr in PlayerControl.AllPlayerControls.ToArray().Where(player => player != @event.VoteData.Owner))
+        {
+            plr.GetVoteData().Votes.Clear();
+            plr.GetVoteData().VotesRemaining = 0;
+        }
+
+        @event.Cancel();
+    }
+
     // Events can be registered using an attribute as well.
     [RegisterEvent]
     public static void UpdateSystemEventHandler(UpdateSystemEvent @event)
@@ -47,11 +82,10 @@ public static class ExampleEventHandlers
     {
         Logger<ExamplePlugin>.Warning("Freeze button clicked!");
 
-        if (PlayerControl.LocalPlayer.Data.PlayerName == "stupid")
-        {
-            @event.Cancel();
-            @event.Button.SetTimer(15f);
-        }
+        if (PlayerControl.LocalPlayer.Data.PlayerName != "stupid") return;
+
+        @event.Cancel();
+        @event.Button.SetTimer(15f);
     }
 
     // Example event handler
