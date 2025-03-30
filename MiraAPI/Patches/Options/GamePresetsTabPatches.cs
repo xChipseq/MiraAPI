@@ -41,9 +41,9 @@ internal static class GamePresetsTabPatches
 
             // create the save button
             var saveButton = Object.Instantiate(prefab, __instance.transform);
-            saveButton.gameObject.name = "SaveButton";
-            saveButton.gameObject.transform.localPosition = new Vector3(3.4f, 1.7f, -2);
             _saveButton = saveButton.gameObject;
+            _saveButton.gameObject.name = "SaveButton";
+            _saveButton.transform.localPosition = new Vector3(3.4f, 1.7f, -2);
 
             // set the button text and alignment
             var saveText = saveButton.buttonText;
@@ -71,15 +71,16 @@ internal static class GamePresetsTabPatches
 
             var refreshButton = Object.Instantiate(saveButton, __instance.transform);
             _refreshButton = refreshButton.gameObject;
-            refreshButton.gameObject.name = "RefreshButton";
-            refreshButton.gameObject.transform.localPosition = new Vector3(3.4f, 1.1f, -2);
+            _refreshButton.name = "RefreshButton";
+            _refreshButton.transform.localPosition = new Vector3(3.4f, 1.1f, -2);
+
             var refreshText = refreshButton.buttonText;
             refreshText.text = "Refresh";
 
             var openFolderButton = Object.Instantiate(saveButton, __instance.transform);
-            openFolderButton.gameObject.name = "OpenFolderButton";
-            openFolderButton.gameObject.transform.localPosition = new Vector3(3.4f, 0.5f, -2);
             _folderButton = openFolderButton.gameObject;
+            _folderButton.name = "OpenFolderButton";
+            _folderButton.transform.localPosition = new Vector3(3.4f, 0.5f, -2);
 
             var openFolderText = openFolderButton.buttonText;
             openFolderText.text = "Presets Folder";
@@ -144,6 +145,7 @@ internal static class GamePresetsTabPatches
 
             _saveButton.SetActive(false);
             _refreshButton.SetActive(false);
+            _folderButton.SetActive(false);
 
             _presetHolder = new GameObject("PresetHolder");
             _presetHolder.transform.SetParent(__instance.transform, false);
@@ -187,15 +189,15 @@ internal static class GamePresetsTabPatches
             __instance.SecondPresetButton.gameObject.SetActive(GameSettingMenuPatches.SelectedModIdx == 0);
 
             // Show the save and refresh buttons
-            if (_saveButton != null)
+            if (_saveButton)
             {
                 _saveButton.SetActive(GameSettingMenuPatches.SelectedModIdx != 0);
             }
-            if (_refreshButton != null)
+            if (_refreshButton)
             {
                 _refreshButton.SetActive(GameSettingMenuPatches.SelectedModIdx != 0);
             }
-            if (_folderButton != null)
+            if (_folderButton)
             {
                 _folderButton.SetActive(GameSettingMenuPatches.SelectedModIdx != 0);
             }
@@ -246,15 +248,15 @@ internal static class GamePresetsTabPatches
             Logger<MiraApiPlugin>.Error("OnDisable called");
 
             // Hide the save and refresh buttons
-            if (_saveButton != null)
+            if (_saveButton)
             {
                 _saveButton.SetActive(false);
             }
-            if (_refreshButton != null)
+            if (_refreshButton)
             {
                 _refreshButton.SetActive(false);
             }
-            if (_folderButton != null)
+            if (_folderButton)
             {
                 _folderButton.SetActive(false);
             }
