@@ -23,6 +23,9 @@ public class InputBox : MonoBehaviour
 
         var canvas = canvasObj.AddComponent<Canvas>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        canvas.overrideSorting = true;
+        canvas.sortingOrder = 1000; // Ensure the canvas is on top of other UI elements
+
         canvasObj.AddComponent<CanvasScaler>().uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
         canvasObj.AddComponent<GraphicRaycaster>();
 
