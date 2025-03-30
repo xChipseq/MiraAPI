@@ -56,11 +56,11 @@ public static class IntroCutscenePatches
         }
     }
 
-    /*
     [HarmonyPostfix]
     [HarmonyPatch(nameof(IntroCutscene.OnDestroy))]
-    public static void GameBeginPatch()
+    public static void GameBeginPatch(IntroCutscene __instance)
     {
-        CustomGameModeManager.ActiveMode?.Initialize();
-    }*/
+        MiraEventManager.InvokeEvent(new IntroEndEvent(__instance));
+        MiraEventManager.InvokeEvent(new RoundStartEvent(true));
+    }
 }

@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using HarmonyLib;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using MiraAPI.Events;
@@ -10,6 +11,7 @@ using MiraAPI.Voting;
 namespace MiraAPI.Patches.Voting;
 
 [HarmonyPatch(typeof(MeetingHud))]
+[SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Harmony Convention")]
 internal static class MeetingHudPatches
 {
     [HarmonyPostfix]
@@ -29,6 +31,20 @@ internal static class MeetingHudPatches
         }
         var @event = new StartMeetingEvent(__instance);
         MiraEventManager.InvokeEvent(@event);
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(nameof(MeetingHud.OnDestroy))]
+    public static void MeetingHudOnDestroyPatch(MeetingHud __instance)
+    {
+        MiraEventManager.InvokeEvent(new EndMeetingEvent(__instance));
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(nameof(MeetingHud.VotingComplete))]
+    public static void MeetingHudVotingCompletePatch(MeetingHud __instance)
+    {
+        MiraEventManager.InvokeEvent(new VotingCompleteEvent(__instance));
     }
 
     [HarmonyPrefix]
