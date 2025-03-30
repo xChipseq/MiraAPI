@@ -5,6 +5,7 @@ using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using MiraAPI.Events;
 using MiraAPI.Events.Vanilla.Meeting;
 using MiraAPI.Events.Vanilla.Meeting.Voting;
+using MiraAPI.Modifiers;
 using MiraAPI.Utilities;
 using MiraAPI.Voting;
 
@@ -27,6 +28,11 @@ internal static class MeetingHudPatches
             if (plr.Data.IsDead || plr.Data.Disconnected)
             {
                 voteData.SetRemainingVotes(0);
+            }
+
+            foreach (var modifier in plr.GetModifierComponent().ActiveModifiers)
+            {
+                modifier.OnMeetingStart();
             }
         }
         var @event = new StartMeetingEvent(__instance);
