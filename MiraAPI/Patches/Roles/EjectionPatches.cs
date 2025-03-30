@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using MiraAPI.Events;
+using MiraAPI.Events.Vanilla.Gameplay;
 using MiraAPI.Events.Vanilla.Meeting;
 using MiraAPI.Roles;
 
@@ -30,5 +31,13 @@ public static class EjectionPatches
         }
 
         __instance.completeString = role.GetCustomEjectionMessage(__instance.initData.networkedPlayer);
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(nameof(ExileController.WrapUp))]
+    public static void WrapUpPostfix(ExileController __instance)
+    {
+        var @event = new RoundStartEvent(false);
+        MiraEventManager.InvokeEvent(@event);
     }
 }
