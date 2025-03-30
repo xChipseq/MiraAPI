@@ -42,7 +42,7 @@ public static class EjectionPatches
         {
             yield return AccessTools.Method(typeof(ExileController), nameof(ExileController.WrapUp));
             yield return AccessTools.Method(typeof(AirshipExileController), nameof(AirshipExileController.WrapUpAndSpawn));
-            if (AccessTools.TypeByName("Submerged.ExileCutscene.SubmergedExileController") is { } type)
+            if (ModCompatibility.SubmergedLoaded && AccessTools.TypeByName("Submerged.ExileCutscene.SubmergedExileController") is { } type)
             {
                 yield return AccessTools.Method(type, "WrapUpAndSpawn");
             }
