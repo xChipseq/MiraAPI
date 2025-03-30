@@ -20,6 +20,8 @@ internal static class GamePresetsTabPatches
 {
     private static GameObject _saveButton = null!;
     private static GameObject _refreshButton = null!;
+    private static GameObject _folderButton = null!;
+
     private static GameObject _presetHolder = null!;
     private static GridArrange _arrange = null!;
 
@@ -77,6 +79,8 @@ internal static class GamePresetsTabPatches
             var openFolderButton = Object.Instantiate(saveButton, __instance.transform);
             openFolderButton.gameObject.name = "OpenFolderButton";
             openFolderButton.gameObject.transform.localPosition = new Vector3(3.4f, 0.5f, -2);
+            _folderButton = openFolderButton.gameObject;
+
             var openFolderText = openFolderButton.buttonText;
             openFolderText.text = "Presets Folder";
             openFolderText.fontSizeMax = 4;
@@ -85,11 +89,12 @@ internal static class GamePresetsTabPatches
             openFolderButton.OnClick.AddListener(
                 (UnityAction)(() =>
                 {
-                    Directory.CreateDirectory(PresetManager.PresetDirectory);
+                    var directory = Path.Join(PresetManager.PresetDirectory, GameSettingMenuPatches.SelectedMod?.PluginId ?? string.Empty);
+                    Directory.CreateDirectory(directory);
                     Process.Start(
                         new ProcessStartInfo
                         {
-                            FileName = PresetManager.PresetDirectory,
+                            FileName = directory,
                             UseShellExecute = true,
                             Verb = "open",
                         });
@@ -190,6 +195,10 @@ internal static class GamePresetsTabPatches
             {
                 _refreshButton.SetActive(GameSettingMenuPatches.SelectedModIdx != 0);
             }
+            if (_folderButton != null)
+            {
+                _folderButton.SetActive(GameSettingMenuPatches.SelectedModIdx != 0);
+            }
 
             var prefab = GameSettingMenu.Instance.GameSettingsButton;
 
@@ -244,6 +253,10 @@ internal static class GamePresetsTabPatches
             if (_refreshButton != null)
             {
                 _refreshButton.SetActive(false);
+            }
+            if (_folderButton != null)
+            {
+                _folderButton.SetActive(false);
             }
 
             foreach (var mod in MiraPluginManager.Instance.RegisteredPlugins)
