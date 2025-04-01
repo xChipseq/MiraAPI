@@ -9,6 +9,11 @@ namespace MiraAPI.Patches.Events;
 [HarmonyPatch]
 internal static class SubmergedSpawnGamePatch
 {
+    public static bool Prepare()
+    {
+        return ModCompatibility.SubmergedLoaded(out _);
+    }
+
     public static IEnumerable<MethodBase> TargetMethods()
     {
         if (ModCompatibility.SubmergedLoaded(out var subAss) &&
