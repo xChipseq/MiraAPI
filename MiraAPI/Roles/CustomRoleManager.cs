@@ -14,7 +14,6 @@ using Reactor.Utilities;
 using Reactor.Utilities.Extensions;
 using TMPro;
 using UnityEngine;
-using UnityEngine.TextCore;
 using Object = UnityEngine.Object;
 
 namespace MiraAPI.Roles;
@@ -60,6 +59,9 @@ public static class CustomRoleManager
     {
         roles.ForEach(x => RoleIds.Add(x, GetNextRoleId()));
 
+        var oldConfigSetting = pluginInfo.PluginConfig.SaveOnConfigSet;
+        pluginInfo.PluginConfig.SaveOnConfigSet = false;
+
         foreach (var roleType in roles)
         {
             ClassInjector.RegisterTypeInIl2Cpp(roleType);
@@ -72,6 +74,9 @@ public static class CustomRoleManager
 
             pluginInfo.CustomRoles.Add((ushort)role.Role, role);
         }
+
+        pluginInfo.PluginConfig.Save();
+        pluginInfo.PluginConfig.SaveOnConfigSet = oldConfigSetting;
     }
 
     private static RoleBehaviour? RegisterRole(Type roleType, MiraPluginInfo parentMod)

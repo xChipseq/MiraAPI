@@ -105,6 +105,13 @@ public abstract class BaseModifier : IOptionable
     }
 
     /// <summary>
+    /// Called when a meeting starts.
+    /// </summary>
+    public virtual void OnMeetingStart()
+    {
+    }
+
+    /// <summary>
     /// Determines whether the player can vent.
     /// </summary>
     /// <returns>True if the player can vent, false otherwise. Null for no effect.</returns>

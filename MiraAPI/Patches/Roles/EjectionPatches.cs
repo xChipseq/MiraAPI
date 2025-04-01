@@ -1,5 +1,8 @@
-﻿using HarmonyLib;
+﻿using System.Collections.Generic;
+using System.Reflection;
+using HarmonyLib;
 using MiraAPI.Events;
+using MiraAPI.Events.Vanilla.Gameplay;
 using MiraAPI.Events.Vanilla.Meeting;
 using MiraAPI.Roles;
 
@@ -30,5 +33,25 @@ public static class EjectionPatches
         }
 
         __instance.completeString = role.GetCustomEjectionMessage(__instance.initData.networkedPlayer);
+    }
+
+    [HarmonyPatch]
+    internal static class WrapUpPatch
+    {
+        public static IEnumerable<MethodBase> TargetMethods()
+        {
+            yield return AccessTools.Method(typeof(ExileController), nameof(ExileController.WrapUp));
+            yield return AccessTools.Method(typeof(AirshipExileController), nameof(AirshipExileController.WrapUpAndSpawn));
+            if (ModCompatibility.SubmergedLoaded && AccessTools.TypeByName("Submerged.ExileCutscene.SubmergedExileController") is { } type)
+            {
+                yield return AccessTools.Method(type, "WrapUpAndSpawn");
+            }
+        }
+
+        public static void Postfix()
+        {
+            var @event = new RoundStartEvent(false);
+            MiraEventManager.InvokeEvent(@event);
+        }
     }
 }
