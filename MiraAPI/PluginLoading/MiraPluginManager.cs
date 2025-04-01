@@ -43,6 +43,9 @@ public sealed class MiraPluginManager
             var info = new MiraPluginInfo(miraPlugin, pluginInfo);
             var roles = new List<Type>();
 
+            var oldConfigSetting = info.PluginConfig.SaveOnConfigSet;
+            info.PluginConfig.SaveOnConfigSet = false;
+
             foreach (var type in assembly.GetTypes())
             {
                 if (type.GetCustomAttribute<MiraIgnoreAttribute>() != null)
@@ -95,6 +98,9 @@ public sealed class MiraPluginManager
 
                 RegisterColorClasses(type);
             }
+
+            info.PluginConfig.Save();
+            info.PluginConfig.SaveOnConfigSet = oldConfigSetting;
 
             info.OptionGroups.Sort((x, y) => x.GroupPriority.CompareTo(y.GroupPriority));
             QueuedRoleRegistrations.Add(info, roles);
