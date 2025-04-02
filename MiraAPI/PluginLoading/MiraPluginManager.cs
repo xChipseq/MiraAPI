@@ -109,7 +109,6 @@ public sealed class MiraPluginManager
             Logger<MiraApiPlugin>.Info($"Registering mod {pluginInfo.Metadata.GUID} with Mira API.");
         };
         IL2CPPChainloader.Instance.Finished += PaletteManager.RegisterAllColors;
-        IL2CPPChainloader.Instance.Finished += MiraEventManager.SortAllHandlers;
         IL2CPPChainloader.Instance.Finished += () =>
         {
             CustomButtonManager.Buttons = new ReadOnlyCollection<CustomActionButton>(CustomButtonManager.CustomButtons);
