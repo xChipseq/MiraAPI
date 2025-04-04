@@ -53,6 +53,17 @@ internal static class MeetingHudPatches
         MiraEventManager.InvokeEvent(new VotingCompleteEvent(__instance));
     }
 
+    [HarmonyPostfix]
+    [HarmonyPatch(nameof(MeetingHud.ForceSkipAll))]
+    public static void MeetingHudForceSkipAllPatch(MeetingHud __instance)
+    {
+        foreach (var plr in PlayerControl.AllPlayerControls)
+        {
+            var voteData = plr.GetVoteData();
+            voteData.SetRemainingVotes(0);
+        }
+    }
+
     [HarmonyPrefix]
     [HarmonyPatch(nameof(MeetingHud.Select))]
     public static bool SelectPatch(MeetingHud __instance, int suspectStateIdx)
