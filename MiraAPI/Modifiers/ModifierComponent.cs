@@ -67,14 +67,18 @@ public class ModifierComponent(IntPtr cppPtr) : MonoBehaviour(cppPtr)
 
     private void FixedUpdate()
     {
+        var removed = _toRemove.Count > 0;
         foreach (var modifier in _toRemove.ToArray())
         {
+            _toRemove.Remove(modifier);
             modifier.OnDeactivate();
             Modifiers.Remove(modifier);
         }
 
+        var added = _toAdd.Count > 0;
         foreach (var modifier in _toAdd.ToArray())
         {
+            _toAdd.Remove(modifier);
             Modifiers.Add(modifier);
             modifier.Initialized = true;
             modifier.OnActivate();
@@ -85,14 +89,12 @@ public class ModifierComponent(IntPtr cppPtr) : MonoBehaviour(cppPtr)
             }
         }
 
-        if (_toAdd.Count > 0 || _toRemove.Count > 0)
+        if (removed || added)
         {
             if (_player.AmOwner && HudManager.InstanceExists)
             {
                 HudManager.Instance.SetHudActive(_player, _player.Data.Role, HudManager.Instance.TaskPanel.isActiveAndEnabled);
             }
-            _toAdd.Clear();
-            _toRemove.Clear();
 
             ActiveModifiers = Modifiers.ToImmutableList();
         }
