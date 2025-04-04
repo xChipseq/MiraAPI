@@ -181,6 +181,17 @@ public static class ModifierExtensions
     }
 
     /// <summary>
+    /// Checks if the player has a specific modifier by its GUID.
+    /// </summary>
+    /// <param name="player">The PlayerControl instance.</param>
+    /// <param name="uniqueId">The unique ID of the modifier.</param>
+    /// <returns>True if the player has the modifier, false otherwise.</returns>
+    public static bool HasModifier(this PlayerControl player, Guid uniqueId)
+    {
+        return player.GetModifierComponent().HasModifier(uniqueId);
+    }
+
+    /// <summary>
     /// Clears all modifiers from a player.
     /// </summary>
     /// <param name="plr">The player you want to clear modifiers for.</param>
@@ -202,17 +213,6 @@ public static class ModifierExtensions
         {
             plr.RpcRemoveModifier(mod.UniqueId);
         }
-    }
-
-    /// <summary>
-    /// Checks if the player has a specific modifier by its GUID.
-    /// </summary>
-    /// <param name="player">The PlayerControl instance.</param>
-    /// <param name="uniqueId">The unique ID of the modifier.</param>
-    /// <returns>True if the player has the modifier, false otherwise.</returns>
-    public static bool HasModifier(this PlayerControl player, Guid uniqueId)
-    {
-        return player.GetModifierComponent().HasModifier(uniqueId);
     }
 
     /// <summary>
