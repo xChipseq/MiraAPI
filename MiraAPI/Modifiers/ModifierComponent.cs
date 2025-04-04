@@ -507,4 +507,61 @@ public class ModifierComponent(IntPtr cppPtr) : MonoBehaviour(cppPtr)
     {
         return ActiveModifiers.Exists(x => x.UniqueId == id);
     }
+
+    /// <summary>
+    /// Checks if a player has an active modifier by its type.
+    /// </summary>
+    /// <param name="checkInactive">Whether to check inactive modifiers (those pending to be added or removed).</param>
+    /// <param name="predicate">The predicate to check the modifier.</param>
+    /// <typeparam name="T">The Type of the Modifier.</typeparam>
+    /// <returns>True if the Modifier is present, false otherwise.</returns>
+    [HideFromIl2Cpp]
+    public bool HasModifier<T>(bool checkInactive, Func<T, bool>? predicate=null) where T : BaseModifier
+    {
+        return ActiveModifiers.Exists(MatchExpr) || (checkInactive && (_toAdd.Exists(MatchExpr) || _toRemove.Exists(MatchExpr)));
+        bool MatchExpr(BaseModifier bm) => bm is T modifier && (predicate == null || predicate(modifier));
+    }
+
+    /// <summary>
+    /// Checks if a player has an active modifier by its type.
+    /// </summary>
+    /// <param name="type">The modifier type.</param>
+    /// <param name="checkInactive">Whether to check inactive modifiers (those pending to be added or removed).</param>
+    /// <param name="predicate">The predicate to check the modifier.</param>
+    /// <returns>True if the Modifier is present, false otherwise.</returns>
+    [HideFromIl2Cpp]
+    public bool HasModifier(Type type, bool checkInactive, Func<BaseModifier, bool>? predicate=null)
+    {
+        return ActiveModifiers.Exists(MatchExpr) || (checkInactive && (_toAdd.Exists(MatchExpr) || _toRemove.Exists(MatchExpr)));
+        bool MatchExpr(BaseModifier bm) => bm.GetType() == type && (predicate == null || predicate(bm));
+    }
+
+    /// <summary>
+    /// Checks if a player has an active modifier by its type ID.
+    /// </summary>
+    /// <param name="id">The modifier's type ID.</param>
+    /// <param name="checkInactive">Whether to check inactive modifiers (those pending to be added or removed).</param>
+    /// <param name="predicate">The predicate to check the modifier.</param>
+    /// <returns>True if the modifier is present, false otherwise.</returns>
+    [HideFromIl2Cpp]
+    public bool HasModifier(uint id, bool checkInactive, Func<BaseModifier, bool>? predicate=null)
+    {
+        var type = ModifierManager.GetModifierType(id) ?? throw new InvalidOperationException(
+            $"Cannot get modifier with id {id} because it is not registered.");
+
+        return HasModifier(type, checkInactive, predicate);
+    }
+
+    /// <summary>
+    /// Checks if a player has an active modifier by its unique ID.
+    /// </summary>
+    /// <param name="id">The modifier's guid.</param>
+    /// <param name="checkInactive">Whether to check inactive modifiers (those pending to be added or removed).</param>
+    /// <returns>True if the modifier is present, false otherwise.</returns>
+    [HideFromIl2Cpp]
+    public bool HasModifier(Guid id, bool checkInactive)
+    {
+        return ActiveModifiers.Exists(MatchExpr) || (checkInactive && (_toAdd.Exists(MatchExpr) || _toRemove.Exists(MatchExpr)));
+        bool MatchExpr(BaseModifier bm) => bm.UniqueId == id;
+    }
 }

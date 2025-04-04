@@ -105,6 +105,7 @@ public static class ModifierManager
 
         // Filter and sort modifiers by descending priority.
         var modifiers = IdToTypeModifierMap
+            .Where(x=>x.Value.IsAssignableTo(typeof(GameModifier)))
             .Select(x => Activator.CreateInstance(x.Value) as GameModifier)
             .OfType<GameModifier>()
             .Where(x => x.GetAmountPerGame() > 0 && x.GetAssignmentChance() > 0)
