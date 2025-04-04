@@ -41,21 +41,21 @@ internal static class MeetingHudPatches
 
     [HarmonyPostfix]
     [HarmonyPatch(nameof(MeetingHud.OnDestroy))]
-    public static void MeetingHudOnDestroyPatch(MeetingHud __instance)
+    public static void OnDestroyPatch(MeetingHud __instance)
     {
         MiraEventManager.InvokeEvent(new EndMeetingEvent(__instance));
     }
 
     [HarmonyPostfix]
     [HarmonyPatch(nameof(MeetingHud.VotingComplete))]
-    public static void MeetingHudVotingCompletePatch(MeetingHud __instance)
+    public static void VotingCompletePatch(MeetingHud __instance)
     {
         MiraEventManager.InvokeEvent(new VotingCompleteEvent(__instance));
     }
 
-    [HarmonyPostfix]
+    [HarmonyPrefix]
     [HarmonyPatch(nameof(MeetingHud.ForceSkipAll))]
-    public static void MeetingHudForceSkipAllPatch(MeetingHud __instance)
+    public static void ForceSkipAllPatch(MeetingHud __instance)
     {
         foreach (var plr in PlayerControl.AllPlayerControls)
         {
