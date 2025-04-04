@@ -19,7 +19,7 @@ public static class Helpers
     /// <returns>A list of alive players.</returns>
     public static List<PlayerControl> GetAlivePlayers()
     {
-        return PlayerControl.AllPlayerControls.ToArray().Where(x => !x.Data.IsDead).ToList();
+        return [.. GameData.Instance.AllPlayers.ToArray().Where(x => !x.IsDead && !x.Disconnected && x.Object).Select(x=>x.Object)];
     }
 
     /// <summary>
