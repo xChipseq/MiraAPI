@@ -103,68 +103,56 @@ public static class ModifierManager
     {
         var rand = new Random();
 
-        foreach (var priority in PrioritiesToIdsMap.Keys.OrderByDescending(x => x))
+        // Filter and sort modifiers by descending priority.
+        var modifiers = IdToTypeModifierMap
+            .Select(x => Activator.CreateInstance(x.Value) as GameModifier)
+            .OfType<GameModifier>()
+            .Where(x => x.GetAmountPerGame() > 0 && x.GetAssignmentChance() > 0)
+            .OrderByDescending(x => x.Priority())
+            .ToArray();
+
+        foreach (var modifier in modifiers)
         {
-            var filteredModifiers = new List<uint>();
+            var assignments = modifier.GetAmountPerGame();
 
-            foreach (var id in PrioritiesToIdsMap[priority])
+            var validPlayers = plrs.Where(x => IsGameModifierValid(x, modifier, modifier.TypeId)).ToList();
+            if (validPlayers.Count == 0)
             {
-                var mod = Activator.CreateInstance(IdToTypeModifierMap[id]) as GameModifier;
-                var chance = Math.Clamp(mod!.GetAssignmentChance(), 0, 100);
-                var count = mod.GetAmountPerGame();
-
-                if (chance == 0 || count == 0)
-                {
-                    continue;
-                }
-
-                var maxCount = plrs.Count(x => IsGameModifierValid(x, mod, id));
-
-                if (maxCount == 0)
-                {
-                    Logger<MiraApiPlugin>.Warning($"No players are valid for {mod.ModifierName}");
-                    continue;
-                }
-
-                var num = Math.Clamp(count, 0, maxCount);
-
-                for (var i = 0; i < num; i++)
-                {
-                    var randomNum = rand.Next(100);
-
-                    if (randomNum < chance)
-                    {
-                        filteredModifiers.Add(id);
-                    }
-                }
-            }
-
-            if (filteredModifiers.Count == 0)
-            {
-                Logger<MiraApiPlugin>.Warning($"No filtered modifiers for priority {priority}");
+                Logger<MiraApiPlugin>.Warning($"No valid players for modifier {modifier.ModifierName}");
                 continue;
             }
 
-            var shuffledList = filteredModifiers.Randomize();
+            assignments = Math.Min(assignments, validPlayers.Count);
+            var availablePlayers = new List<PlayerControl>(validPlayers);
 
-            if (shuffledList.Count > plrs.Count)
+            for (var i = 0; i < assignments; i++)
             {
-                shuffledList = shuffledList.GetRange(0, plrs.Count);
-            }
-
-            foreach (var id in shuffledList)
-            {
-                var mod = Activator.CreateInstance(IdToTypeModifierMap[id]) as GameModifier;
-                var plr = plrs.Where(x => IsGameModifierValid(x, mod!, id)).Random();
-
-                if (!plr || plr == null)
+                var chance = Math.Clamp(modifier.GetAssignmentChance(), 0, 100);
+                if (rand.Next(100) >= chance)
                 {
-                    Logger<MiraApiPlugin>.Warning($"Somehow valid players for modifier {mod!.ModifierName} disappeared");
+                    continue;
                 }
-                else
+
+                var candidates = availablePlayers
+                    .Where(x => IsGameModifierValid(x, modifier, modifier.TypeId))
+                    .ToList();
+
+                if (candidates.Count == 0)
                 {
-                    plr.RpcAddModifier(id);
+                    Logger<MiraApiPlugin>.Warning(
+                        $"No available players for modifier {modifier.ModifierName} at assignment {i + 1}");
+                    break;
                 }
+
+                var plr = candidates.Random();
+                if (plr == null)
+                {
+                    Logger<MiraApiPlugin>.Warning($"Valid player for modifier {modifier.ModifierName} disappeared");
+                    continue;
+                }
+
+                plr.RpcAddModifier(modifier.TypeId);
+                availablePlayers.Remove(plr);
             }
         }
     }
