@@ -35,6 +35,7 @@ internal static class MeetingHudPatches
                 modifier.OnMeetingStart();
             }
         }
+
         var @event = new StartMeetingEvent(__instance);
         MiraEventManager.InvokeEvent(@event);
     }
@@ -53,10 +54,30 @@ internal static class MeetingHudPatches
         MiraEventManager.InvokeEvent(new VotingCompleteEvent(__instance));
     }
 
+    // this is necessary because the actual ForceSkipAll method is inlined.
     [HarmonyPrefix]
-    [HarmonyPatch(nameof(MeetingHud.ForceSkipAll))]
-    public static void ForceSkipAllPatch(MeetingHud __instance)
+    [HarmonyPatch(nameof(MeetingHud.Update))]
+    public static void ForceSkipPatch(MeetingHud __instance)
     {
+        if (__instance.state is not (MeetingHud.VoteStates.NotVoted or MeetingHud.VoteStates.Voted))
+        {
+            return;
+        }
+
+        var logicOptionsNormal = GameManager.Instance.LogicOptions.Cast<LogicOptionsNormal>();
+        var votingTime = logicOptionsNormal.GetVotingTime();
+        if (votingTime <= 0)
+        {
+            return;
+        }
+
+        var num2 = __instance.discussionTimer - logicOptionsNormal.GetDiscussionTime();
+
+        if (!AmongUsClient.Instance.AmHost || num2 < votingTime)
+        {
+            return;
+        }
+
         foreach (var plr in PlayerControl.AllPlayerControls)
         {
             var voteData = plr.GetVoteData();
