@@ -1,11 +1,13 @@
-﻿using AmongUs.Data;
-using HarmonyLib;
-using MiraAPI.Utilities;
-using Reactor.Utilities.Extensions;
-using System;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using AmongUs.Data;
+using HarmonyLib;
+using MiraAPI.Utilities;
+using Reactor.Utilities;
+using Reactor.Utilities.Extensions;
 using TMPro;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -46,6 +48,8 @@ public static class HatsTabPatches
 
     public static void UpdatePrefix(HatsTab __instance)
     {
+        if (sortedHats.Count == 0) return;
+
         if (Input.GetKeyDown(KeyCode.LeftControl) || Input.GetKeyDown(KeyCode.RightControl) || Input.GetKeyDown(KeyCode.LeftArrow))
         {
             currentPage--;
@@ -60,15 +64,19 @@ public static class HatsTabPatches
         }
     }
 
+    private static IEnumerator? loadRoutine;
+    private static int hatIndex;
+
     private static void GenerateHats(HatsTab __instance, int page)
     {
-        foreach (ColorChip instanceColorChip in __instance.ColorChips) instanceColorChip.gameObject.Destroy();
+        if (loadRoutine != null) Coroutines.Stop(loadRoutine);
+
+        hatIndex = 0;
+        foreach (var instanceColorChip in __instance.ColorChips) instanceColorChip.gameObject.Destroy();
         __instance.ColorChips.Clear();
         __instance.scroller.Inner.GetComponentsInChildren<TextMeshPro>().Do(x => x.gameObject.Destroy());
 
         var groupNameText = __instance.GetComponentInChildren<TextMeshPro>(false);
-
-        int hatIndex = 0;
 
         var (groupName, hats) = sortedHats.ToArray()[page];
         var text = Object.Instantiate(groupNameText, __instance.scroller.Inner);
@@ -81,21 +89,36 @@ public static class HatsTabPatches
         text.fontSize = 3f;
         text.fontSizeMax = 3f;
         text.fontSizeMin = 0f;
-        float xLerp = __instance.XRange.Lerp(0.5f);
-        float yLerp = __instance.YStart - hatIndex / __instance.NumPerRow * __instance.YOffset;
+        var xLerp = __instance.XRange.Lerp(0.5f);
+        var yLerp = __instance.YStart - hatIndex / __instance.NumPerRow * __instance.YOffset;
         text.transform.localPosition = new Vector3(xLerp, yLerp, -1f);
 
         hatIndex += 5;
-        foreach (var hat in hats.OrderBy(HatManager.Instance.allHats.IndexOf))
-        {
-            float hatXposition = __instance.XRange.Lerp(hatIndex % __instance.NumPerRow / (__instance.NumPerRow - 1f));
-            float hatYposition = __instance.YStart - hatIndex / __instance.NumPerRow * __instance.YOffset;
-            GenerateColorChip(__instance, new Vector2(hatXposition, hatYposition), hat);
-            hatIndex += 1;
-        }
+        loadRoutine = Coroutines.Start(CoGenerateChips(__instance, hats));
+    }
 
-        __instance.scroller.ContentYBounds.max = -(__instance.YStart - (hatIndex + 1) / __instance.NumPerRow * __instance.YOffset) - 3f;
+    private static IEnumerator CoGenerateChips(HatsTab __instance, List<HatData> hats)
+    {
+        __instance.scroller.ScrollToTop();
+        var batchSize = 5;
+        for (var i = 0; i < hats.Count; i += batchSize)
+        {
+            var batch = hats.Skip(i).Take(batchSize).ToList();
+
+            foreach (var hat in batch.OrderBy(HatManager.Instance.allHats.IndexOf))
+            {
+                var hatXposition = __instance.XRange.Lerp(hatIndex % __instance.NumPerRow / (__instance.NumPerRow - 1f));
+                var hatYposition = __instance.YStart - hatIndex / __instance.NumPerRow * __instance.YOffset;
+                GenerateColorChip(__instance, new Vector2(hatXposition, hatYposition), hat);
+                hatIndex += 1;
+                yield return null;
+            }
+
+            __instance.scroller.ContentYBounds.max = -(__instance.YStart - (hatIndex + 1) / __instance.NumPerRow * __instance.YOffset) - 3f;
+            yield return new WaitForSeconds(0.01f);
+        }
         __instance.currentHatIsEquipped = true;
+        loadRoutine = null;
     }
 
     private static void GenerateColorChip(HatsTab __instance, Vector2 position, HatData hat)
