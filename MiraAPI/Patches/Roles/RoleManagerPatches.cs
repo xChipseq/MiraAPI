@@ -12,19 +12,19 @@ namespace MiraAPI.Patches.Roles;
 [HarmonyPatch(typeof(RoleManager))]
 public static class RoleManagerPatches
 {
-    [HarmonyPostfix]
+    [HarmonyPrefix]
     [HarmonyPatch(nameof(RoleManager.SetRole))]
-    public static void SetRolePatch(RoleManager __instance, PlayerControl targetPlayer, RoleTypes roleType)
+    public static bool SetRolePatch(RoleManager __instance, PlayerControl targetPlayer, RoleTypes roleType)
     {
         if (!targetPlayer)
         {
-            return;
+            return false;
         }
         var data = targetPlayer.Data;
         if (data == null)
         {
             Debug.LogError("It shouldn't be possible, but " + targetPlayer.name + " still doesn't have PlayerData during role selection.");
-            return;
+            return false;
         }
         if (data.Role)
         {
@@ -47,7 +47,7 @@ public static class RoleManagerPatches
         {
             case true when !targetPlayer.Data.IsDead:
                 targetPlayer.Die(DeathReason.Kill, false);
-                return;
+                return false;
             case false when targetPlayer.Data.IsDead:
                 targetPlayer.Revive();
                 break;
@@ -55,6 +55,8 @@ public static class RoleManagerPatches
 
         var @event = new SetRoleEvent(targetPlayer, roleType);
         MiraEventManager.InvokeEvent(@event);
+
+        return false;
     }
 
     [HarmonyPostfix]
