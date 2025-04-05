@@ -18,7 +18,7 @@ namespace MiraAPI.Patches.Freeplay;
 [HarmonyPatch(typeof(TaskAdderGame))]
 internal static class TaskAdderPatches
 {
-    private static Scroller? _scroller;
+    private static Scroller _scroller = null!;
 
     [HarmonyPostfix]
     [HarmonyPatch(nameof(TaskAdderGame.Begin))]
@@ -293,9 +293,9 @@ internal static class TaskAdderPatches
             chip.GetComponent<SpriteRenderer>().maskInteraction = SpriteMaskInteraction.VisibleInsideMask;
         }
 
-        if (_scroller && _scroller != null)
+        if (_scroller)
         {
-            _scroller.CalculateAndSetYBounds(__instance.ActiveItems.Count, 6, 3, 1f);
+            _scroller.CalculateAndSetYBounds(__instance.ActiveItems.Count, 6, 5, 1.4f);
             _scroller.SetYBoundsMin(0.0f);
             _scroller.ScrollToTop();
         }
