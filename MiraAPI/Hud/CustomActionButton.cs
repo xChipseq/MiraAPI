@@ -417,9 +417,12 @@ public abstract class CustomActionButton
     /// <param name="playerControl">The local PlayerControl.</param>
     public virtual void FixedUpdateHandler(PlayerControl playerControl)
     {
-        if (Timer >= 0 && !TimerPaused)
+        if (Timer >= 0)
         {
-            Timer -= Time.deltaTime;
+            if (!TimerPaused)
+            {
+                Timer -= Time.deltaTime;
+            }
         }
         else if (HasEffect && EffectActive)
         {
@@ -428,25 +431,28 @@ public abstract class CustomActionButton
             OnEffectEnd();
         }
 
-        if (CanUse())
+        if (Button)
         {
-            Button?.SetEnabled();
-        }
-        else
-        {
-            Button?.SetDisabled();
-        }
+            if (CanUse())
+            {
+                Button.SetEnabled();
+            }
+            else
+            {
+                Button.SetDisabled();
+            }
 
-        if (EffectActive)
-        {
-            Button?.SetFillUp(Timer, EffectDuration);
+            if (EffectActive)
+            {
+                Button.SetFillUp(Timer, EffectDuration);
 
-            Button!.cooldownTimerText.text = Mathf.CeilToInt(Timer).ToString(NumberFormatInfo.InvariantInfo);
-            Button!.cooldownTimerText.gameObject.SetActive(true);
-        }
-        else
-        {
-            Button?.SetCoolDown(Timer, Cooldown);
+                Button.cooldownTimerText.text = Mathf.CeilToInt(Timer).ToString(NumberFormatInfo.InvariantInfo);
+                Button.cooldownTimerText.gameObject.SetActive(true);
+            }
+            else
+            {
+                Button.SetCoolDown(Timer, Cooldown);
+            }
         }
 
         FixedUpdate(playerControl);

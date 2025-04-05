@@ -2,13 +2,15 @@
 using HarmonyLib;
 using MiraAPI.Modifiers;
 using MiraAPI.Modifiers.Types;
+using MiraAPI.Utilities;
+using Reactor.Utilities;
 
 namespace MiraAPI.Patches.Modifiers;
 
-[HarmonyPatch(typeof(AmongUsClient), nameof(AmongUsClient.CoEndGame))]
+[HarmonyPatch(typeof(AmongUsClient), nameof(AmongUsClient.OnGameEnd))]
 public static class EndGameDidWinPatch
 {
-    public static void Prefix()
+    public static void Postfix()
     {
         var gameOverReason = EndGameResult.CachedGameOverReason;
         EndGameResult.CachedWinners.Clear();
@@ -17,18 +19,26 @@ public static class EndGameDidWinPatch
         for (var i = 0; i < GameData.Instance.PlayerCount; i++)
         {
             var networkedPlayerInfo = players[i];
-            if (networkedPlayerInfo == null)
+            if (!networkedPlayerInfo)
             {
                 continue;
             }
 
             var didWin = networkedPlayerInfo.Role.DidWin(gameOverReason);
 
-            var modifierWin = networkedPlayerInfo.Object?.GetModifierComponent().GetModifiers<GameModifier>()
-                .FirstOrDefault(x => x.DidWin(gameOverReason) != null)?.DidWin(gameOverReason);
-            if (modifierWin != null)
+            bool? modifierDidWin = null;
+            foreach (var modifier in networkedPlayerInfo.Object.GetModifiers<GameModifier>().OrderByDescending(x => x.Priority()))
             {
-                didWin = modifierWin.Value;
+                var result = modifier.DidWin(gameOverReason);
+                if (!result.HasValue) continue;
+
+                modifierDidWin = result.Value;
+                break;
+            }
+
+            if (modifierDidWin.HasValue)
+            {
+                didWin = modifierDidWin.Value;
             }
 
             if (didWin)
