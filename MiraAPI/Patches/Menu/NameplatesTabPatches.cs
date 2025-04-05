@@ -16,7 +16,7 @@ namespace MiraAPI.Patches.Menu;
 public static class NameplatesTabPatches
 {
     private static readonly SortedList<string, List<NamePlateData>> SortedNameplates = new(new ControllableComparer<string>(["vanilla"], [], StringComparer.InvariantCulture));
-
+    private static int currentPage;
     internal static void AddRange(IEnumerable<(string Key, NamePlateData Visor)> data)
     {
         foreach (var item in data)
@@ -33,12 +33,31 @@ public static class NameplatesTabPatches
         __instance.plateId = HatManager.Instance.GetNamePlateById(DataManager.Player.Customization.namePlate).ProdId;
 
         if (!SortedNameplates.ContainsKey("Vanilla")) AddRange(DestroyableSingleton<HatManager>.Instance.GetUnlockedNamePlates().Select(x => ("Vanilla", x)));
-        GenerateHats(__instance);
+        GenerateHats(__instance, currentPage);
 
         return false;
     }
 
-    private static void GenerateHats(NameplatesTab __instance)
+    [HarmonyPatch(typeof(NameplatesTab), nameof(NameplatesTab.Update))]
+    [HarmonyPrefix]
+
+    public static void UpdatePrefix(NameplatesTab __instance)
+    {
+        if (Input.GetKeyDown(KeyCode.LeftControl) || Input.GetKeyDown(KeyCode.RightControl) || Input.GetKeyDown(KeyCode.LeftArrow))
+        {
+            currentPage--;
+            currentPage = currentPage < 0 ? SortedNameplates.Count - 1 : currentPage;
+            GenerateHats(__instance, currentPage);
+        }
+        else if (Input.GetKeyDown(KeyCode.Tab) || Input.GetKeyDown(KeyCode.RightArrow))
+        {
+            currentPage++;
+            currentPage = currentPage > SortedNameplates.Count - 1 ? 0 : currentPage;
+            GenerateHats(__instance, currentPage);
+        }
+    }
+
+    private static void GenerateHats(NameplatesTab __instance, int page)
     {
         foreach (ColorChip instanceColorChip in __instance.ColorChips) instanceColorChip.gameObject.Destroy();
         __instance.ColorChips.Clear();
@@ -48,31 +67,28 @@ public static class NameplatesTabPatches
 
         int hatIndex = 0;
 
-        foreach ((string groupName, List<NamePlateData> visors) in SortedNameplates)
-        {
-            hatIndex = (hatIndex + 1) / 2 * 2; // yes it looks redundant, but consider hatindex = 0, symbolically it would be 4, the computer calculates 0.
-            var text = Object.Instantiate(groupNameText, __instance.scroller.Inner);
-            text.enabled = true;
-            text.gameObject.transform.localScale = Vector3.one;
-            text.GetComponent<TextTranslatorTMP>().Destroy();
-            text.EnableStencilMasking();
-            text.text = $"{groupName}";
-            text.alignment = TextAlignmentOptions.Center;
-            text.fontSize = 3f;
-            text.fontSizeMax = 3f;
-            text.fontSizeMin = 0f;
-            float xLerp = __instance.XRange.Lerp(0.5f);
-            float yLerp = __instance.YStart - hatIndex / __instance.NumPerRow * __instance.YOffset;
-            text.transform.localPosition = new Vector3(xLerp, yLerp, -1f);
+        var (groupName, nameplates) = SortedNameplates.ToArray()[page];
+        var text = Object.Instantiate(groupNameText, __instance.scroller.Inner);
+        text.enabled = true;
+        text.gameObject.transform.localScale = Vector3.one;
+        text.GetComponent<TextTranslatorTMP>().Destroy();
+        text.EnableStencilMasking();
+        text.text = $"{groupName}\nPress Ctrl or Tab to cycle pages";
+        text.alignment = TextAlignmentOptions.Center;
+        text.fontSize = 3f;
+        text.fontSizeMax = 3f;
+        text.fontSizeMin = 0f;
+        float xLerp = __instance.XRange.Lerp(0.5f);
+        float yLerp = __instance.YStart - hatIndex / __instance.NumPerRow * __instance.YOffset;
+        text.transform.localPosition = new Vector3(xLerp, yLerp, -1f);
 
-            hatIndex += 2;
-            foreach (var visor in visors.OrderBy(HatManager.Instance.allNamePlates.IndexOf))
-            {
-                float hatXposition = __instance.XRange.Lerp(hatIndex % __instance.NumPerRow / (__instance.NumPerRow - 1f));
-                float hatYposition = __instance.YStart - hatIndex / __instance.NumPerRow * __instance.YOffset;
-                GenerateColorChip(__instance, new Vector2(hatXposition, hatYposition), visor);
-                hatIndex += 1;
-            }
+        hatIndex += 2;
+        foreach (var visor in nameplates.OrderBy(HatManager.Instance.allNamePlates.IndexOf))
+        {
+            float hatXposition = __instance.XRange.Lerp(hatIndex % __instance.NumPerRow / (__instance.NumPerRow - 1f));
+            float hatYposition = __instance.YStart - hatIndex / __instance.NumPerRow * __instance.YOffset;
+            GenerateColorChip(__instance, new Vector2(hatXposition, hatYposition), visor);
+            hatIndex += 1;
         }
 
         __instance.scroller.ContentYBounds.max = -(__instance.YStart - (hatIndex + 1) / __instance.NumPerRow * __instance.YOffset) - 3f;
