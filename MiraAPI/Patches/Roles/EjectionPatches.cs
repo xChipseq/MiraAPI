@@ -27,7 +27,7 @@ internal static class EjectionPatches
             return;
         }
 
-        if (role.GetCustomEjectionMessage(__instance.initData.networkedPlayer) == null)
+        if (!GameManager.Instance.LogicOptions.GetConfirmImpostor() || role.GetCustomEjectionMessage(__instance.initData.networkedPlayer) == null)
         {
             return;
         }
