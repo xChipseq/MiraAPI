@@ -34,7 +34,7 @@ public abstract class GameModifier : BaseModifier
     public virtual bool IsModifierValidOn(RoleBehaviour role) => true;
 
     /// <summary>
-    /// Determines whether the player won the game with this modifier.
+    /// Determines whether the player won the game with this modifier. The modifier with the highest priority will override other modifiers.
     /// </summary>
     /// <param name="reason">The reason why the game ended.</param>
     /// <returns>True if the player won, false if they lost. Return null to use the player's default win condition.</returns>
