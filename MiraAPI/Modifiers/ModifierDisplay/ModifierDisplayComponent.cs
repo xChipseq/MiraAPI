@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using HarmonyLib;
 using Il2CppInterop.Runtime.Attributes;
 using MiraAPI.Utilities.Assets;
 using Reactor.Utilities.Attributes;
@@ -23,10 +24,18 @@ public class ModifierDisplayComponent(nint ptr) : MonoBehaviour(ptr)
     /// </summary>
     public static ModifierDisplayComponent? Instance { get; private set; }
 
-    private GameObject _children = null!;
+    private RectTransform _children = null!;
     private GameObject _modTemplate = null!;
     private PassiveButton _toggleButton = null!;
     private TextMeshPro _toggleBtnText = null!;
+
+    private RectTransform _pagination = null!;
+    private TextMeshPro _pageText = null!;
+    private PassiveButton _nextButton = null!;
+    private PassiveButton _backButton = null!;
+
+    private int _currentPage = 0;
+    private const int _itemsPerPage = 3;
 
     private readonly Dictionary<BaseModifier, ModifierUiComponent> _modifiers = [];
 
@@ -45,7 +54,7 @@ public class ModifierDisplayComponent(nint ptr) : MonoBehaviour(ptr)
     {
         Instance = this;
 
-        _children = transform.GetChild(0).gameObject;
+        _children = transform.GetChild(0).GetComponent<RectTransform>();
         _modTemplate = transform.GetChild(2).gameObject;
 
         _toggleButton = transform.GetChild(1).GetComponent<PassiveButton>();
@@ -60,8 +69,28 @@ public class ModifierDisplayComponent(nint ptr) : MonoBehaviour(ptr)
         _toggleButton.HoverSound = HudManager.Instance.GameMenu.StreamerModeButton.GetComponent<PassiveButton>().HoverSound;
         _toggleButton.inactiveSprites = _toggleButton.transform.GetChild(1).gameObject;
         _toggleBtnText = _toggleButton.transform.GetChild(0).GetComponent<TextMeshPro>();
-        _toggleBtnText.font = HudManager.Instance.TaskPanel.taskText.font;
-        _toggleBtnText.fontMaterial = HudManager.Instance.TaskPanel.taskText.fontMaterial;
+
+        _pagination = _children.transform.GetChild(0).GetComponent<RectTransform>();
+        _pageText = _pagination.transform.GetChild(0).GetComponent<TextMeshPro>();
+        _nextButton = _pagination.transform.GetChild(1).GetComponent<PassiveButton>();
+        _backButton = _pagination.transform.GetChild(2).GetComponent<PassiveButton>();
+
+        _toggleBtnText.font = _pageText.font = _nextButton.buttonText.font = _backButton.buttonText.font = HudManager.Instance.TaskPanel.taskText.font;
+        _toggleBtnText.fontMaterial = _pageText.fontMaterial = _nextButton.buttonText.fontMaterial = _backButton.buttonText.fontMaterial = HudManager.Instance.TaskPanel.taskText.fontMaterial;
+
+        _nextButton.OnClick = new Button.ButtonClickedEvent();
+        _nextButton.OnClick.AddListener((UnityAction)(() =>
+        {
+            _currentPage++;
+            UpdatePage();
+        }));
+
+        _backButton.OnClick = new Button.ButtonClickedEvent();
+        _backButton.OnClick.AddListener((UnityAction)(() =>
+        {
+            _currentPage--;
+            UpdatePage();
+        }));
 
         IsOpen = false;
         _children.gameObject.SetActive(false);
@@ -82,20 +111,54 @@ public class ModifierDisplayComponent(nint ptr) : MonoBehaviour(ptr)
         newMod.transform.name = modifier.ModifierName;
         var comp = newMod.AddComponent<ModifierUiComponent>();
         comp.Modifier = modifier;
-        newMod.gameObject.SetActive(true);
         return comp;
+    }
+
+    private void UpdatePage()
+    {
+        var totalPages = Mathf.CeilToInt((float)_modifiers.Count / _itemsPerPage);
+        _currentPage = Mathf.Clamp(_currentPage, 0, Mathf.Max(0, totalPages - 1));
+
+        if (_modifiers.Count <= _itemsPerPage)
+        {
+            _modifiers.Do(x => x.Value.gameObject.SetActive(true));
+            _pagination.gameObject.SetActive(false);
+            return;
+        }
+
+        _pagination.gameObject.SetActive(true);
+        if (_pageText != null)
+        {
+            _pageText.text = $"Page {_currentPage + 1}/{Mathf.Max(totalPages, 1)}";
+        }
+
+        _nextButton.gameObject.SetActive(true);
+        _backButton.gameObject.SetActive(true);
+
+        _modifiers.Do(x => x.Value.gameObject.SetActive(false));
+        var start = _currentPage * _itemsPerPage;
+        var end = Mathf.Min(start + _itemsPerPage, _modifiers.Count);
+        var modifiers = _modifiers.ToArray();
+
+        for (var i = start; i < end; i++)
+        {
+            modifiers[i].Value.gameObject.SetActive(true);
+        }
+
+        _pagination.SetAsLastSibling();
     }
 
     [HideFromIl2Cpp]
     internal void UpdateModifiersList(List<BaseModifier> modifiers)
     {
         var filteredModifiers = modifiers.Where(x => !x.HideOnUi && x.GetDescription() != string.Empty).ToList();
+        var modifiersToAdd = filteredModifiers.ToList();
 
         foreach (var mod in _modifiers.ToArray())
         {
-            if (filteredModifiers.Contains(mod.Key))
+            if (modifiersToAdd.Contains(mod.Key))
             {
-                filteredModifiers.Remove(mod.Key);
+                modifiersToAdd.Remove(mod.Key);
                 continue;
             }
 
@@ -103,9 +166,9 @@ public class ModifierDisplayComponent(nint ptr) : MonoBehaviour(ptr)
             _modifiers.Remove(mod.Key);
         }
 
-        _toggleBtnText.text = $"Modifiers ({modifiers.Count})";
+        _toggleBtnText.text = $"Modifiers ({filteredModifiers.Count})";
 
-        if (modifiers.Count == 0)
+        if (filteredModifiers.Count == 0)
         {
             _toggleButton.gameObject.SetActive(false);
             return;
@@ -113,9 +176,11 @@ public class ModifierDisplayComponent(nint ptr) : MonoBehaviour(ptr)
 
         _toggleButton.gameObject.SetActive(true);
 
-        foreach (var mod in filteredModifiers)
+        foreach (var mod in modifiersToAdd)
         {
             _modifiers.Add(mod, CreateForModifier(mod));
         }
+
+        UpdatePage();
     }
 }
