@@ -21,13 +21,15 @@ public static class MiraAssets
             0U,
             SpriteMeshType.Tight,
             new Vector4(20, 20, 20, 20));
-    public static readonly AssetBundle MiraAssetBundle = AssetBundleManager.Load("mirabundle");
-    public static readonly LoadableAsset<GameObject> ModifierDisplay = new LoadableBundleAsset<GameObject>("Modifiers", MiraAssetBundle);
-
-    public static readonly LoadableResourceAsset Empty = new("MiraAPI.Resources.Empty.png");
 
         RoundedBox = new LoadableAssetWrapper<Sprite>(boxSprite);
     }
+
+    internal static readonly AssetBundle MiraAssetBundle = AssetBundleManager.Load("mirabundle");
+    internal static readonly LoadableAsset<GameObject> ModifierDisplay = new LoadableBundleAsset<GameObject>("Modifiers", MiraAssetBundle);
+    internal static readonly LoadableAsset<GameObject> PresetSavePopup = new LoadableBundleAsset<GameObject>("PresetSavePopup", MiraAssetBundle);
+    internal static readonly LoadableAsset<Sprite> RefreshIcon = new LoadableBundleAsset<Sprite>("refresh", MiraAssetBundle);
+    internal static readonly LoadableAsset<Sprite> FolderIcon = new LoadableBundleAsset<Sprite>("freePlay_folderTaskRoom", MiraAssetBundle);
 
     /// <summary>
     /// Gets the accepted teal color used for various selections in the UI.

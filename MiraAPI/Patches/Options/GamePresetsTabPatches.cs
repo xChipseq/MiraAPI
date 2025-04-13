@@ -6,6 +6,7 @@ using HarmonyLib;
 using MiraAPI.Hud;
 using MiraAPI.PluginLoading;
 using MiraAPI.Presets;
+using MiraAPI.Utilities.Assets;
 using Reactor.Utilities;
 using Reactor.Utilities.Extensions;
 using TMPro;
@@ -21,7 +22,7 @@ internal static class GamePresetsTabPatches
     private static GameObject _saveButton = null!;
     private static GameObject _refreshButton = null!;
     private static GameObject _folderButton = null!;
-
+    private static GameObject _newDivider = null!;
     private static GameObject _presetHolder = null!;
     private static GridArrange _arrange = null!;
 
@@ -39,11 +40,19 @@ internal static class GamePresetsTabPatches
                 return;
             }
 
+            __instance.PresetDescriptionText.gameObject.GetComponent<TextTranslatorTMP>().Destroy();
+
+            var oldDiv = __instance.transform.FindChild("DividerImage");
+            _newDivider = Object.Instantiate(oldDiv.gameObject, oldDiv.transform.parent);
+            _newDivider.transform.localPosition = new Vector3(1.85f, 0.13f, 0f);
+            _newDivider.transform.localScale = new Vector3(1.13f, 1, 1);
+            _newDivider.transform.localRotation = Quaternion.Euler(new Vector3(0, 0, 90));
+
             // create the save button
             var saveButton = Object.Instantiate(prefab, __instance.transform);
             _saveButton = saveButton.gameObject;
             _saveButton.gameObject.name = "SaveButton";
-            _saveButton.transform.localPosition = new Vector3(3.4f, 1.7f, -2);
+            _saveButton.transform.localPosition = new Vector3(3.2f, 1.7f, -2);
 
             // set the button text and alignment
             var saveText = saveButton.buttonText;
@@ -55,36 +64,34 @@ internal static class GamePresetsTabPatches
                 saveText.transform.parent.localPosition.y,
                 saveText.transform.parent.localPosition.z);
 
-            // adjust the button size and colliders
-            foreach (var collider in saveButton.Colliders)
-            {
-                if (collider.TryCast<BoxCollider2D>() is { } col)
-                {
-                    col.size = new Vector2(col.size.x / 2, col.size.y);
-                }
-            }
+            DivideSize(saveButton.gameObject, 2f);
 
-            foreach (var rend in saveButton.GetComponentsInChildren<SpriteRenderer>(true))
-            {
-                rend.size = new Vector2(rend.size.x / 2, rend.size.y);
-            }
-
+            // Create refresh button
             var refreshButton = Object.Instantiate(saveButton, __instance.transform);
             _refreshButton = refreshButton.gameObject;
             _refreshButton.name = "RefreshButton";
-            _refreshButton.transform.localPosition = new Vector3(3.4f, 1.1f, -2);
+            _refreshButton.transform.localPosition = new Vector3(2.85f, 1.1f, -2);
 
-            var refreshText = refreshButton.buttonText;
-            refreshText.text = "Refresh";
+            var icon = new GameObject("Sprite");
+            icon.transform.SetParent(refreshButton.transform);
+            icon.transform.localPosition = new Vector3(-0.47f, -0.08f, -5f);
+            icon.transform.localScale = new Vector3(0.5f, 0.5f, 1);
+            icon.layer = refreshButton.gameObject.layer;
 
-            var openFolderButton = Object.Instantiate(saveButton, __instance.transform);
+            var iconSpriteRend = icon.AddComponent<SpriteRenderer>();
+            iconSpriteRend.sprite = MiraAssets.RefreshIcon.LoadAsset();
+
+            DivideSize(refreshButton.gameObject, 2f);
+            refreshButton.buttonText.gameObject.Destroy();
+
+            var openFolderButton = Object.Instantiate(refreshButton, __instance.transform);
             _folderButton = openFolderButton.gameObject;
             _folderButton.name = "OpenFolderButton";
-            _folderButton.transform.localPosition = new Vector3(3.4f, 0.5f, -2);
+            _folderButton.transform.localPosition = new Vector3(3.55f, 1.1f, -2);
 
-            var openFolderText = openFolderButton.buttonText;
-            openFolderText.text = "Presets Folder";
-            openFolderText.fontSizeMax = 4;
+            var folderRend = openFolderButton.transform.FindChild("Sprite").gameObject.GetComponent<SpriteRenderer>();
+            folderRend.sprite = MiraAssets.FolderIcon.LoadAsset();
+            folderRend.transform.localScale = new Vector3(0.4f, 0.4f, 1);
 
             openFolderButton.OnClick = new Button.ButtonClickedEvent();
             openFolderButton.OnClick.AddListener(
@@ -103,7 +110,6 @@ internal static class GamePresetsTabPatches
 
             // add the click event to save the preset
             saveButton.OnClick = new Button.ButtonClickedEvent();
-            var input = saveButton.gameObject.AddComponent<InputBox>();
             saveButton.OnClick.AddListener(
                 (UnityAction)(() =>
                 {
@@ -112,31 +118,33 @@ internal static class GamePresetsTabPatches
                         return;
                     }
 
-                    input.CreateDialog(
-                        "Preset Name",
-                        "Enter preset name...",
-                        "Save Preset",
-                        name =>
+                    SavePresetPopup.CreatePopup(name =>
+                    {
+                        if (GameSettingMenuPatches.SelectedMod == null)
                         {
-                            if (GameSettingMenuPatches.SelectedMod == null)
-                            {
-                                return;
-                            }
+                            return;
+                        }
 
-                            var presetFile = new ConfigFile(
-                                Path.Join(
-                                    PresetManager.PresetDirectory,
-                                    GameSettingMenuPatches.SelectedMod.PluginId,
-                                    $"{name}.cfg"),
-                                true);
-                            foreach (var option in GameSettingMenuPatches.SelectedMod.InternalOptions.Where(
-                                         x => x.IncludeInPreset))
-                            {
-                                option.SaveToPreset(presetFile, true);
-                            }
+                        if (name == string.Empty)
+                        {
+                            return;
+                        }
 
-                            presetFile.Save();
-                        });
+                        var presetFile = new ConfigFile(
+                            Path.Join(
+                                PresetManager.PresetDirectory,
+                                GameSettingMenuPatches.SelectedMod.PluginId,
+                                $"{name}.cfg"),
+                            true);
+                        foreach (var option in GameSettingMenuPatches.SelectedMod.InternalOptions.Where(
+                                     x => x.IncludeInPreset))
+                        {
+                            option.SaveToPreset(presetFile, true);
+                        }
+
+                        presetFile.Save();
+                        Refresh();
+                    });
                 }));
 
             // add the click event to refresh the presets
@@ -146,13 +154,15 @@ internal static class GamePresetsTabPatches
             _saveButton.SetActive(false);
             _refreshButton.SetActive(false);
             _folderButton.SetActive(false);
+            _newDivider.SetActive(false);
 
             _presetHolder = new GameObject("PresetHolder");
             _presetHolder.transform.SetParent(__instance.transform, false);
-            _presetHolder.transform.localPosition = new Vector3(-1.7f, 1.7f, 0);
+            _presetHolder.transform.localScale = new Vector3(0.9f, 0.9f, 1);
+            _presetHolder.transform.localPosition = new Vector3(-1.9f, 1.7f, 0);
             _arrange = _presetHolder.AddComponent<GridArrange>();
             _arrange.Alignment = GridArrange.StartAlign.Right;
-            _arrange.CellSize = new Vector2(2.5f, -.55f);
+            _arrange.CellSize = new Vector2(2.15f, -.55f);
             _arrange.MaxColumns = 2;
 
             var watcher = new FileSystemWatcher
@@ -177,6 +187,22 @@ internal static class GamePresetsTabPatches
             GameSettingMenu.Instance.ChangeTab(0, false); // refresh the tab
         }
     }
+    
+    public static void DivideSize(GameObject obj, float amount)
+    {
+        foreach (var collider in obj.GetComponentsInChildren<Collider2D>(true))
+        {
+            if (collider.TryCast<BoxCollider2D>() is { } col)
+            {
+                col.size = new Vector2(col.size.x / amount, col.size.y);
+            }
+        }
+
+        foreach (var rend in obj.GetComponentsInChildren<SpriteRenderer>(true))
+        {
+            rend.size = new Vector2(rend.size.x / amount, rend.size.y);
+        }
+    }
 
     [HarmonyPatch(typeof(GamePresetsTab), nameof(GamePresetsTab.OnEnable))]
     public static class GamePresetsOnEnablePatch
@@ -187,6 +213,15 @@ internal static class GamePresetsTabPatches
             Logger<MiraApiPlugin>.Error("OnEnable called");
             __instance.StandardPresetButton.gameObject.SetActive(GameSettingMenuPatches.SelectedModIdx == 0);
             __instance.SecondPresetButton.gameObject.SetActive(GameSettingMenuPatches.SelectedModIdx == 0);
+
+            if (GameSettingMenuPatches.SelectedModIdx != 0)
+            {
+                __instance.PresetDescriptionText.text = "Select or create an options preset for this mod";
+            }
+            else
+            {
+                __instance.SetSelectedText();
+            }
 
             // Show the save and refresh buttons
             if (_saveButton)
@@ -202,6 +237,11 @@ internal static class GamePresetsTabPatches
                 _folderButton.SetActive(GameSettingMenuPatches.SelectedModIdx != 0);
             }
 
+            if (_newDivider)
+            {
+                _newDivider.SetActive(GameSettingMenuPatches.SelectedModIdx != 0);
+            }
+
             var prefab = GameSettingMenu.Instance.GameSettingsButton;
 
             foreach (var preset in MiraPluginManager.Instance.RegisteredPlugins.SelectMany(x => x.Presets))
@@ -212,6 +252,8 @@ internal static class GamePresetsTabPatches
                 {
                     tmp.DestroyImmediate();
                 }
+
+                button.buttonText.alignment = TextAlignmentOptions.Center;
 
                 button.OnClick = new Button.ButtonClickedEvent();
                 button.OnClick.AddListener(
