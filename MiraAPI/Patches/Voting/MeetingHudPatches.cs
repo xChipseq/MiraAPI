@@ -5,6 +5,7 @@ using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using MiraAPI.Events;
 using MiraAPI.Events.Vanilla.Meeting;
 using MiraAPI.Events.Vanilla.Meeting.Voting;
+using MiraAPI.Modifiers;
 using MiraAPI.Utilities;
 using MiraAPI.Voting;
 
@@ -28,23 +29,60 @@ internal static class MeetingHudPatches
             {
                 voteData.SetRemainingVotes(0);
             }
+
+            foreach (var modifier in plr.GetModifierComponent().ActiveModifiers)
+            {
+                modifier.OnMeetingStart();
+            }
         }
+
         var @event = new StartMeetingEvent(__instance);
         MiraEventManager.InvokeEvent(@event);
     }
 
     [HarmonyPostfix]
     [HarmonyPatch(nameof(MeetingHud.OnDestroy))]
-    public static void MeetingHudOnDestroyPatch(MeetingHud __instance)
+    public static void OnDestroyPatch(MeetingHud __instance)
     {
         MiraEventManager.InvokeEvent(new EndMeetingEvent(__instance));
     }
 
     [HarmonyPostfix]
     [HarmonyPatch(nameof(MeetingHud.VotingComplete))]
-    public static void MeetingHudVotingCompletePatch(MeetingHud __instance)
+    public static void VotingCompletePatch(MeetingHud __instance)
     {
         MiraEventManager.InvokeEvent(new VotingCompleteEvent(__instance));
+    }
+
+    // this is necessary because the actual ForceSkipAll method is inlined.
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(MeetingHud.Update))]
+    public static void ForceSkipPatch(MeetingHud __instance)
+    {
+        if (__instance.state is not (MeetingHud.VoteStates.NotVoted or MeetingHud.VoteStates.Voted))
+        {
+            return;
+        }
+
+        var logicOptionsNormal = GameManager.Instance.LogicOptions.Cast<LogicOptionsNormal>();
+        var votingTime = logicOptionsNormal.GetVotingTime();
+        if (votingTime <= 0)
+        {
+            return;
+        }
+
+        var num2 = __instance.discussionTimer - logicOptionsNormal.GetDiscussionTime();
+
+        if (!AmongUsClient.Instance.AmHost || num2 < votingTime)
+        {
+            return;
+        }
+
+        foreach (var plr in PlayerControl.AllPlayerControls)
+        {
+            var voteData = plr.GetVoteData();
+            voteData.SetRemainingVotes(0);
+        }
     }
 
     [HarmonyPrefix]

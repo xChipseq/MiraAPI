@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Il2CppInterop.Runtime.Attributes;
 using Reactor.Utilities.Attributes;
 using UnityEngine;
 
@@ -19,6 +20,7 @@ public class PlayerVoteData(nint cppPtr) : MonoBehaviour(cppPtr)
     /// <summary>
     /// Gets the list of votes the owner has.
     /// </summary>
+    [HideFromIl2Cpp]
     public List<CustomVote> Votes { get; private set; } = [];
 
     /// <summary>

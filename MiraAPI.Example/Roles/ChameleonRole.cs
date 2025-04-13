@@ -1,5 +1,6 @@
 ﻿using AmongUs.GameOptions;
 using MiraAPI.Roles;
+using Reactor.Utilities;
 using TMPro;
 using UnityEngine;
 
@@ -18,6 +19,12 @@ public class ChameloenRole : CrewmateRole, ICustomRole
         OptionsScreenshot = ExampleAssets.Banner,
         IntroSound = CustomRoleUtils.GetIntroSound(RoleTypes.Shapeshifter),
     };
+
+    public override void Initialize(PlayerControl player)
+    {
+        Player = player;
+        Logger<ExamplePlugin>.Error("Initializing ChamelonRole for player: " + player.PlayerId);
+    }
 
     public void PlayerControlFixedUpdate(PlayerControl playerControl)
     {

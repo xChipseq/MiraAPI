@@ -45,6 +45,9 @@ public sealed class MiraPluginManager
             var info = new MiraPluginInfo(miraPlugin, pluginInfo);
             var roles = new List<Type>();
 
+            var oldConfigSetting = info.PluginConfig.SaveOnConfigSet;
+            info.PluginConfig.SaveOnConfigSet = false;
+
             foreach (var type in assembly.GetTypes())
             {
                 if (type.GetCustomAttribute<MiraIgnoreAttribute>() != null)
@@ -98,6 +101,9 @@ public sealed class MiraPluginManager
                 RegisterColorClasses(type);
             }
 
+            info.PluginConfig.Save();
+            info.PluginConfig.SaveOnConfigSet = oldConfigSetting;
+
             info.InternalOptionGroups.Sort((x, y) => x.GroupPriority.CompareTo(y.GroupPriority));
             QueuedRoleRegistrations.Add(info, roles);
 
@@ -109,7 +115,6 @@ public sealed class MiraPluginManager
             Logger<MiraApiPlugin>.Info($"Registering mod {pluginInfo.Metadata.GUID} with Mira API.");
         };
         IL2CPPChainloader.Instance.Finished += PaletteManager.RegisterAllColors;
-        IL2CPPChainloader.Instance.Finished += MiraEventManager.SortAllHandlers;
         IL2CPPChainloader.Instance.Finished += () =>
         {
             // Save all buttons into a read-only collection for easy access

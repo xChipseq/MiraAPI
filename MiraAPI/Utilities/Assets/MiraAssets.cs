@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Reactor.Utilities;
+using UnityEngine;
 
 namespace MiraAPI.Utilities.Assets;
 
@@ -20,6 +21,10 @@ public static class MiraAssets
             0U,
             SpriteMeshType.Tight,
             new Vector4(20, 20, 20, 20));
+    public static readonly AssetBundle MiraAssetBundle = AssetBundleManager.Load("mirabundle");
+    public static readonly LoadableAsset<GameObject> ModifierDisplay = new LoadableBundleAsset<GameObject>("Modifiers", MiraAssetBundle);
+
+    public static readonly LoadableResourceAsset Empty = new("MiraAPI.Resources.Empty.png");
 
         RoundedBox = new LoadableAssetWrapper<Sprite>(boxSprite);
     }
