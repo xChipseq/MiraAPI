@@ -22,6 +22,13 @@ public static class OptionsMenuPatches
     [HarmonyPatch(nameof(OptionsMenuBehaviour.Start))]
     public static void StartPostfix(OptionsMenuBehaviour __instance)
     {
+        // Fix for tabs not being clickable in the main menu
+        if (!AmongUsClient.Instance.IsInGame)
+        {
+            __instance.Background.GetComponent<BoxCollider2D>().enabled = false;
+            __instance.transform.FindChild("Tint").SetLocalZ(5.6f);
+        }
+        
         float yOffset = 0;
         var i = 0;
         foreach (var settings in LocalSettingsManager.AllTabs)
@@ -32,6 +39,7 @@ public static class OptionsMenuPatches
             tabButton.transform.localPosition = new Vector3(2.4f, 2.1f - yOffset, 5.5f);
             tabButton.transform.localScale = new Vector3(1.25f, 1.25f, 1);
             tabButton.Button.color = settings.TabColor;
+            tabs.Remove(settings);
             tabs.Add(settings, tabButton);
 
             var text = tabButton.transform.FindChild("Text_TMP").GetComponent<TextMeshPro>();
