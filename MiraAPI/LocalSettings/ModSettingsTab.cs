@@ -67,7 +67,7 @@ public class ModSettingsTab
                     // Make it generic using the enum type
                     MethodInfo genericMethod = method.MakeGenericMethod(entry.SettingType);
                     
-                    setting = genericMethod.Invoke(this, new object[] { entry, entry.SettingType, name, description }) as IConfigEntrySetting;
+                    setting = genericMethod.Invoke(this, new object[] { entry, entry.SettingType, name, description, null, null }) as IConfigEntrySetting;
                     break;
                 }
                 Logger<MiraApiPlugin>.Error($"Unsupported type of {entry.Definition} from {Plugin}: {entry.SettingType.Name}");

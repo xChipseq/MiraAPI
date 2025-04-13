@@ -309,7 +309,7 @@ public static class OptionsMenuPatches
         else
             button.transform.localPosition = new Vector3(order == 1 ? -1.35f : 1.28f, 1.85f - offset);
 
-        tmp.text = $"{setting.Name}: {setting.Entry.Value}";
+        tmp.text = $"{setting.Name}: <b>{setting.Entry.Value}</b>";
         button.name = setting.Name;
         button.OnClick = new UnityEngine.UI.Button.ButtonClickedEvent();
         rollover.OverColor = setting.Color;
@@ -322,7 +322,7 @@ public static class OptionsMenuPatches
                 value = setting.Range.min;
 
             setting.Entry.Value = value;
-            tmp.text = $"{setting.Name}: {setting.Entry.Value}";
+            tmp.text = $"{setting.Name}: <b>{setting.Entry.Value}</b>";
         }));
         button.OnMouseOver.AddListener((UnityAction)(() =>
         {
@@ -331,7 +331,7 @@ public static class OptionsMenuPatches
         }));
         button.OnMouseOut.AddListener((UnityAction)(() =>
         {
-            tmp.text = $"{setting.Name}: {setting.Entry.Value}";
+            tmp.text = $"{setting.Name}: <b>{setting.Entry.Value}</b>";
         }));
 
         order++;
@@ -359,7 +359,7 @@ public static class OptionsMenuPatches
         else
             button.transform.localPosition = new Vector3(order == 1 ? -1.35f : 1.28f, 1.85f - offset);
 
-        tmp.text = $"{setting.Name}: {setting.EnumNames[setting.ValueIndex]}";
+        tmp.text = $"{setting.Name}: <b>{setting.EnumNames[setting.ValueIndex]}</b>";
         button.name = setting.Name;
         button.OnClick = new UnityEngine.UI.Button.ButtonClickedEvent();
         rollover.OverColor = setting.Color;
@@ -373,7 +373,7 @@ public static class OptionsMenuPatches
 
             setting.ValueIndex = value;
             setting.Entry.BoxedValue = setting.ValueIndex;
-            tmp.text = $"{setting.Name}: {setting.EnumNames[setting.ValueIndex]}";
+            tmp.text = $"{setting.Name}: <b>{setting.EnumNames[setting.ValueIndex]}</b>";
         }));
         button.OnMouseOver.AddListener((UnityAction)(() =>
         {
@@ -382,7 +382,7 @@ public static class OptionsMenuPatches
         }));
         button.OnMouseOut.AddListener((UnityAction)(() =>
         {
-            tmp.text = $"{setting.Name}: {setting.EnumNames[setting.ValueIndex]}";
+            tmp.text = $"{setting.Name}: <b>{setting.EnumNames[setting.ValueIndex]}</b>";
         }));
 
         order++;
