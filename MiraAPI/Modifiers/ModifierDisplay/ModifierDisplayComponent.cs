@@ -96,6 +96,12 @@ public class ModifierDisplayComponent(nint ptr) : MonoBehaviour(ptr)
         _children.gameObject.SetActive(false);
     }
 
+    internal void DestroyComponent(ModifierUiComponent component)
+    {
+        _modifiers.Remove(component.Modifier!);
+        component.gameObject.DestroyImmediate();
+    }
+
     [HideFromIl2Cpp]
     internal static ModifierDisplayComponent CreateDisplay()
     {
