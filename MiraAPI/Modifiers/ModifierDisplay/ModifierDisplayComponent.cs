@@ -96,10 +96,20 @@ public class ModifierDisplayComponent(nint ptr) : MonoBehaviour(ptr)
         _children.gameObject.SetActive(false);
     }
 
+    /// <summary>
+    /// Use this to refresh the modifiers UI. Useful if you hide modifiers uis based on options.
+    /// </summary>
+    public void RefreshModifiers()
+    {
+        UpdateModifiersList([.. PlayerControl.LocalPlayer.GetModifierComponent().ActiveModifiers]);
+    }
+
     internal void DestroyComponent(ModifierUiComponent component)
     {
         _modifiers.Remove(component.Modifier!);
         component.gameObject.DestroyImmediate();
+
+        RefreshModifiers();
     }
 
     [HideFromIl2Cpp]
