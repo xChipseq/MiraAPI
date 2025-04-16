@@ -1,19 +1,20 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using HarmonyLib;
 using MiraAPI.Modifiers;
 using MiraAPI.Modifiers.Types;
-using MiraAPI.Utilities;
-using Reactor.Utilities;
 
 namespace MiraAPI.Patches.Modifiers;
 
 [HarmonyPatch(typeof(AmongUsClient), nameof(AmongUsClient.OnGameEnd))]
-public static class EndGameDidWinPatch
+internal static class EndGameDidWinPatch
 {
-    public static void Postfix()
+    private static List<CachedPlayerData> CachedWinners { get; set; } = [];
+
+    public static void Prefix(EndGameResult endGameResult)
     {
-        var gameOverReason = EndGameResult.CachedGameOverReason;
-        EndGameResult.CachedWinners.Clear();
+        CachedWinners.Clear();
+        var gameOverReason = endGameResult.GameOverReason;
 
         var players = GameData.Instance.AllPlayers.ToArray();
         for (var i = 0; i < GameData.Instance.PlayerCount; i++)
@@ -26,25 +27,37 @@ public static class EndGameDidWinPatch
 
             var didWin = networkedPlayerInfo.Role.DidWin(gameOverReason);
 
-            bool? modifierDidWin = null;
+            if (!networkedPlayerInfo.Object)
+            {
+                if (didWin)
+                {
+                    CachedWinners.Add(new CachedPlayerData(networkedPlayerInfo));
+                }
+                continue;
+            }
+
             foreach (var modifier in networkedPlayerInfo.Object.GetModifiers<GameModifier>().OrderByDescending(x => x.Priority()))
             {
                 var result = modifier.DidWin(gameOverReason);
                 if (!result.HasValue) continue;
 
-                modifierDidWin = result.Value;
+                didWin = result.Value;
                 break;
-            }
-
-            if (modifierDidWin.HasValue)
-            {
-                didWin = modifierDidWin.Value;
             }
 
             if (didWin)
             {
-                EndGameResult.CachedWinners.Add(new CachedPlayerData(networkedPlayerInfo));
+                CachedWinners.Add(new CachedPlayerData(networkedPlayerInfo));
             }
+        }
+    }
+
+    public static void Postfix(EndGameResult endGameResult)
+    {
+        EndGameResult.CachedWinners.Clear();
+        foreach (var winner in CachedWinners)
+        {
+            EndGameResult.CachedWinners.Add(winner);
         }
     }
 }
