@@ -1,6 +1,8 @@
 ﻿using System;
 using MiraAPI.GameOptions;
 using MiraAPI.PluginLoading;
+using MiraAPI.Utilities.Assets;
+using UnityEngine;
 
 namespace MiraAPI.Modifiers;
 
@@ -48,9 +50,14 @@ public abstract class BaseModifier : IOptionable
     public abstract string ModifierName { get; }
 
     /// <summary>
-    /// Gets a value indicating whether the modifier is hidden on the UI.
+    /// Gets the modifier icon. Useless if HideOnUi is true.
     /// </summary>
-    public virtual bool HideOnUi => false;
+    public virtual LoadableAsset<Sprite>? ModifierIcon => null;
+
+    /// <summary>
+    /// Gets a value indicating whether the modifier is hidden on the UI. Will be hidden either way if no description is provided.
+    /// </summary>
+    public virtual bool HideOnUi => GetDescription() == string.Empty;
 
     /// <summary>
     /// Gets a value indicating whether the modifier is shown in the freeplay menu.
@@ -63,10 +70,10 @@ public abstract class BaseModifier : IOptionable
     public virtual bool Unique => true;
 
     /// <summary>
-    /// Gets the HUD information for this modifier. Defaults to the modifier name. Does nothing if <see cref="HideOnUi"/> is true.
+    /// Gets the HUD description for this modifier. Does nothing if <see cref="HideOnUi"/> is true. Required to be visible on UI.
     /// </summary>
-    /// <returns>The information string for the HUD.</returns>
-    public virtual string GetHudString() => ModifierName;
+    /// <returns>The description string for the HUD.</returns>
+    public virtual string GetDescription() => string.Empty;
 
     /// <summary>
     /// Called when the modifier is activated.

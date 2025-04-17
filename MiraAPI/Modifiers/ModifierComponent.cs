@@ -5,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using Il2CppInterop.Runtime.Attributes;
+using MiraAPI.Modifiers.ModifierDisplay;
 using MiraAPI.Modifiers.Types;
 using MiraAPI.Utilities;
 using Reactor.Utilities;
@@ -26,12 +27,12 @@ public class ModifierComponent(IntPtr cppPtr) : MonoBehaviour(cppPtr)
     [HideFromIl2Cpp]
     public ImmutableList<BaseModifier> ActiveModifiers { get; private set; } = ImmutableList<BaseModifier>.Empty;
 
+    private ModifierDisplayComponent? ModifierDisplay { get; set; }
+
     [HideFromIl2Cpp]
     private List<BaseModifier> Modifiers { get; set; } = [];
 
     private PlayerControl _player = null!;
-
-    private TextMeshPro _modifierText = null!;
 
     private readonly List<BaseModifier> _toRemove = [];
 
@@ -61,8 +62,8 @@ public class ModifierComponent(IntPtr cppPtr) : MonoBehaviour(cppPtr)
             return;
         }
 
-        _modifierText = Helpers.CreateTextLabel("ModifierText", HudManager.Instance.transform, AspectPosition.EdgeAlignments.RightTop, new Vector3(10.1f, 3.5f, 0), textAlignment: TextAlignmentOptions.Right);
-        _modifierText.verticalAlignment = VerticalAlignmentOptions.Top;
+        ModifierDisplay = ModifierDisplayComponent.CreateDisplay();
+        ModifierDisplay?.UpdateModifiersList(Modifiers);
     }
 
     private void FixedUpdate()
@@ -93,7 +94,7 @@ public class ModifierComponent(IntPtr cppPtr) : MonoBehaviour(cppPtr)
         {
             if (_player.AmOwner && HudManager.InstanceExists)
             {
-                HudManager.Instance.SetHudActive(_player, _player.Data.Role, HudManager.Instance.TaskPanel.isActiveAndEnabled);
+                ModifierDisplay?.UpdateModifiersList(Modifiers);
             }
 
             ActiveModifiers = Modifiers.ToImmutableList();
@@ -103,6 +104,11 @@ public class ModifierComponent(IntPtr cppPtr) : MonoBehaviour(cppPtr)
         {
             modifier.FixedUpdate();
         }
+
+        if (_player.AmOwner && ModifierDisplay && HudManager.InstanceExists)
+        {
+            ModifierDisplay!.gameObject.SetActive(MeetingHud.Instance || HudManager.Instance.TaskPanel.isActiveAndEnabled);
+        }
     }
 
     private void Update()
@@ -111,32 +117,6 @@ public class ModifierComponent(IntPtr cppPtr) : MonoBehaviour(cppPtr)
         {
             modifier.Update();
         }
-
-        if (!_modifierText || !_player.AmOwner)
-        {
-            return;
-        }
-
-        if (MeetingHud.Instance)
-        {
-            return;
-        }
-
-        var showText = false;
-        var builder = new StringBuilder("<b><size=130%>Modifiers:</b></size>\n");
-
-        foreach (var modifier in ActiveModifiers)
-        {
-            if (modifier.HideOnUi)
-            {
-                continue;
-            }
-
-            showText = true;
-            builder.AppendLine(modifier.GetHudString());
-        }
-
-        _modifierText.text = showText ? builder.ToString() : string.Empty;
     }
 
     private void OnDestroy()

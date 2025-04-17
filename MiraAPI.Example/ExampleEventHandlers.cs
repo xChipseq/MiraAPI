@@ -9,7 +9,10 @@ using MiraAPI.Events.Vanilla.Player;
 using MiraAPI.Example.Buttons.Freezer;
 using MiraAPI.Example.Roles;
 using MiraAPI.Utilities;
+using MiraAPI.Utilities.Assets;
 using Reactor.Utilities;
+using TMPro;
+using UnityEngine;
 
 namespace MiraAPI.Example;
 
