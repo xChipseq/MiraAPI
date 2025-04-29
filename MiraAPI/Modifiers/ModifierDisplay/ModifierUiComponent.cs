@@ -43,6 +43,12 @@ public class ModifierUiComponent(nint ptr) : MonoBehaviour(ptr)
     {
         if (Modifier == null || ModifierDisplayComponent.Instance == null || !ModifierDisplayComponent.Instance.IsOpen) return;
 
+        if (Modifier.HideOnUi || Modifier.GetDescription() == string.Empty)
+        {
+            ModifierDisplayComponent.Instance.DestroyComponent(this);
+            return;
+        }
+
         nameText.text = Modifier.ModifierName;
         desc.text = Modifier.GetDescription();
         modBg.gameObject.SetActive(true);
