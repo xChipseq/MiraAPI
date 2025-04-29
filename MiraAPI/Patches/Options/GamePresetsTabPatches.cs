@@ -131,15 +131,11 @@ internal static class GamePresetsTabPatches
                         }
 
                         var presetFile = new ConfigFile(
-                            Path.Join(
-                                PresetManager.PresetDirectory,
-                                GameSettingMenuPatches.SelectedMod.PluginId,
-                                $"{name}.cfg"),
-                            true);
-                        foreach (var option in GameSettingMenuPatches.SelectedMod.InternalOptions.Where(
-                                     x => x.IncludeInPreset))
+                            Path.Join(PresetManager.PresetDirectory, GameSettingMenuPatches.SelectedMod.PluginId, $"{name}.cfg"),
+                            false);
+                        foreach (var option in GameSettingMenuPatches.SelectedMod.InternalOptions.Where(x => x.IncludeInPreset))
                         {
-                            option.SaveToPreset(presetFile, true);
+                            option.SaveToPreset(presetFile);
                         }
 
                         presetFile.Save();
