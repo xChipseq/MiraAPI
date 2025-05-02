@@ -25,8 +25,6 @@ internal static class GamePresetsTabPatches
     private static GameObject _presetHolder = null!;
     private static GridArrange _arrange = null!;
 
-    private static FileSystemWatcher? _watcher;
-
     private static readonly object Lock = new();
 
     public static void DivideSize(GameObject obj, float amount)
