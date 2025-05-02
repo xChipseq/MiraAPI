@@ -1,5 +1,7 @@
-﻿using BepInEx.Configuration;
+﻿using System.Linq;
+using BepInEx.Configuration;
 using MiraAPI.PluginLoading;
+using MiraAPI.Roles;
 using UnityEngine;
 
 namespace MiraAPI.Presets;
@@ -57,6 +59,11 @@ public class OptionPreset
         foreach (var option in Plugin.InternalOptions)
         {
             option.LoadFromPreset(PresetConfig);
+        }
+
+        foreach (var role in Plugin.InternalRoles.Values.OfType<ICustomRole>())
+        {
+            role.LoadFromPreset(PresetConfig);
         }
     }
 }

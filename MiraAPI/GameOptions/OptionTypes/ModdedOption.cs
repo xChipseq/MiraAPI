@@ -126,14 +126,8 @@ public abstract class ModdedOption<T> : IModdedOption
             Logger<MiraApiPlugin>.Error($"Attempted to save {Title} to preset, but ConfigDefinition is null.");
             return;
         }
-        var value = saveDefault ? DefaultValue : Value;
-
-        if (!presetConfig.ContainsKey(ConfigDefinition))
-        {
-            presetConfig.Bind(ConfigDefinition, DefaultValue);
-        }
-
-        presetConfig[ConfigDefinition].BoxedValue = value;
+        Bind(presetConfig);
+        presetConfig[ConfigDefinition].BoxedValue = saveDefault ? DefaultValue : Value;
     }
 
     /// <inheritdoc />

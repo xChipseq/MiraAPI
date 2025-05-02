@@ -2,6 +2,7 @@
 using System.Linq;
 using BepInEx.Configuration;
 using MiraAPI.PluginLoading;
+using MiraAPI.Roles;
 using Reactor.Utilities;
 using UnityEngine;
 
@@ -30,6 +31,11 @@ public static class PresetManager
         foreach (var option in plugin.InternalOptions.Where(x => x.IncludeInPreset))
         {
             option.SaveToPreset(presetConfig, true);
+        }
+
+        foreach (var role in plugin.InternalRoles.Values.OfType<ICustomRole>())
+        {
+            role.SaveToPreset(presetConfig);
         }
 
         presetConfig.Save();
@@ -69,6 +75,11 @@ public static class PresetManager
             foreach (var option in plugin.InternalOptions.Where(x=>x.IncludeInPreset))
             {
                 option.Bind(presetConfig);
+            }
+
+            foreach (var role in plugin.InternalRoles.Values.OfType<ICustomRole>())
+            {
+                role.BindConfig(presetConfig);
             }
             plugin.InternalPresets.Add(new OptionPreset(presetName, plugin, presetConfig));
         }
