@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using BepInEx.Configuration;
+﻿using BepInEx.Configuration;
 using MiraAPI.PluginLoading;
 using UnityEngine;
 
@@ -54,9 +53,10 @@ public class OptionPreset
     /// </summary>
     public void LoadPreset()
     {
-        foreach (var option in PresetConfig.Where(x=>PluginConfig.ContainsKey(x.Key)))
+        PresetConfig.Reload();
+        foreach (var option in Plugin.InternalOptions)
         {
-            PluginConfig[option.Key].BoxedValue = option.Value.BoxedValue;
+            option.LoadFromPreset(PresetConfig);
         }
     }
 }

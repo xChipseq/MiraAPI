@@ -90,4 +90,16 @@ public interface IModdedOption
     /// <param name="presetConfig">The ConfigFile representing the preset configuration.</param>
     /// <param name="saveDefault">Indicates whether to save the default value instead of the current value.</param>
     void SaveToPreset(ConfigFile presetConfig, bool saveDefault = false);
+
+    /// <summary>
+    /// Binds the option to a configuration file.
+    /// </summary>
+    /// <param name="config">The ConfigFile to bind the option to.</param>
+    void Bind(ConfigFile config);
+
+    /// <summary>
+    /// Loads the option from a preset configuration file, applying the values to the option's configuration.
+    /// </summary>
+    /// <param name="presetConfig">The ConfigFile representing the preset configuration.</param>
+    void LoadFromPreset(ConfigFile presetConfig);
 }

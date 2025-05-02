@@ -2,6 +2,7 @@
 using System.Linq;
 using BepInEx.Configuration;
 using MiraAPI.PluginLoading;
+using Reactor.Utilities;
 using UnityEngine;
 
 namespace MiraAPI.Presets;
@@ -14,17 +15,17 @@ public static class PresetManager
     /// <summary>
     /// Gets the directory where the presets are stored.
     /// </summary>
-    public static string PresetDirectory { get; } = Path.Join(Application.persistentDataPath, "mira_presets");
+    public static string PresetDirectory { get; } = Path.GetFullPath("mira_presets", Application.persistentDataPath);
 
     internal static void CreateDefaultPreset(MiraPluginInfo plugin)
     {
-        var presetPath = Path.Join(PresetManager.PresetDirectory, plugin.PluginId);
+        var presetPath = Path.Combine(PresetDirectory, plugin.PluginId);
         if (!Directory.Exists(presetPath))
         {
             Directory.CreateDirectory(presetPath);
         }
 
-        var presetConfig = new ConfigFile(Path.Join(presetPath, "Default.cfg"), true);
+        var presetConfig = new ConfigFile(Path.Combine(presetPath, "Default.cfg"), false);
 
         foreach (var option in plugin.InternalOptions.Where(x => x.IncludeInPreset))
         {
@@ -54,7 +55,7 @@ public static class PresetManager
             Directory.CreateDirectory(PresetDirectory);
         }
 
-        var pluginPresetPath = Path.Join(PresetDirectory, plugin.PluginId);
+        var pluginPresetPath = Path.Combine(PresetDirectory, plugin.PluginId);
         if (!Directory.Exists(pluginPresetPath))
         {
             Directory.CreateDirectory(pluginPresetPath);
@@ -62,8 +63,13 @@ public static class PresetManager
 
         foreach (var file in Directory.GetFiles(pluginPresetPath, "*.cfg"))
         {
+            Logger<MiraApiPlugin>.Info($"Loading preset file {file}");
             var presetName = Path.GetFileNameWithoutExtension(file);
             var presetConfig = new ConfigFile(file, true);
+            foreach (var option in plugin.InternalOptions.Where(x=>x.IncludeInPreset))
+            {
+                option.Bind(presetConfig);
+            }
             plugin.InternalPresets.Add(new OptionPreset(presetName, plugin, presetConfig));
         }
         plugin.Presets = [.. plugin.InternalPresets];

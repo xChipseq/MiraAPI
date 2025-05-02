@@ -137,6 +137,25 @@ public abstract class ModdedOption<T> : IModdedOption
     }
 
     /// <inheritdoc />
+    public void Bind(ConfigFile config)
+    {
+        config.Bind(ConfigDefinition, DefaultValue);
+    }
+
+    /// <inheritdoc />
+    public void LoadFromPreset(ConfigFile presetConfig)
+    {
+        if (presetConfig.TryGetEntry(ConfigDefinition, out ConfigEntry<T> entry))
+        {
+            SetValue(entry.Value);
+        }
+        else
+        {
+            Logger<MiraApiPlugin>.Error($"Attempted to load {Title} from preset, but ConfigDefinition is not found in preset.");
+        }
+    }
+
+    /// <inheritdoc />
     public abstract float GetFloatData();
 
     /// <inheritdoc />
