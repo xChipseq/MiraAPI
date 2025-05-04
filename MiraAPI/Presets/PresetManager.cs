@@ -71,16 +71,23 @@ public static class PresetManager
         {
             Logger<MiraApiPlugin>.Info($"Loading preset file {file}");
             var presetName = Path.GetFileNameWithoutExtension(file);
-            var presetConfig = new ConfigFile(file, true);
+            var presetConfig = new ConfigFile(file, false)
+            {
+                SaveOnConfigSet = false,
+            };
+
             foreach (var option in plugin.InternalOptions.Where(x=>x.IncludeInPreset))
             {
                 option.Bind(presetConfig);
             }
 
-            foreach (var role in plugin.InternalRoles.Values.OfType<ICustomRole>())
+            foreach (var role in plugin.InternalRoles.Values.OfType<ICustomRole>().Where(x=>!x.Configuration.HideSettings))
             {
                 role.BindConfig(presetConfig);
             }
+
+            presetConfig.Save();
+
             plugin.InternalPresets.Add(new OptionPreset(presetName, plugin, presetConfig));
         }
         plugin.Presets = [.. plugin.InternalPresets];

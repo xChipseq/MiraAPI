@@ -5,6 +5,7 @@ using BepInEx.Configuration;
 using HarmonyLib;
 using MiraAPI.PluginLoading;
 using MiraAPI.Presets;
+using MiraAPI.Roles;
 using MiraAPI.Utilities.Assets;
 using Reactor.Utilities;
 using Reactor.Utilities.Extensions;
@@ -235,11 +236,19 @@ internal static class GamePresetsTabPatches
                                     PresetManager.PresetDirectory,
                                     GameSettingMenuPatches.SelectedMod.PluginId,
                                     $"{name}.cfg"),
-                                false);
-                            foreach (var option in GameSettingMenuPatches.SelectedMod.InternalOptions.Where(
-                                         x => x.IncludeInPreset))
+                                false)
+                            {
+                                SaveOnConfigSet = false,
+                            };
+
+                            foreach (var option in GameSettingMenuPatches.SelectedMod.InternalOptions.Where(x => x.IncludeInPreset))
                             {
                                 option.SaveToPreset(presetFile);
+                            }
+
+                            foreach (var role in GameSettingMenuPatches.SelectedMod.InternalRoles.Values.OfType<ICustomRole>().Where(x=>!x.Configuration.HideSettings))
+                            {
+                                role.SaveToPreset(presetFile);
                             }
 
                             presetFile.Save();
@@ -324,15 +333,16 @@ internal static class GamePresetsTabPatches
 
     private static void Refresh()
     {
+        Logger<MiraApiPlugin>.Error("Refreshing presets");
+        if (GameSettingMenuPatches.SelectedMod == null)
+        {
+            Logger<MiraApiPlugin>.Error("Selected mod is null, cannot refresh presets");
+            return;
+        }
         lock (Lock)
         {
-            Logger<MiraApiPlugin>.Error("Refreshing presets");
-            foreach (var mod in MiraPluginManager.Instance.RegisteredPlugins)
-            {
-                PresetManager.LoadPresets(mod);
-            }
-
-            GameSettingMenu.Instance.ChangeTab(0, false); // refresh the tab
+            PresetManager.LoadPresets(GameSettingMenuPatches.SelectedMod);
         }
+        GameSettingMenu.Instance.ChangeTab(0, false); // refresh the tab
     }
 }
