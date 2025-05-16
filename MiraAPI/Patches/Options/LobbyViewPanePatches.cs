@@ -291,6 +291,11 @@ public static class LobbyViewPanePatches
 
             foreach (var customRole in grouping)
             {
+                if (customRole.Configuration.HideSettings)
+                {
+                    continue;
+                }
+
                 var roleBehaviour = customRole as RoleBehaviour;
                 if (roleBehaviour == null)
                 {
