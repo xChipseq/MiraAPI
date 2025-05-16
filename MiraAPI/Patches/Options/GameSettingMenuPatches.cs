@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using HarmonyLib;
 using MiraAPI.Modifiers;
@@ -29,6 +30,8 @@ internal static class GameSettingMenuPatches
     private static GameOptionsMenu? _modifiersTab;
     private static PassiveButton? _modifiersButton;
     private static PassiveButton? _smallRolesButton;
+
+    private static Dictionary<int, Vector3> OptionScrolls = [];
 
     [HarmonyPostfix]
     [HarmonyPatch(nameof(GameSettingMenu.ChangeTab))]
@@ -112,7 +115,10 @@ internal static class GameSettingMenuPatches
         passiveButton.OnClick.AddListener(
             (UnityAction)(() =>
             {
-                RoleSettingMenuPatches.Scrolls[SelectedModIdx] = __instance.RoleSettingsTab.scrollBar.Inner.localPosition;
+                RoleSettingMenuPatches.Scrolls[SelectedModIdx] =
+                    __instance.RoleSettingsTab.scrollBar.Inner.localPosition;
+                OptionScrolls[SelectedModIdx] =
+                    __instance.GameSettingsTab.scrollBar.Inner.localPosition;
 
                 SelectedModIdx += 1;
                 if (SelectedModIdx > MiraPluginManager.Instance.RegisteredPlugins.Length)
@@ -132,7 +138,10 @@ internal static class GameSettingMenuPatches
         backButton.gameObject.GetComponent<PassiveButton>().OnClick.AddListener(
             (UnityAction)(() =>
             {
-                RoleSettingMenuPatches.Scrolls[SelectedModIdx] = __instance.RoleSettingsTab.scrollBar.Inner.localPosition;
+                RoleSettingMenuPatches.Scrolls[SelectedModIdx] =
+                    __instance.RoleSettingsTab.scrollBar.Inner.localPosition;
+                OptionScrolls[SelectedModIdx] =
+                    __instance.GameSettingsTab.scrollBar.Inner.localPosition;
 
                 SelectedModIdx -= 1;
                 if (SelectedModIdx < 0)
@@ -251,6 +260,7 @@ internal static class GameSettingMenuPatches
                 }));
         }
     }
+
     private static void UpdateText(GameSettingMenu menu, GameOptionsMenu settings, RolesSettingsMenu roles)
     {
         if (_text is not null && SelectedModIdx == 0)
@@ -276,8 +286,10 @@ internal static class GameSettingMenuPatches
         if (SelectedModIdx != 0)
         {
             var modHasRoles = SelectedMod!.InternalRoles.Count != 0;
-            var modHasModifiers = SelectedMod.InternalOptionGroups.Exists(x => x.ShowInModifiersMenu || x.OptionableType?.IsAssignableTo(typeof(BaseModifier)) == true);
-            var modHasOptions = SelectedMod.InternalOptionGroups.Exists(x => x.OptionableType == null && !x.ShowInModifiersMenu);
+            var modHasModifiers = SelectedMod.InternalOptionGroups.Exists(
+                x => x.ShowInModifiersMenu || x.OptionableType?.IsAssignableTo(typeof(BaseModifier)) == true);
+            var modHasOptions =
+                SelectedMod.InternalOptionGroups.Exists(x => x.OptionableType == null && !x.ShowInModifiersMenu);
 
             _modifiersButton.gameObject.SetActive(true);
             _smallRolesButton.gameObject.SetActive(true);
@@ -317,6 +329,7 @@ internal static class GameSettingMenuPatches
                 {
                     menu.ChangeTab(0, false);
                 }
+
                 // If the mod has roles, we can enable the bigger role button and disable the small one.
                 if (modHasRoles)
                 {
@@ -389,8 +402,10 @@ internal static class GameSettingMenuPatches
             {
                 continue;
             }
+
             child.gameObject.DestroyImmediate();
         }
+
         options.Clear();
     }
 
@@ -410,6 +425,7 @@ internal static class GameSettingMenuPatches
         {
             CleanupSettings(_modifiersTab);
         }
+
         void CleanupSettings(GameOptionsMenu gameOptMenu)
         {
             ClearOptions(gameOptMenu.Children);
@@ -421,7 +437,15 @@ internal static class GameSettingMenuPatches
                 .ForEach(header => header.gameObject.DestroyImmediate());
 
             gameOptMenu.Initialize();
-            gameOptMenu.scrollBar.ScrollToTop();
+            if (OptionScrolls.TryGetValue(SelectedModIdx, out var pos))
+            {
+                gameOptMenu.scrollBar.Inner.localPosition = pos;
+                gameOptMenu.scrollBar.UpdateScrollBars();
+            }
+            else
+            {
+                gameOptMenu.scrollBar.ScrollToTop();
+            }
         }
 
         void CleanupRoleSettings(RolesSettingsMenu rolesMenu)
@@ -450,7 +474,15 @@ internal static class GameSettingMenuPatches
             rolesMenu.SetQuotaTab();
             if (SelectedModIdx == 0)
             {
-                rolesMenu.scrollBar.ScrollToTop();
+                if (RoleSettingMenuPatches.Scrolls.TryGetValue(0, out var pos))
+                {
+                    rolesMenu.scrollBar.Inner.localPosition = pos;
+                    rolesMenu.scrollBar.UpdateScrollBars();
+                }
+                else
+                {
+                    rolesMenu.scrollBar.ScrollToTop();
+                }
             }
         }
     }
