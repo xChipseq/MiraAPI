@@ -104,6 +104,16 @@ public class ModifierDisplayComponent(nint ptr) : MonoBehaviour(ptr)
         UpdateModifiersList([.. PlayerControl.LocalPlayer.GetModifierComponent().ActiveModifiers]);
     }
 
+    /// <summary>
+    /// Use this to toggle the visibility of the modifiers tab.
+    /// </summary>
+    public void ToggleTab()
+    {
+        IsOpen = !IsOpen;
+        _children.gameObject.SetActive(IsOpen);
+        RefreshModifiers();
+    }
+
     internal void DestroyComponent(ModifierUiComponent component)
     {
         _modifiers.Remove(component.Modifier!);
