@@ -22,15 +22,16 @@ namespace MiraAPI.Patches.Options;
 [HarmonyPatch(typeof(RolesSettingsMenu))]
 public static class RoleSettingMenuPatches
 {
-    private static Dictionary<RoleOptionsGroup, bool> RoleGroupHidden { get; set; } = new();
-    private static List<GameObject> Headers { get; set; } = new();
-    private static List<RoleOptionSetting> RoleOptionSettings { get; set; } = new();
+    public static Dictionary<int, Vector3> Scrolls { get; } = [];
+    private static Dictionary<RoleOptionsGroup, bool> RoleGroupHidden { get; } = [];
+    private static List<GameObject> Headers { get; } = [];
+    private static List<RoleOptionSetting> RoleOptionSettings { get; } = [];
 
     private static float ScrollerNum { get; set; } = 0.522f;
 
     [HarmonyPrefix]
     [HarmonyPatch(nameof(RolesSettingsMenu.SetQuotaTab))]
-    public static bool PatchStart(RolesSettingsMenu __instance)
+    public static bool SetQuotaTabPatch(RolesSettingsMenu __instance)
     {
         Headers.ForEach(Object.Destroy);
         RoleOptionSettings.ForEach(Object.Destroy);
@@ -232,6 +233,15 @@ public static class RoleSettingMenuPatches
     private static void SetScrollBounds(this Scroller scroller)
     {
         scroller.CalculateAndSetYBounds(1 + 1.5f * Headers.Count + RoleOptionSettings.Count, 1f, 6f, 0.43f);
+        if (Scrolls.TryGetValue(GameSettingMenuPatches.SelectedModIdx, out var scroll))
+        {
+            scroller.Inner.localPosition = scroll;
+            scroller.UpdateScrollBars();
+        }
+        else
+        {
+            scroller.ScrollToTop();
+        }
     }
 
     [HarmonyPrefix]
@@ -245,13 +255,12 @@ public static class RoleSettingMenuPatches
     [HarmonyPatch(nameof(RolesSettingsMenu.OpenChancesTab))]
     public static void OpenChancesTabPostfix(RolesSettingsMenu __instance)
     {
-        if (GameSettingMenuPatches.SelectedModIdx == 0 || !__instance.scrollBar)
+        if (GameSettingMenuPatches.SelectedModIdx == 0)
         {
             return;
         }
 
         __instance.scrollBar.SetScrollBounds();
-        __instance.scrollBar.ScrollToTop();
     }
 
     private static void ValueChanged(OptionBehaviour obj)
@@ -344,6 +353,7 @@ public static class RoleSettingMenuPatches
             newOpt.Initialize();
         }
 
+        Scrolls[GameSettingMenuPatches.SelectedModIdx] = __instance.scrollBar.Inner.localPosition;
         __instance.scrollBar.CalculateAndSetYBounds(__instance.advancedSettingChildren.Count + 3, 1f, 6f, 0.45f);
         __instance.scrollBar.ScrollToTop();
     }
@@ -355,6 +365,8 @@ public static class RoleSettingMenuPatches
             Logger<MiraApiPlugin>.Error($"Role {role.NiceName} is not a custom role.");
             return;
         }
+
+        Scrolls[GameSettingMenuPatches.SelectedModIdx] = __instance.scrollBar.Inner.localPosition;
 
         __instance.roleDescriptionText.text = customRole.RoleLongDescription;
         __instance.roleTitleText.text = TranslationController.Instance.GetString(
