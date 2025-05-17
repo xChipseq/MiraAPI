@@ -80,13 +80,13 @@ public sealed class MiraPluginManager
                     continue;
                 }
 
-                if (RegisterRoleAttribute(type, info, out var role))
+                if (RegisterRole(type, info, out var role))
                 {
                     roles.Add(role);
                     continue;
                 }
 
-                if (RegisterButtonAttribute(type, info))
+                if (RegisterButton(type, info))
                 {
                     continue;
                 }
@@ -178,7 +178,7 @@ public sealed class MiraPluginManager
         return false;
     }
 
-    private static bool RegisterRoleAttribute(Type type, MiraPluginInfo pluginInfo, [NotNullWhen(true)] out Type? role)
+    private static bool RegisterRole(Type type, MiraPluginInfo pluginInfo, [NotNullWhen(true)] out Type? role)
     {
         role = null;
         try
@@ -254,7 +254,7 @@ public sealed class MiraPluginManager
         }
     }
 
-    private static bool RegisterButtonAttribute(Type type, MiraPluginInfo pluginInfo)
+    private static bool RegisterButton(Type type, MiraPluginInfo pluginInfo)
     {
         try
         {
