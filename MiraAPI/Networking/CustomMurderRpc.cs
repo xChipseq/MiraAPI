@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Linq;
+using AmongUs.Data;
 using AmongUs.GameOptions;
 using Assets.CoreScripts;
 using BepInEx.Unity.IL2CPP.Utils;
@@ -96,7 +97,7 @@ public static class CustomMurderRpc
             var flag = PlayerControl.LocalPlayer.Data.Role.Role == RoleTypes.GuardianAngel;
             if (flag && PlayerControl.LocalPlayer.Data.PlayerId == target.protectedByGuardianId)
             {
-                StatsManager.Instance.IncrementStat(StringNames.StatsGuardianAngelCrewmatesProtected);
+                DataManager.Player.Stats.IncrementStat(StatID.Role_GuardianAngel_CrewmatesProtected);
                 AchievementManager.Instance.OnProtectACrewmate();
             }
 
@@ -127,14 +128,14 @@ public static class CustomMurderRpc
         DebugAnalytics.Instance.Analytics.Kill(target.Data, source.Data);
         if (source.AmOwner)
         {
-            StatsManager.Instance.IncrementStat(
+            DataManager.Player.Stats.IncrementStat(
                 GameManager.Instance.IsHideAndSeek()
-                    ? StringNames.StatsImpostorKills_HideAndSeek
-                    : StringNames.StatsImpostorKills);
+                    ? StatID.HideAndSeek_ImpostorKills
+                    : StatID.ImpostorKills);
 
             if (source.CurrentOutfitType == PlayerOutfitType.Shapeshifted)
             {
-                StatsManager.Instance.IncrementStat(StringNames.StatsShapeshifterShiftedKills);
+                DataManager.Player.Stats.IncrementStat(StatID.Role_Shapeshifter_ShiftedKills);
             }
 
             if (Constants.ShouldPlaySfx() && playKillSound)
@@ -152,7 +153,7 @@ public static class CustomMurderRpc
         target.gameObject.layer = LayerMask.NameToLayer("Ghost");
         if (target.AmOwner)
         {
-            StatsManager.Instance.IncrementStat(StringNames.StatsTimesMurdered);
+            DataManager.Player.Stats.IncrementStat(StatID.TimesMurdered);
             if (Minigame.Instance)
             {
                 try

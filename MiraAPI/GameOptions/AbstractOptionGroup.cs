@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using UnityEngine;
 
 namespace MiraAPI.GameOptions;
@@ -10,6 +11,11 @@ namespace MiraAPI.GameOptions;
 public abstract class AbstractOptionGroup
 {
     internal List<IModdedOption> Options { get; } = [];
+
+    /// <summary>
+    /// Gets a list of the options which are a part of this group.
+    /// </summary>
+    public ReadOnlyCollection<IModdedOption> Children => new(Options);
 
     /// <summary>
     /// Gets the name of the group. Visible in options menu.
