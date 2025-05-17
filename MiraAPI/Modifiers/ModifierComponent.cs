@@ -72,7 +72,15 @@ public class ModifierComponent(IntPtr cppPtr) : MonoBehaviour(cppPtr)
         foreach (var modifier in _toRemove.ToArray())
         {
             _toRemove.Remove(modifier);
-            modifier.OnDeactivate();
+            try
+            {
+                modifier.OnDeactivate();
+            }
+            catch (Exception e)
+            {
+                Logger<MiraApiPlugin>.Error($"Error while deactivating modifier {modifier.ModifierName}: {e.ToString()}");
+            }
+
             Modifiers.Remove(modifier);
         }
 
@@ -82,7 +90,14 @@ public class ModifierComponent(IntPtr cppPtr) : MonoBehaviour(cppPtr)
             _toAdd.Remove(modifier);
             Modifiers.Add(modifier);
             modifier.Initialized = true;
-            modifier.OnActivate();
+            try
+            {
+                modifier.OnActivate();
+            }
+            catch (Exception e)
+            {
+                Logger<MiraApiPlugin>.Error($"Error while activating modifier {modifier.ModifierName}: {e.ToString()}");
+            }
 
             if (modifier is TimedModifier { AutoStart: true } timer)
             {
@@ -102,7 +117,14 @@ public class ModifierComponent(IntPtr cppPtr) : MonoBehaviour(cppPtr)
 
         foreach (var modifier in ActiveModifiers)
         {
-            modifier.FixedUpdate();
+            try
+            {
+                modifier.FixedUpdate();
+            }
+            catch (Exception e)
+            {
+                Logger<MiraApiPlugin>.Error($"Error while (fixed) updating modifier {modifier.ModifierName}: {e.ToString()}");
+            }
         }
 
         if (_player.AmOwner && ModifierDisplay && HudManager.InstanceExists)
@@ -115,7 +137,14 @@ public class ModifierComponent(IntPtr cppPtr) : MonoBehaviour(cppPtr)
     {
         foreach (var modifier in ActiveModifiers)
         {
-            modifier.Update();
+            try
+            {
+                modifier.Update();
+            }
+            catch (Exception e)
+            {
+                Logger<MiraApiPlugin>.Error($"Error while updating modifier {modifier.ModifierName}: {e.ToString()}");
+            }
         }
     }
 
