@@ -264,7 +264,7 @@ public static class CustomMurderRpc
             deadBody.enabled = true;
         }
 
-        var afterMurderEvent = new AfterMurderEvent(source, target);
+        var afterMurderEvent = new AfterMurderEvent(source, target, deadBody);
         MiraEventManager.InvokeEvent(afterMurderEvent);
 
         if (!isParticipant)

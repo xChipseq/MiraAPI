@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using MiraAPI.Events;
 using MiraAPI.Events.Vanilla.Gameplay;
+using MiraAPI.Utilities;
 
 namespace MiraAPI.Patches.Events;
 
@@ -19,7 +20,7 @@ public static class KillAnimationPatches
     [HarmonyPatch(typeof(KillAnimation), nameof(KillAnimation.CoPerformKill))]
     public static void KillAnimPostfix(PlayerControl source, PlayerControl target)
     {
-        var afterMurderEvent = new AfterMurderEvent(source, target);
+        var afterMurderEvent = new AfterMurderEvent(source, target, Helpers.GetBodyById(target.PlayerId));
         MiraEventManager.InvokeEvent(afterMurderEvent);
     }
 }

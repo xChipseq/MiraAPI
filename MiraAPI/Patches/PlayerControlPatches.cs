@@ -6,6 +6,7 @@ using MiraAPI.Events.Vanilla.Player;
 using MiraAPI.Hud;
 using MiraAPI.Modifiers;
 using MiraAPI.Roles;
+using MiraAPI.Utilities;
 using MiraAPI.Voting;
 using Reactor.Utilities.Extensions;
 
@@ -41,7 +42,7 @@ internal static class PlayerControlPatches
     // ReSharper disable once InconsistentNaming
     public static void PlayerControlDiePostfix(PlayerControl __instance, DeathReason reason)
     {
-        var deathEvent = new PlayerDeathEvent(__instance, reason);
+        var deathEvent = new PlayerDeathEvent(__instance, reason, Helpers.GetBodyById(__instance.PlayerId));
         MiraEventManager.InvokeEvent(deathEvent);
 
         var modifiersComponent = __instance.GetComponent<ModifierComponent>();
