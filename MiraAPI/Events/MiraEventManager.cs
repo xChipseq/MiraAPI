@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Reactor.Utilities;
 
 namespace MiraAPI.Events;
 
@@ -62,12 +61,12 @@ public static class MiraEventManager
     /// <param name="type">The type of event.</param>
     /// <param name="methodInfo">The MethodInfo of the event handler.</param>
     /// <param name="priority">The priority of the event handler. Lower values are called first.</param>
-    public static void RegisterEventHandler(Type type, MethodInfo methodInfo, int priority = 0)
+    /// <returns>An event handle to use when unregistering the event.</returns>
+    public static MiraEventHandle RegisterEventHandler(Type type, MethodInfo methodInfo, int priority = 0)
     {
         if (!type.IsSubclassOf(typeof(MiraEvent)))
         {
-            Logger<MiraApiPlugin>.Error($"Type must be a subclass of MiraEvent: {type.FullName}");
-            return;
+            throw new InvalidOperationException($"Type must be a subclass of MiraEvent: {type.FullName}");
         }
 
         EventWrappers.TryAdd(type, []);
@@ -84,6 +83,7 @@ public static class MiraEventManager
         }
 
         handlers.Insert(index, eventWrapper);
+        return new MiraEventHandle(type, eventWrapper);
     }
 
     /// <summary>
@@ -92,7 +92,8 @@ public static class MiraEventManager
     /// <param name="handler">The callback method/handler for the event.</param>
     /// <param name="priority">The priority of the event handler. Lower values are called first.</param>
     /// <typeparam name="T">Type of event.</typeparam>
-    public static void RegisterEventHandler<T>(Action<T> handler, int priority = 0) where T : MiraEvent
+    /// <returns>An event handle to use when unregistering the event.</returns>
+    public static MiraEventHandle RegisterEventHandler<T>(Action<T> handler, int priority = 0) where T : MiraEvent
     {
         EventWrappers.TryAdd(typeof(T), []);
 
@@ -107,5 +108,30 @@ public static class MiraEventManager
         }
 
         handlers.Insert(index, eventWrapper);
+        return new MiraEventHandle(typeof(T), eventWrapper);
+    }
+
+    /// <summary>
+    /// Unregister an event using the event handle.
+    /// </summary>
+    /// <param name="eventHandle">A handle to the event.</param>
+    /// <returns>True if the event was unregistered successfully, false otherwise.</returns>
+    public static bool UnregisterEventHandler(MiraEventHandle eventHandle)
+    {
+        if (!EventWrappers.TryGetValue(eventHandle.EventType, out var handlers))
+        {
+            return false;
+        }
+
+        if (!handlers.Remove(eventHandle.EventWrapper))
+        {
+            return false;
+        }
+
+        if (handlers.Count == 0)
+        {
+            EventWrappers.Remove(eventHandle.EventType);
+        }
+        return true;
     }
 }
