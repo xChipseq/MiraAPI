@@ -180,7 +180,7 @@ public abstract class CustomActionButton
 
         if (!moveButton) return;
 
-        if (HudManagerPatches._bottomLeft == null || HudManagerPatches._bottomRight == null)
+        if (HudManagerPatches.BottomLeft == null || HudManagerPatches.BottomRight == null)
         {
             return;
         }
@@ -188,17 +188,17 @@ public abstract class CustomActionButton
         switch (location)
         {
             case ButtonLocation.BottomLeft:
-                var gridArrange = HudManagerPatches._bottomLeft.GetComponent<GridArrange>();
-                var aspectPosition = HudManagerPatches._bottomLeft.GetComponent<AspectPosition>();
+                var gridArrange = HudManagerPatches.BottomLeft.GetComponent<GridArrange>();
+                var aspectPosition = HudManagerPatches.BottomLeft.GetComponent<AspectPosition>();
 
-                Button.transform.SetParent(HudManagerPatches._bottomLeft.transform);
+                Button.transform.SetParent(HudManagerPatches.BottomLeft.transform);
 
                 gridArrange.Start();
                 gridArrange.ArrangeChilds();
                 aspectPosition.AdjustPosition();
                 break;
             case ButtonLocation.BottomRight:
-                Button.transform.SetParent(HudManagerPatches._bottomRight);
+                Button.transform.SetParent(HudManagerPatches.BottomRight);
                 break;
         }
     }
@@ -435,11 +435,11 @@ public abstract class CustomActionButton
         {
             if (CanUse())
             {
-                Button.SetEnabled();
+                Button!.SetEnabled();
             }
             else
             {
-                Button.SetDisabled();
+                Button!.SetDisabled();
             }
 
             if (EffectActive)

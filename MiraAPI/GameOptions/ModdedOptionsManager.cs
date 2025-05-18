@@ -45,7 +45,9 @@ public static class ModdedOptionsManager
         pluginInfo.OptionGroups.Add(group);
 
         typeof(OptionGroupSingleton<>).MakeGenericType(type)
+#pragma warning disable S3011
             .GetField("_instance", BindingFlags.Static | BindingFlags.NonPublic)!
+#pragma warning restore S3011
             .SetValue(null, group);
 
         return true;

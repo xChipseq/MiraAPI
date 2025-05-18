@@ -162,6 +162,12 @@ public sealed class MiraPluginManager
 
             foreach (var property in type.GetProperties())
             {
+                if (property.GetMethod?.IsStatic == true)
+                {
+                    Logger<MiraApiPlugin>.Error($"Option property {property.Name} in {type.Name} must not be static.");
+                    continue;
+                }
+
                 if (property.PropertyType.IsAssignableTo(typeof(IModdedOption)))
                 {
                     ModdedOptionsManager.RegisterPropertyOption(type, property, pluginInfo);

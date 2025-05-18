@@ -14,6 +14,8 @@ public static class SpriteTools
     /// Load a sprite from a resource path.
     /// </summary>
     /// <param name="resourcePath">The path to the resource.</param>
+    /// <param name="assembly">The assembly containing the resource.</param>
+    /// <param name="pixelsPerUnit">The pixels per unit for the loaded sprite.</param>
     /// <returns>A sprite made from the resource.</returns>
     /// <exception cref="Exception">The resource cannot be found.</exception>
     public static Sprite LoadSpriteFromPath(string resourcePath, Assembly assembly, float pixelsPerUnit)

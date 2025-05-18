@@ -46,7 +46,7 @@ public enum MiraRpc : uint
     RemoveVote,
 
     /// <summary>
-    /// Custom RPC to replace Among Us CastVote
+    /// Custom RPC to replace Among Us CastVote.
     /// </summary>
     CastVote,
 }

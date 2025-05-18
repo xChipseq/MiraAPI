@@ -129,7 +129,7 @@ public class ModdedEnumOption<T> : ModdedOption<T> where T : Enum
             Enum.GetNames(typeof(T)).Select(CustomStringName.CreateAndRegister).ToArray()
             : values.Select(CustomStringName.CreateAndRegister).ToArray();
 
-        data.Index = Convert.ToInt32(Value);
+        data.Index = Convert.ToInt32(Value, NumberFormatInfo.InvariantInfo);
     }
 
     /// <inheritdoc />

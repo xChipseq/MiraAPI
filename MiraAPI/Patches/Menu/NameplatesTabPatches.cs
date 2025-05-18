@@ -108,7 +108,7 @@ public static class NameplatesTabPatches
         var x = (NamePlateViewData viewdata) =>
         {
             colorChip.transform.GetChild(1).GetComponent<SpriteRenderer>().sprite = viewdata?.Image;
-            //(colorChip as NameplateChip).image.sprite = viewdata?.Image;
+            // (colorChip as NameplateChip).image.sprite = viewdata?.Image;
         };
         __instance.StartCoroutine(AddressableAssetExtensions.CoLoadAssetAsync<NamePlateViewData>(__instance, namePlate.GetAssetReference(), x));
         colorChip.transform.localPosition = new Vector3(position.x, position.y, -1f);

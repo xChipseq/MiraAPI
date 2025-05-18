@@ -31,7 +31,9 @@ public static class CustomButtonManager
         CustomButtons.Add(button);
         pluginInfo.Buttons.Add(button);
         typeof(CustomButtonSingleton<>).MakeGenericType(buttonType)
+#pragma warning disable S3011
             .GetField("_instance", BindingFlags.Static | BindingFlags.NonPublic)!
+#pragma warning restore S3011
             .SetValue(null, button);
 
         ButtonEventTypes.Add(buttonType, typeof(MiraButtonClickEvent<>).MakeGenericType(buttonType));

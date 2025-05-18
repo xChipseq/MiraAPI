@@ -17,7 +17,7 @@ namespace MiraAPI.Modifiers.ModifierDisplay;
 /// The code used to display Mira modifiers.
 /// </summary>
 [RegisterInIl2Cpp]
-public class ModifierDisplayComponent(nint ptr) : MonoBehaviour(ptr)
+public class ModifierDisplayComponent(nint cppPtr) : MonoBehaviour(cppPtr)
 {
     /// <summary>
     /// Gets the instance of the Modifier Display.
@@ -34,8 +34,8 @@ public class ModifierDisplayComponent(nint ptr) : MonoBehaviour(ptr)
     private PassiveButton _nextButton = null!;
     private PassiveButton _backButton = null!;
 
-    private int _currentPage = 0;
-    private const int _itemsPerPage = 3;
+    private int _currentPage;
+    private const int ItemsPerPage = 3;
 
     private readonly Dictionary<BaseModifier, ModifierUiComponent> _modifiers = [];
 
@@ -142,10 +142,10 @@ public class ModifierDisplayComponent(nint ptr) : MonoBehaviour(ptr)
 
     private void UpdatePage()
     {
-        var totalPages = Mathf.CeilToInt((float)_modifiers.Count / _itemsPerPage);
+        var totalPages = Mathf.CeilToInt((float)_modifiers.Count / ItemsPerPage);
         _currentPage = Mathf.Clamp(_currentPage, 0, Mathf.Max(0, totalPages - 1));
 
-        if (_modifiers.Count <= _itemsPerPage)
+        if (_modifiers.Count <= ItemsPerPage)
         {
             _modifiers.Do(x => x.Value.gameObject.SetActive(true));
             _pagination.gameObject.SetActive(false);
@@ -162,8 +162,8 @@ public class ModifierDisplayComponent(nint ptr) : MonoBehaviour(ptr)
         _backButton.gameObject.SetActive(true);
 
         _modifiers.Do(x => x.Value.gameObject.SetActive(false));
-        var start = _currentPage * _itemsPerPage;
-        var end = Mathf.Min(start + _itemsPerPage, _modifiers.Count);
+        var start = _currentPage * ItemsPerPage;
+        var end = Mathf.Min(start + ItemsPerPage, _modifiers.Count);
         var modifiers = _modifiers.ToArray();
 
         for (var i = start; i < end; i++)
