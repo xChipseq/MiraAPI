@@ -23,11 +23,16 @@ public class ChameloenRole : CrewmateRole, ICustomRole
     public override void Initialize(PlayerControl player)
     {
         Player = player;
-        Logger<ExamplePlugin>.Error("Initializing ChamelonRole for player: " + player.PlayerId);
+        Logger<ExamplePlugin>.Info("Initializing ChamelonRole for player: " + player.PlayerId);
     }
 
     public void FixedUpdate()
     {
+        if (!Player)
+        {
+            return;
+        }
+
         if (Player.MyPhysics.Velocity.magnitude > 0)
         {
             var rend = Player.cosmetics.currentBodySprite.BodySprite;
