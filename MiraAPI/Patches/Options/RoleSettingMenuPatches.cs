@@ -22,9 +22,11 @@ namespace MiraAPI.Patches.Options;
 [HarmonyPatch(typeof(RolesSettingsMenu))]
 public static class RoleSettingMenuPatches
 {
-    private static Dictionary<RoleOptionsGroup, bool> RoleGroupHidden { get; set; } = new();
-    private static List<GameObject> Headers { get; set; } = new();
-    private static List<RoleOptionSetting> RoleOptionSettings { get; set; } = new();
+    public static Dictionary<int, Vector3> RolePositions { get; set; } = [];
+
+    private static Dictionary<RoleOptionsGroup, bool> RoleGroupHidden { get; set; } = [];
+    private static List<GameObject> Headers { get; set; } = [];
+    private static List<RoleOptionSetting> RoleOptionSettings { get; set; } = [];
 
     private static float ScrollerNum { get; set; } = 0.522f;
 
@@ -232,6 +234,15 @@ public static class RoleSettingMenuPatches
     private static void SetScrollBounds(this Scroller scroller)
     {
         scroller.CalculateAndSetYBounds(1 + 1.5f * Headers.Count + RoleOptionSettings.Count, 1f, 6f, 0.43f);
+        if (RolePositions.TryGetValue(GameSettingMenuPatches.SelectedModIdx, out var scroll))
+        {
+            scroller.Inner.localPosition = scroll;
+            scroller.UpdateScrollBars();
+        }
+        else
+        {
+            scroller.ScrollToTop();
+        }
     }
 
     [HarmonyPrefix]
@@ -251,7 +262,6 @@ public static class RoleSettingMenuPatches
         }
 
         __instance.scrollBar.SetScrollBounds();
-        __instance.scrollBar.ScrollToTop();
     }
 
     private static void ValueChanged(OptionBehaviour obj)
@@ -355,6 +365,8 @@ public static class RoleSettingMenuPatches
             Logger<MiraApiPlugin>.Error($"Role {role.NiceName} is not a custom role.");
             return;
         }
+
+        RolePositions[GameSettingMenuPatches.SelectedModIdx] = __instance.scrollBar.Inner.localPosition;
 
         __instance.roleDescriptionText.text = customRole.RoleLongDescription;
         __instance.roleTitleText.text = TranslationController.Instance.GetString(
