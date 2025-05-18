@@ -73,14 +73,6 @@ public interface ICustomRole : IOptionable
     /// </summary>
     MiraPluginInfo ParentMod => CustomRoleManager.FindParentMod(this);
 
-    /// <summary>
-    /// This method runs on the PlayerControl.FixedUpdate method for ALL players with this role.
-    /// </summary>
-    /// <param name="playerControl">The PlayerControl that has this role.</param>
-    void PlayerControlFixedUpdate(PlayerControl playerControl)
-    {
-    }
-
     internal ConfigDefinition NumConfigDefinition => new("Roles", $"Num {GetType().FullName}");
     internal ConfigDefinition ChanceConfigDefinition => new("Roles", $"Chance {GetType().FullName}");
 
@@ -181,14 +173,6 @@ public interface ICustomRole : IOptionable
         }
 
         return true;
-    }
-
-    /// <summary>
-    /// This method runs on the HudManager.Update method ONLY when the LOCAL player has this role.
-    /// </summary>
-    /// <param name="hudManager">Reference to HudManager instance.</param>
-    void HudUpdate(HudManager hudManager)
-    {
     }
 
     /// <summary>

@@ -5,7 +5,6 @@ using MiraAPI.Events.Vanilla.Gameplay;
 using MiraAPI.Events.Vanilla.Player;
 using MiraAPI.Hud;
 using MiraAPI.Modifiers;
-using MiraAPI.Roles;
 using MiraAPI.Utilities;
 using MiraAPI.Voting;
 using Reactor.Utilities.Extensions;
@@ -82,11 +81,6 @@ internal static class PlayerControlPatches
     // ReSharper disable once InconsistentNaming
     public static void PlayerControlFixedUpdatePostfix(PlayerControl __instance)
     {
-        if (__instance.Data?.Role is ICustomRole customRole)
-        {
-            customRole.PlayerControlFixedUpdate(__instance);
-        }
-
         if (!__instance.AmOwner)
         {
             return;
