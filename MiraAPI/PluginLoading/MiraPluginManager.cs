@@ -53,21 +53,29 @@ public sealed class MiraPluginManager
                     continue;
                 }
 
-                foreach (var method in type.GetMethods(BindingFlags.Static | BindingFlags.Public))
+                foreach (var method in type.GetMethods())
                 {
                     var eventAttribute = method.GetCustomAttribute<RegisterEventAttribute>();
-                    if (eventAttribute != null)
+                    if (eventAttribute == null)
                     {
-                        var parameters = method.GetParameters();
-                        if (parameters.Length != 1 || !parameters[0].ParameterType.IsSubclassOf(typeof(MiraEvent)))
-                        {
-                            Logger<MiraApiPlugin>.Error($"Invalid event registration method {method.Name} in {type.Name}");
-                            continue;
-                        }
-
-                        var paramType = parameters[0].ParameterType;
-                        MiraEventManager.RegisterEventHandler(paramType, method, eventAttribute.Priority);
+                        continue;
                     }
+
+                    if (!method.IsStatic)
+                    {
+                        Logger<MiraApiPlugin>.Error($"Event method {method.Name} in {type.Name} must be static.");
+                        continue;
+                    }
+
+                    var parameters = method.GetParameters();
+                    if (parameters.Length != 1 || !parameters[0].ParameterType.IsSubclassOf(typeof(MiraEvent)))
+                    {
+                        Logger<MiraApiPlugin>.Error($"Invalid event registration method {method.Name} in {type.Name}");
+                        continue;
+                    }
+
+                    var paramType = parameters[0].ParameterType;
+                    MiraEventManager.RegisterEventHandler(paramType, method, eventAttribute.Priority);
                 }
 
                 if (RegisterModifier(type, info))
@@ -169,11 +177,16 @@ public sealed class MiraPluginManager
                 ModdedOptionsManager.RegisterAttributeOption(type, attribute, property, pluginInfo);
             }
 
+            foreach (var field in type.GetFields().Where(f=>f.FieldType.IsAssignableTo(typeof(IModdedOption))))
+            {
+                Logger<MiraApiPlugin>.Error($"{field.Name} is a field, not a property. Use properties for options.");
+            }
+
             return true;
         }
         catch (Exception e)
         {
-            Logger<MiraApiPlugin>.Error($"Failed to register options for {type.Name}: {e}");
+            Logger<MiraApiPlugin>.Error($"Failed to register options for {type.Name}: {e.ToString()}");
         }
         return false;
     }
@@ -233,6 +246,11 @@ public sealed class MiraPluginManager
                 }
 
                 PaletteManager.CustomColors.Add(color);
+            }
+
+            foreach (var field in type.GetFields().Where(f=>f.FieldType.IsAssignableTo(typeof(CustomColor))))
+            {
+                Logger<MiraApiPlugin>.Error($"{field.Name} is a field, not a property. Use properties for colors.");
             }
         }
         catch (Exception e)
