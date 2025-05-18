@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Reactor.Utilities;
 
 namespace MiraAPI.Events;
 
@@ -27,7 +28,14 @@ public static class MiraEventManager
 
         foreach (var handler in handlers)
         {
-            ((Action<T>)handler.EventHandler).Invoke(eventInstance);
+            try
+            {
+                ((Action<T>)handler.EventHandler).Invoke(eventInstance);
+            }
+            catch (Exception ex)
+            {
+                Logger<MiraApiPlugin>.Error($"Error invoking event handler for {typeof(T).Name}: {ex.ToString()}");
+            }
         }
 
         return true;
@@ -49,7 +57,14 @@ public static class MiraEventManager
 
         foreach (var handler in handlers)
         {
-            handler.EventHandler.DynamicInvoke(eventInstance);
+            try
+            {
+                handler.EventHandler.DynamicInvoke(eventInstance);
+            }
+            catch (Exception ex)
+            {
+                Logger<MiraApiPlugin>.Error($"Error invoking event handler for {type.Name}: {ex.ToString()}");
+            }
         }
 
         return true;

@@ -8,7 +8,6 @@ using MiraAPI.Events.Vanilla.Meeting.Voting;
 using MiraAPI.Modifiers;
 using MiraAPI.Utilities;
 using MiraAPI.Voting;
-using Reactor.Utilities;
 
 namespace MiraAPI.Patches.Voting;
 
