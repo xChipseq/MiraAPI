@@ -1,4 +1,5 @@
 ﻿using AmongUs.GameOptions;
+using MiraAPI.Patches.Stubs;
 using MiraAPI.Roles;
 using Reactor.Utilities;
 using TMPro;
@@ -14,6 +15,8 @@ public class ChameloenRole : CrewmateRole, ICustomRole
     public Color RoleColor => Palette.AcceptedGreen;
     public ModdedRoleTeams Team => ModdedRoleTeams.Crewmate;
 
+    private bool _shouldHide;
+
     public CustomRoleConfiguration Configuration => new(this)
     {
         OptionsScreenshot = ExampleAssets.Banner,
@@ -22,13 +25,14 @@ public class ChameloenRole : CrewmateRole, ICustomRole
 
     public override void Initialize(PlayerControl player)
     {
-        Player = player;
         Logger<ExamplePlugin>.Info("Initializing ChamelonRole for player: " + player.PlayerId);
+        RoleBehaviourStubs.Initialize(this, player);
+        _shouldHide = true;
     }
 
     public void FixedUpdate()
     {
-        if (!Player)
+        if (!Player || !_shouldHide)
         {
             return;
         }
@@ -57,5 +61,18 @@ public class ChameloenRole : CrewmateRole, ICustomRole
                 cosmetic.color = Color.Lerp(cosmetic.color, new Color(1, 1, 1, Player.AmOwner ? 0.3f : 0), Time.deltaTime * 4f);
             }
         }
+    }
+
+    public override void Deinitialize(PlayerControl targetPlayer)
+    {
+        Logger<ExamplePlugin>.Info("Deinitializing ChamelonRole for player: " + targetPlayer.PlayerId);
+        RoleBehaviourStubs.Deinitialize(this, targetPlayer);
+        _shouldHide = false;
+        foreach (var cosmetic in Player.cosmetics.transform.GetComponentsInChildren<SpriteRenderer>(true))
+        {
+            cosmetic.color = Color.white;
+        }
+        Player.cosmetics.currentBodySprite.BodySprite.color = Color.white;
+        Player.cosmetics.nameText.color = Color.white;
     }
 }
