@@ -183,7 +183,7 @@ public sealed class MiraPluginManager
                 ModdedOptionsManager.RegisterAttributeOption(type, attribute, property, pluginInfo);
             }
 
-            foreach (var field in type.GetFields().Where(f=>f.FieldType.IsAssignableTo(typeof(IModdedOption))))
+            foreach (var field in type.GetFields().Where(f => f.FieldType.IsAssignableTo(typeof(IModdedOption))))
             {
                 Logger<MiraApiPlugin>.Error($"{field.Name} is a field, not a property. Use properties for options.");
             }
@@ -254,7 +254,7 @@ public sealed class MiraPluginManager
                 PaletteManager.CustomColors.Add(color);
             }
 
-            foreach (var field in type.GetFields().Where(f=>f.FieldType.IsAssignableTo(typeof(CustomColor))))
+            foreach (var field in type.GetFields().Where(f => f.FieldType.IsAssignableTo(typeof(CustomColor))))
             {
                 Logger<MiraApiPlugin>.Error($"{field.Name} is a field, not a property. Use properties for colors.");
             }
