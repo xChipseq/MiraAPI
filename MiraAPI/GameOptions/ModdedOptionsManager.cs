@@ -175,6 +175,7 @@ public static class ModdedOptionsManager
     /// </summary>
     /// <param name="__originalMethod">The original setter method.</param>
     /// <param name="value">The new object value.</param>
+    // ReSharper disable InconsistentNaming
     public static void PropertySetterPatch(MethodBase __originalMethod, object value)
     {
         var attribute = OptionAttributes.First(pair => pair.Key.GetSetMethod() == __originalMethod).Value;
@@ -188,6 +189,7 @@ public static class ModdedOptionsManager
     /// <param name="__result">The result of the property getter.</param>
     /// <returns>False so the original getter gets skipped.</returns>
     public static bool PropertyGetterPatch(MethodBase __originalMethod, ref object __result)
+    // ReSharper restore InconsistentNaming
     {
         var attribute = OptionAttributes.First(pair => pair.Key.GetGetMethod() == __originalMethod).Value;
         __result = attribute.GetValue();
