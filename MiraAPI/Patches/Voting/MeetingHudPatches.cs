@@ -205,6 +205,7 @@ internal static class MeetingHudPatches
     // TODO: figure out a way to do host-authorization since right now any player can send RpcCastVote
     [HarmonyPrefix]
     [HarmonyPatch(nameof(MeetingHud.CmdCastVote))]
+    // Although this method is inlined in MeetingHud.Confirm, the next patch fixes that.
     public static bool CmdCastVoteOverridePatch(MeetingHud __instance, byte playerId, byte suspectIdx)
     {
         VotingUtils.RpcCastVote(PlayerControl.LocalPlayer, playerId, suspectIdx);
