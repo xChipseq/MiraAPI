@@ -15,7 +15,7 @@ public static class KillAnimationPatches
     /// Used to trigger the <see cref="AfterMurderEvent"/>.
     /// </summary>
     [HarmonyPostfix]
-    [HarmonyPatch(typeof(KillAnimation), nameof(KillAnimation._CoPerformKill_d__2.MoveNext))]
+    [HarmonyPatch(typeof(KillAnimation._CoPerformKill_d__2), nameof(KillAnimation._CoPerformKill_d__2.MoveNext))]
     public static void KillAnimPostfix(KillAnimation._CoPerformKill_d__2 __instance)
     {
         // Checking if state is -1 to wait for the end of coroutine.
