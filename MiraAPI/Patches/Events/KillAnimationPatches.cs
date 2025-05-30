@@ -14,13 +14,17 @@ public static class KillAnimationPatches
     /// <summary>
     /// Used to trigger the <see cref="AfterMurderEvent"/>.
     /// </summary>
-    /// <param name="source">The killer.</param>
-    /// <param name="target">The target.</param>
     [HarmonyPostfix]
-    [HarmonyPatch(typeof(KillAnimation), nameof(KillAnimation.CoPerformKill))]
-    public static void KillAnimPostfix(PlayerControl source, PlayerControl target)
+    [HarmonyPatch(typeof(KillAnimation), nameof(KillAnimation._CoPerformKill_d__2.MoveNext))]
+    public static void KillAnimPostfix(KillAnimation._CoPerformKill_d__2 __instance)
     {
-        var afterMurderEvent = new AfterMurderEvent(source, target, Helpers.GetBodyById(target.PlayerId));
+        // Checking if state is -1 to wait for the end of coroutine.
+        if (__instance.__1__state != -1)
+        {
+            return;
+        }
+
+        var afterMurderEvent = new AfterMurderEvent(__instance.source, __instance.target, Helpers.GetBodyById(__instance.target.PlayerId));
         MiraEventManager.InvokeEvent(afterMurderEvent);
     }
 }
