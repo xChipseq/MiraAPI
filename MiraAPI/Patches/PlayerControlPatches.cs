@@ -68,6 +68,7 @@ internal static class PlayerControlPatches
     [HarmonyPrefix]
     [HarmonyPatch(nameof(PlayerControl.RpcMurderPlayer))]
     // ReSharper disable once InconsistentNaming
+    // Note: This method is partially inlined in 2025.5.20 but we already use custom murder RPCs.
     public static void PlayerControlMurderPrefix(PlayerControl __instance, PlayerControl target, ref bool didSucceed)
     {
         var beforeMurderEvent = new BeforeMurderEvent(__instance, target);
