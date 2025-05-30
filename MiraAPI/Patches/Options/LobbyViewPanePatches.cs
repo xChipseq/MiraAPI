@@ -113,14 +113,16 @@ public static class LobbyViewPanePatches
         menu.scrollBar.ScrollToTop();
     }
 
-    [HarmonyPrefix]
-    [HarmonyPatch(nameof(LobbyViewSettingsPane.SetTab))]
-    public static bool SetTabPatch(LobbyViewSettingsPane __instance)
+    [HarmonyPostfix]
+    [HarmonyPatch(nameof(LobbyViewSettingsPane.ChangeTab))]
+    [HarmonyPatch(nameof(LobbyViewSettingsPane.RefreshTab))]
+    // CHANGED BECAUSE OF INLINING
+    public static void SetTabPatch(LobbyViewSettingsPane __instance)
     {
         if (__instance.currentTab != ModifiersTabName || SelectedMod == null)
         {
             ModifiersTabButton?.SelectButton(false);
-            return true;
+            return;
         }
 
         __instance.taskTabButton.SelectButton(false);
@@ -130,7 +132,6 @@ public static class LobbyViewPanePatches
         var filteredGroups = SelectedMod.OptionGroups
             .Where(x => x.GroupVisible() && (x.ShowInModifiersMenu || x.OptionableType?.IsAssignableTo(typeof(BaseModifier)) == true));
         DrawOptions(__instance, filteredGroups);
-        return false;
     }
 
     [HarmonyPrefix]
@@ -140,6 +141,11 @@ public static class LobbyViewPanePatches
         if (SelectedModIdx == 0 || SelectedMod == null)
         {
             return true;
+        }
+
+        if (__instance.currentTab == ModifiersTabName)
+        {
+            return false;
         }
 
         var filteredGroups = SelectedMod.OptionGroups
@@ -155,6 +161,11 @@ public static class LobbyViewPanePatches
         if (SelectedModIdx == 0)
         {
             return true;
+        }
+
+        if (__instance.currentTab == ModifiersTabName)
+        {
+            return false;
         }
 
         DrawRolesTab(__instance);
