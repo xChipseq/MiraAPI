@@ -23,10 +23,18 @@ public static class OptionsPatches
     }
 
     [HarmonyPrefix]
-    [HarmonyPatch(typeof(ToggleOption), nameof(ToggleOption.UpdateValue))]
+    [HarmonyPatch(typeof(ToggleOption), nameof(ToggleOption.Toggle))]
+    // UpdateValue was inlined.
     public static bool ToggleUpdate(ToggleOption __instance)
     {
-        return !__instance.IsCustom();
+        if (!__instance.IsCustom())
+        {
+            return true;
+        }
+
+        __instance.CheckMark.enabled = !__instance.CheckMark.enabled;
+        __instance.OnValueChanged.Invoke(__instance);
+        return false;
     }
 
     [HarmonyPrefix]
