@@ -30,7 +30,7 @@ public static class ModifierExtensions
         _ = ModifierManager.GetModifierType(typeId) ?? throw new InvalidOperationException(
             $"Modifier with ID {typeId} is not registered.");
 
-        Rpc<AddModifierRpc>.Instance.Send(target, new ModifierData(typeId, Guid.NewGuid(), args));
+        Rpc<AddModifierRpc>.Instance.Send(target, new ModifierData(typeId, Guid.NewGuid(), args), true);
     }
 
     /// <summary>
@@ -63,7 +63,7 @@ public static class ModifierExtensions
     /// </summary>
     /// <param name="target">The player to remove the modifier from.</param>
     /// <param name="uniqueId">The unique ID of the modifier.</param>
-    [MethodRpc((uint)MiraRpc.RemoveModifier)]
+    [MethodRpc((uint)MiraRpc.RemoveModifier, SendImmediately = true)]
     public static void RpcRemoveModifier(this PlayerControl target, Guid uniqueId)
     {
         target.RemoveModifier(uniqueId);
