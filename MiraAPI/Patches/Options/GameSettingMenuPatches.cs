@@ -40,7 +40,11 @@ internal static class GameSettingMenuPatches
     {
         if ((previewOnly && Controller.currentTouchType == Controller.TouchType.Joystick) || !previewOnly)
         {
-            if (_modifiersTab) _modifiersTab!.gameObject.SetActive(tabNum == 3);
+            if (_modifiersTab)
+            {
+                _modifiersTab!.gameObject.SetActive(tabNum == 3);
+            }
+
             _modifiersButton?.SelectButton(tabNum == 3);
             _smallRolesButton?.SelectButton(tabNum == 2);
             if (tabNum == 3)
@@ -64,7 +68,10 @@ internal static class GameSettingMenuPatches
         _modifiersButton?.SelectButton(tabNum == 3);
         _smallRolesButton?.SelectButton(tabNum == 2);
 
-        if (tabNum != 3) return;
+        if (tabNum != 3)
+        {
+            return;
+        }
 
         if (__instance.RoleSettingsButton.gameObject.active)
         {
@@ -222,6 +229,8 @@ internal static class GameSettingMenuPatches
         _modifiersButton.name = "ModifiersButton";
 
         _modifierBtnOgPos = _modifiersButton.transform.localPosition;
+
+        GamePresetsTabPatches.Refresh();
 
         UpdateText(__instance, __instance.GameSettingsTab, __instance.RoleSettingsTab);
     }
