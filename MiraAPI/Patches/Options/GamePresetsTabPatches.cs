@@ -87,6 +87,8 @@ internal static class GamePresetsTabPatches
                 _newDivider.SetActive(GameSettingMenuPatches.SelectedModIdx != 0);
             }
 
+            Refresh();
+
             var prefab = GameSettingMenu.Instance.GameSettingsButton;
 
             foreach (var preset in MiraPluginManager.Instance.RegisteredPlugins.SelectMany(x => x.Presets))
