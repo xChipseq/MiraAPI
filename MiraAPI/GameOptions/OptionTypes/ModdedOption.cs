@@ -27,7 +27,7 @@ public abstract class ModdedOption<T> : IModdedOption
     public StringNames StringName { get; }
 
     /// <inheritdoc />
-    public BaseGameSetting Data { get; protected init; } = null!;
+    public BaseGameSetting Data { get; protected set; } = null!;
 
     /// <inheritdoc />
     public IMiraPlugin? ParentMod
@@ -95,7 +95,8 @@ public abstract class ModdedOption<T> : IModdedOption
     /// Sets the value of the option.
     /// </summary>
     /// <param name="newValue">The new value.</param>
-    public void SetValue(T newValue)
+    /// <param name="sendRpc">Whether to send the value to other players.</param>
+    public void SetValue(T newValue, bool sendRpc = true)
     {
         var oldVal = Value;
         Value = newValue;
@@ -105,7 +106,7 @@ public abstract class ModdedOption<T> : IModdedOption
             ChangedEvent?.Invoke(Value);
         }
 
-        if (AmongUsClient.Instance.AmHost)
+        if (sendRpc && AmongUsClient.Instance.AmHost)
         {
             if (ParentMod?.GetConfigFile().TryGetEntry<T>(ConfigDefinition, out var entry) == true)
             {
@@ -141,7 +142,7 @@ public abstract class ModdedOption<T> : IModdedOption
     {
         if (presetConfig.TryGetEntry(ConfigDefinition, out ConfigEntry<T> entry))
         {
-            SetValue(entry.Value);
+            SetValue(entry.Value, false);
         }
         else
         {

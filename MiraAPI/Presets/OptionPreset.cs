@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using BepInEx.Configuration;
+using MiraAPI.GameOptions;
 using MiraAPI.PluginLoading;
 using MiraAPI.Roles;
 using UnityEngine;
@@ -61,9 +62,13 @@ public class OptionPreset
             option.LoadFromPreset(PresetConfig);
         }
 
+        ModdedOptionsManager.SyncAllOptions();
+
         foreach (var role in Plugin.InternalRoles.Values.OfType<ICustomRole>())
         {
             role.LoadFromPreset(PresetConfig);
         }
+
+        CustomRoleManager.SyncAllRoleSettings();
     }
 }
