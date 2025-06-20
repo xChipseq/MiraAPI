@@ -331,7 +331,7 @@ internal static class GamePresetsTabPatches
         }
     }
 
-    public static void Refresh()
+    private static void Refresh()
     {
         Logger<MiraApiPlugin>.Error("Refreshing presets");
         if (GameSettingMenuPatches.SelectedMod == null)
