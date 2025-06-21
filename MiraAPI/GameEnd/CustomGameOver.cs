@@ -63,7 +63,7 @@ public abstract class CustomGameOver
         var reason = GameOverManager.GetGameOverId<T>();
         var data = new GameOverData(reason, [.. winners]);
 
-        Rpc<CustomGameOverRpc>.Instance.Send(PlayerControl.LocalPlayer, data);
+        Rpc<CustomGameOverRpc>.Instance.Send(PlayerControl.LocalPlayer, data, true);
     }
 
     /// <summary>
