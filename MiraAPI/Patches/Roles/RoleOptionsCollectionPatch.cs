@@ -1,5 +1,6 @@
 ﻿using AmongUs.GameOptions;
 using HarmonyLib;
+using Il2CppSystem.Collections.Generic;
 using MiraAPI.Roles;
 using Reactor.Utilities;
 
@@ -11,6 +12,23 @@ namespace MiraAPI.Patches.Roles;
 [HarmonyPatch(typeof(RoleOptionsCollectionV09))]
 public static class RoleOptionsCollectionPatch
 {
+    /// <summary>
+    /// This patch fixes GetNumPerGame being inlined (2025.5.20) in the original code.
+    /// </summary>
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(RoleOptionsCollectionV09.AnyRolesEnabled))]
+    public static bool AnyRolesEnabledPrefix(RoleOptionsCollectionV09 __instance, ref bool __result)
+    {
+        foreach (KeyValuePair<RoleTypes, RoleDataV09> keyValuePair in __instance.roles)
+        {
+            if (__instance.GetNumPerGame(keyValuePair.Key) > 0)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /// <summary>
     /// Set the role chance for custom Launchpad roles based on config.
     /// </summary>
