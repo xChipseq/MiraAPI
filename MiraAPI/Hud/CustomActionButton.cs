@@ -3,6 +3,7 @@ using System.Globalization;
 using MiraAPI.Events;
 using MiraAPI.Events.Mira;
 using MiraAPI.Patches;
+using MiraAPI.Utilities;
 using MiraAPI.Utilities.Assets;
 using UnityEngine;
 using UnityEngine.Events;
@@ -35,6 +36,11 @@ public abstract class CustomActionButton
     /// Gets the sprite of the button. Use <see cref="LoadableResourceAsset"/> to load a sprite from a resource path. Use <see cref="LoadableBundleAsset{T}"/> to load a sprite from an asset bundle.
     /// </summary>
     public abstract LoadableAsset<Sprite> Sprite { get; }
+
+    /// <summary>
+    /// Gets the format string for the cooldown timer.
+    /// </summary>
+    public virtual string CooldownTimerFormatString => "0";
 
     /// <summary>
     /// Gets the button's effect duration in seconds. If the button has no effect, set to 0.
@@ -446,12 +452,12 @@ public abstract class CustomActionButton
             {
                 Button.SetFillUp(Timer, EffectDuration);
 
-                Button.cooldownTimerText.text = Mathf.CeilToInt(Timer).ToString(NumberFormatInfo.InvariantInfo);
+                Button.cooldownTimerText.text = Timer.ToString(CooldownTimerFormatString, NumberFormatInfo.InvariantInfo);
                 Button.cooldownTimerText.gameObject.SetActive(true);
             }
             else
             {
-                Button.SetCoolDown(Timer, Cooldown);
+                Button.SetCooldownFormat(Timer, Cooldown, CooldownTimerFormatString);
             }
         }
 

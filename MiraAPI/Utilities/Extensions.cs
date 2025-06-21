@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -39,6 +40,51 @@ public static class Extensions
         return new NetData(
             RoleId.Get(role.GetType()),
             BitConverter.GetBytes(count.Value).AddRangeToArray(BitConverter.GetBytes(chance.Value)));
+    }
+
+    /// <summary>
+    /// Sets the cooldown of a button with a formatted string.
+    /// </summary>
+    /// <param name="button">The ActionButton to set the cooldown for.</param>
+    /// <param name="timer">The current timer value.</param>
+    /// <param name="maxTimer">The maximum timer value.</param>
+    /// <param name="format">The format string to use for the timer text.</param>
+    public static void SetCooldownFormat(this ActionButton button, float timer, float maxTimer, string format="0")
+    {
+        var num = Mathf.Clamp(timer / maxTimer, 0f, 1f);
+        button.isCoolingDown = num > 0f;
+        button.SetCooldownFill(num);
+        if (button.isCoolingDown)
+        {
+            button.cooldownTimerText.text = timer.ToString(format, NumberFormatInfo.InvariantInfo);
+            button.cooldownTimerText.gameObject.SetActive(true);
+            return;
+        }
+        button.cooldownTimerText.gameObject.SetActive(false);
+    }
+
+    /// <summary>
+    /// Sets the fill-up variant of a cooldown button with a formatted string.
+    /// </summary>
+    /// <param name="button">The ActionButton to set the cooldown for.</param>
+    /// <param name="timer">The current timer value.</param>
+    /// <param name="maxTimer">The maximum timer value.</param>
+    /// <param name="format">The format string to use for the timer text.</param>
+    public static void SetFillUpFormat(this ActionButton button, float timer, float maxTimer, string format="0")
+    {
+        var num = Mathf.Clamp(timer / maxTimer, 0f, 1f);
+        button.isCoolingDown = num > 0f;
+        if (button.isCoolingDown && timer < 3f)
+        {
+            button.graphic.transform.localPosition = button.position + (Vector3)UnityEngine.Random.insideUnitCircle * 0.05f;
+            button.cooldownTimerText.text = timer.ToString(format, NumberFormatInfo.InvariantInfo);
+            button.cooldownTimerText.gameObject.SetActive(true);
+        }
+        else
+        {
+            button.graphic.transform.localPosition = button.position;
+        }
+        button.SetCooldownFill(num);
     }
 
     /// <summary>
