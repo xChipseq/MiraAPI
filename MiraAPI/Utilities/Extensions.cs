@@ -102,6 +102,12 @@ public static class Extensions
         return component;
     }
 
+    /// <summary>
+    /// Gets the maximum value from a dictionary of integers, returning the key and value.
+    /// </summary>
+    /// <param name="self">The dictionary to search.</param>
+    /// <param name="tie">Whether there is a tie for the maximum value.</param>
+    /// <returns>The key-value pair with the maximum value.</returns>
     public static KeyValuePair<byte, int> MaxPair(this Dictionary<byte, int> self, out bool tie)
     {
         tie = true;
@@ -121,6 +127,12 @@ public static class Extensions
         return result;
     }
 
+    /// <summary>
+    /// Gets the maximum value from a dictionary of floats, returning the key and value.
+    /// </summary>
+    /// <param name="self">The dictionary to search.</param>
+    /// <param name="tie">Whether there is a tie for the maximum value.</param>
+    /// <returns>The key-value pair with the maximum value.</returns>
     public static KeyValuePair<byte, float> MaxPair(this Dictionary<byte, float> self, out bool tie)
     {
         tie = true;
@@ -343,18 +355,6 @@ public static class Extensions
     }
 
     /// <summary>
-    /// Gets an alternate color based on the original color.
-    /// </summary>
-    /// <param name="color">The original color.</param>
-    /// <param name="amount">The amount to darken or lighten the original color by between 0.0 and 1.0.</param>
-    /// <returns>An alternate color that has been darkened or lightened.</returns>
-    [Obsolete("Use FindAlternateColor for WACG compliance.")]
-    public static Color GetAlternateColor(this Color color, float amount = 0.45f)
-    {
-        return color.IsColorDark() ? LightenColor(color, amount) : DarkenColor(color, amount);
-    }
-
-    /// <summary>
     /// Lightens a color by a specified amount.
     /// </summary>
     /// <param name="color">The original color.</param>
@@ -363,16 +363,6 @@ public static class Extensions
     public static Color LightenColor(this Color color, float amount = 0.45f)
     {
         return new Color(color.r + amount, color.g + amount, color.b + amount);
-    }
-
-    /// <summary>
-    /// Checks if a color is dark.
-    /// </summary>
-    /// <param name="color">The color to check.</param>
-    /// <returns>True if the color is dark, false otherwise.</returns>
-    public static bool IsColorDark(this Color color)
-    {
-        return color.r < 0.5f && color is { g: < 0.5f, b: < 0.5f };
     }
 
     /// <summary>
