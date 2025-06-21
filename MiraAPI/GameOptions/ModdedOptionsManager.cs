@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using BepInEx.Configuration;
@@ -175,7 +176,10 @@ public static class ModdedOptionsManager
     /// </summary>
     /// <param name="__originalMethod">The original setter method.</param>
     /// <param name="value">The new object value.</param>
+#pragma warning disable CA1707
+    [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Harmony naming convention")]
     public static void PropertySetterPatch(MethodBase __originalMethod, object value)
+#pragma warning restore CA1707
     {
         var attribute = OptionAttributes.First(pair => pair.Key.GetSetMethod() == __originalMethod).Value;
         attribute.SetValue(value);
@@ -187,7 +191,10 @@ public static class ModdedOptionsManager
     /// <param name="__originalMethod">The original getter method.</param>
     /// <param name="__result">The result of the property getter.</param>
     /// <returns>False so the original getter gets skipped.</returns>
+#pragma warning disable CA1707
+    [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Harmony naming convention")]
     public static bool PropertyGetterPatch(MethodBase __originalMethod, ref object __result)
+#pragma warning restore CA1707
     {
         var attribute = OptionAttributes.First(pair => pair.Key.GetGetMethod() == __originalMethod).Value;
         __result = attribute.GetValue();
