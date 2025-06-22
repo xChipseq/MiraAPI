@@ -122,7 +122,7 @@ public abstract class ModdedOption<T> : IModdedOption
                 entry.Value = Value;
             }
 
-            Rpc<SyncOptionsRpc>.Instance.Send(PlayerControl.LocalPlayer, [GetNetData()]);
+            Rpc<SyncOptionsRpc>.Instance.Send(PlayerControl.LocalPlayer, [GetNetData()], true);
         }
 
         OnValueChanged(newValue);
