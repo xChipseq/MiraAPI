@@ -32,6 +32,26 @@ internal static class GameSettingMenuPatches
     private static PassiveButton? _smallRolesButton;
 
     private static Dictionary<int, Vector3> OptionsPositions { get; } = [];
+    private static Dictionary<int, Vector3> ModifiersPositions { get; } = [];
+
+    private static void SaveScrollPositions(GameSettingMenu gameSettingMenu)
+    {
+        if (_modifiersTab)
+        {
+            ModifiersPositions[SelectedModIdx] = _modifiersTab!.scrollBar.Inner.localPosition;
+        }
+
+        RoleSettingMenuPatches.RolePositions[SelectedModIdx] = gameSettingMenu.RoleSettingsTab.scrollBar.Inner.localPosition;
+        OptionsPositions[SelectedModIdx] = gameSettingMenu.GameSettingsTab.scrollBar.Inner.localPosition;
+    }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(GameSettingMenu.ChangeTab))]
+
+    public static void ChangeTabPrefix(GameSettingMenu __instance)
+    {
+        SaveScrollPositions(__instance);
+    }
 
     [HarmonyPostfix]
     [HarmonyPatch(nameof(GameSettingMenu.ChangeTab))]
@@ -39,7 +59,11 @@ internal static class GameSettingMenuPatches
     {
         if ((previewOnly && Controller.currentTouchType == Controller.TouchType.Joystick) || !previewOnly)
         {
-            if (_modifiersTab) _modifiersTab!.gameObject.SetActive(tabNum == 3);
+            if (_modifiersTab)
+            {
+                _modifiersTab!.gameObject.SetActive(tabNum == 3);
+            }
+
             _modifiersButton?.SelectButton(tabNum == 3);
             _smallRolesButton?.SelectButton(tabNum == 2);
             if (tabNum == 3)
@@ -113,8 +137,7 @@ internal static class GameSettingMenuPatches
         passiveButton.OnClick.AddListener(
             (UnityAction)(() =>
             {
-                RoleSettingMenuPatches.RolePositions[SelectedModIdx] = __instance.RoleSettingsTab.scrollBar.Inner.localPosition;
-                OptionsPositions[SelectedModIdx] = __instance.GameSettingsTab.scrollBar.Inner.localPosition;
+                SaveScrollPositions(__instance);
                 SelectedModIdx += 1;
                 if (SelectedModIdx > MiraPluginManager.Instance.RegisteredPlugins().Length)
                 {
@@ -133,8 +156,7 @@ internal static class GameSettingMenuPatches
         backButton.gameObject.GetComponent<PassiveButton>().OnClick.AddListener(
             (UnityAction)(() =>
             {
-                RoleSettingMenuPatches.RolePositions[SelectedModIdx] = __instance.RoleSettingsTab.scrollBar.Inner.localPosition;
-                OptionsPositions[SelectedModIdx] = __instance.GameSettingsTab.scrollBar.Inner.localPosition;
+                SaveScrollPositions(__instance);
                 SelectedModIdx -= 1;
                 if (SelectedModIdx < 0)
                 {
@@ -403,7 +425,7 @@ internal static class GameSettingMenuPatches
 
         if (_modifiersTab?.Children?.Count > 0)
         {
-            CleanupSettings(_modifiersTab);
+            CleanupSettings(_modifiersTab, true);
         }
 
         void CleanupRoleSettings(RolesSettingsMenu rolesMenu)
@@ -440,7 +462,7 @@ internal static class GameSettingMenuPatches
             }
         }
 
-        void CleanupSettings(GameOptionsMenu gameOptMenu)
+        void CleanupSettings(GameOptionsMenu gameOptMenu, bool modifiers = false)
         {
             ClearOptions(gameOptMenu.Children);
             gameOptMenu.Children = null;
@@ -451,7 +473,9 @@ internal static class GameSettingMenuPatches
                 .ForEach(header => header.gameObject.DestroyImmediate());
 
             gameOptMenu.Initialize();
-            if (OptionsPositions.TryGetValue(SelectedModIdx, out var pos))
+ 
+            var positions = modifiers ? ModifiersPositions : OptionsPositions;
+            if (positions.TryGetValue(SelectedModIdx, out var pos))
             {
                 gameOptMenu.scrollBar.Inner.localPosition = pos;
                 gameOptMenu.scrollBar.UpdateScrollBars();
