@@ -8,6 +8,23 @@ namespace MiraAPI.Utilities.Assets;
 /// </summary>
 public static class MiraAssets
 {
+    static MiraAssets()
+    {
+        var boxTex = SpriteTools.LoadTextureFromResourcePath(
+            "MiraAPI.Resources.RoundedBox.png",
+            System.Reflection.Assembly.GetCallingAssembly());
+        var boxSprite = Sprite.Create(
+            boxTex,
+            new Rect(0, 0, boxTex.width, boxTex.height),
+            new Vector2(0.5f, 0.5f),
+            100f,
+            0U,
+            SpriteMeshType.Tight,
+            new Vector4(20, 20, 20, 20));
+
+        RoundedBox = new LoadableAssetWrapper<Sprite>(boxSprite);
+    }
+
     /// <summary>
     /// Gets the color used for teal highlighting in UI.
     /// </summary>
@@ -24,9 +41,29 @@ public static class MiraAssets
     public static LoadableAsset<GameObject> ModifierDisplay { get; } = new LoadableBundleAsset<GameObject>("Modifiers", MiraAssetBundle);
 
     /// <summary>
+    /// Gets the Popup prefab for saving presets.
+    /// </summary>
+    public static LoadableAsset<GameObject> PresetSavePopup { get; } = new LoadableBundleAsset<GameObject>("PresetSavePopup", MiraAssetBundle);
+
+    /// <summary>
+    /// Gets the Refresh Icon sprite.
+    /// </summary>
+    public static LoadableAsset<Sprite> RefreshIcon { get; } = new LoadableBundleAsset<Sprite>("refresh", MiraAssetBundle);
+
+    /// <summary>
+    /// Gets the Folder Icon sprite.
+    /// </summary>
+    public static LoadableAsset<Sprite> FolderIcon { get; } = new LoadableBundleAsset<Sprite>("freePlay_folderTaskRoom", MiraAssetBundle);
+
+    /// <summary>
     /// Gets the empty sprite asset.
     /// </summary>
     public static LoadableResourceAsset Empty { get; } = new("MiraAPI.Resources.Empty.png");
+
+    /// <summary>
+    /// Gets the RoundedBox sprite, which is a rounded rectangle used for UI elements.
+    /// </summary>
+    public static LoadableAsset<Sprite> RoundedBox { get; }
 
     /// <summary>
     /// Gets the Next Button sprite.

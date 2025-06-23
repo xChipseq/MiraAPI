@@ -47,6 +47,11 @@ public interface IModdedOption
     Func<bool> Visible { get; set; }
 
     /// <summary>
+    /// Gets or sets a value indicating whether the option should be included with presets.
+    /// </summary>
+    bool IncludeInPreset { get; set; }
+
+    /// <summary>
     /// Gets or sets the ConfigDefinition for the option, used for BepInEx configuration.
     /// </summary>
     ConfigDefinition? ConfigDefinition { get; set; }
@@ -78,4 +83,23 @@ public interface IModdedOption
     /// </summary>
     /// <param name="data">>The byte array representing the network data.</param>
     void HandleNetData(byte[] data);
+
+    /// <summary>
+    /// Saves the option to a preset configuration file.
+    /// </summary>
+    /// <param name="presetConfig">The ConfigFile representing the preset configuration.</param>
+    /// <param name="saveDefault">Indicates whether to save the default value instead of the current value.</param>
+    void SaveToPreset(ConfigFile presetConfig, bool saveDefault = false);
+
+    /// <summary>
+    /// Binds the option to a configuration file.
+    /// </summary>
+    /// <param name="config">The ConfigFile to bind the option to.</param>
+    void Bind(ConfigFile config);
+
+    /// <summary>
+    /// Loads the option from a preset configuration file, applying the values to the option's configuration.
+    /// </summary>
+    /// <param name="presetConfig">The ConfigFile representing the preset configuration.</param>
+    void LoadFromPreset(ConfigFile presetConfig);
 }

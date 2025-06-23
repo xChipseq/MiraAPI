@@ -77,6 +77,45 @@ public interface ICustomRole : IOptionable
     internal ConfigDefinition ChanceConfigDefinition => new("Roles", $"Chance {GetType().FullName}");
 
     /// <summary>
+    /// Binds the configuration options for this role to the provided ConfigFile.
+    /// </summary>
+    /// <param name="config">The ConfigFile to bind the options to.</param>
+    public virtual void BindConfig(ConfigFile config)
+    {
+        config.Bind(NumConfigDefinition, Configuration.DefaultRoleCount);
+        config.Bind(ChanceConfigDefinition, Configuration.DefaultChance);
+    }
+
+    /// <summary>
+    /// Saves the role's configuration to a preset ConfigFile.
+    /// </summary>
+    /// <param name="presetConfig">The ConfigFile to save the preset configuration to.</param>
+    /// <param name="useDefault">Whether to use the default values for the configuration.</param>
+    public virtual void SaveToPreset(ConfigFile presetConfig, bool useDefault=false)
+    {
+        BindConfig(presetConfig);
+        presetConfig[NumConfigDefinition].BoxedValue = useDefault ? Configuration.DefaultRoleCount : GetCount();
+        presetConfig[ChanceConfigDefinition].BoxedValue = useDefault ? Configuration.DefaultChance : GetChance();
+    }
+
+    /// <summary>
+    /// Loads the role's configuration from a preset ConfigFile.
+    /// </summary>
+    /// <param name="presetConfig">The ConfigFile containing the preset configuration.</param>
+    public virtual void LoadFromPreset(ConfigFile presetConfig)
+    {
+        if (presetConfig.TryGetEntry(NumConfigDefinition, out ConfigEntry<int> numEntry))
+        {
+            SetCount(numEntry.Value);
+        }
+
+        if (presetConfig.TryGetEntry(ChanceConfigDefinition, out ConfigEntry<int> chanceEntry))
+        {
+            SetChance(chanceEntry.Value);
+        }
+    }
+
+    /// <summary>
     /// Gets the role chance option.
     /// </summary>
     /// <returns>The role chance option.</returns>

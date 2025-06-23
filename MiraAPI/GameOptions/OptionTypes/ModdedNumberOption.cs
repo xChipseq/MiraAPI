@@ -48,6 +48,7 @@ public class ModdedNumberOption : ModdedOption<float>
     /// <param name="suffixType">The suffix type.</param>
     /// <param name="formatString">Optional format string for the option screen.</param>
     /// <param name="zeroInfinity">Whether zero is infinity or not.</param>
+    /// <param name="includeInPreset">Whether to include this option in the preset or not.</param>
     public ModdedNumberOption(
         string title,
         float defaultValue,
@@ -56,7 +57,8 @@ public class ModdedNumberOption : ModdedOption<float>
         float increment,
         MiraNumberSuffixes suffixType,
         string? formatString = null,
-        bool zeroInfinity = false) : base(title, defaultValue)
+        bool zeroInfinity = false,
+        bool includeInPreset = true) : base(title, defaultValue, includeInPreset)
     {
         Min = min;
         Max = max;

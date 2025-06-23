@@ -67,9 +67,9 @@ internal static class TaskAdderPatches
         modifiersFolder.FolderName = "Modifiers";
         modifiersFolder.name = "ModifiersFolder";
 
-        foreach (var plugin in MiraPluginManager.Instance.RegisteredPlugins())
+        foreach (var plugin in MiraPluginManager.Instance.RegisteredPlugins)
         {
-            if (plugin.CustomRoles.Any(x => x.Value is ICustomRole { Configuration.ShowInFreeplay: true }))
+            if (plugin.InternalRoles.Any(x => x.Value is ICustomRole { Configuration.ShowInFreeplay: true }))
             {
                 var newFolder = Object.Instantiate(__instance.RootFolderPrefab, _scroller.Inner);
                 newFolder.name = plugin.PluginId+":Roles";
@@ -78,7 +78,7 @@ internal static class TaskAdderPatches
                 rolesFolder.SubFolders.Add(newFolder);
             }
 
-            if (plugin.Modifiers.Exists(x => x.ShowInFreeplay))
+            if (plugin.InternalModifiers.Exists(x => x.ShowInFreeplay))
             {
                 var newFolder = Object.Instantiate(__instance.RootFolderPrefab, _scroller.Inner);
                 newFolder.name = plugin.PluginId+":Modifiers";
@@ -317,9 +317,9 @@ internal static class TaskAdderPatches
         ref float num2,
         ref float num3)
     {
-        for (var m = 0; m < plugin.Modifiers.Count; m++)
+        for (var m = 0; m < plugin.InternalModifiers.Count; m++)
         {
-            var modifier = plugin.Modifiers[m];
+            var modifier = plugin.InternalModifiers[m];
             if (!modifier.ShowInFreeplay)
             {
                 continue;
@@ -368,9 +368,9 @@ internal static class TaskAdderPatches
 
     private static void PluginRoles(TaskAdderGame instance, MiraPluginInfo plugin, ref float num, ref float num2, ref float num3)
     {
-        for (var m = 0; m < plugin.CustomRoles.Count; m++)
+        for (var m = 0; m < plugin.InternalRoles.Count; m++)
         {
-            var roleBehaviour = plugin.CustomRoles.ElementAt(m).Value;
+            var roleBehaviour = plugin.InternalRoles.ElementAt(m).Value;
             if (roleBehaviour.Role == RoleTypes.ImpostorGhost || roleBehaviour.Role == RoleTypes.CrewmateGhost ||
                 roleBehaviour is ICustomRole { Configuration.ShowInFreeplay: false })
             {

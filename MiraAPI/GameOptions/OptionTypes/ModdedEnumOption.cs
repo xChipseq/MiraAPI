@@ -18,7 +18,7 @@ public class ModdedEnumOption : ModdedOption<int>
     /// <summary>
     /// Gets the string values of the enum.
     /// </summary>
-    public string[]? Values { get; }
+    public string[] Values { get; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ModdedEnumOption"/> class.
@@ -27,7 +27,8 @@ public class ModdedEnumOption : ModdedOption<int>
     /// <param name="defaultValue">The default value as an int.</param>
     /// <param name="enumType">The Enum type.</param>
     /// <param name="values">An option list of string values to use in place of the enum name.</param>
-    public ModdedEnumOption(string title, int defaultValue, Type enumType, string[]? values = null) : base(title, defaultValue)
+    /// <param name="includeInPreset">Whether to include this option in the preset or not.</param>
+    public ModdedEnumOption(string title, int defaultValue, Type enumType, string[]? values = null, bool includeInPreset=true) : base(title, defaultValue, includeInPreset)
     {
         Values = values ?? Enum.GetNames(enumType);
         Data = ScriptableObject.CreateInstance<StringGameSetting>();
@@ -37,7 +38,7 @@ public class ModdedEnumOption : ModdedOption<int>
         data.Type = global::OptionTypes.String;
         data.Values = values is null ?
             Enum.GetNames(enumType).Select(CustomStringName.CreateAndRegister).ToArray()
-            : values.Select(CustomStringName.CreateAndRegister).ToArray();
+            : [.. values.Select(CustomStringName.CreateAndRegister)];
 
         data.Index = Value;
     }
@@ -87,7 +88,7 @@ public class ModdedEnumOption : ModdedOption<int>
     /// <inheritdoc />
     protected override void OnValueChanged(int newValue)
     {
-        HudManager.Instance.Notifier.AddSettingsChangeMessage(StringName, Data?.GetValueString(newValue), false);
+        HudManager.Instance.Notifier.AddSettingsChangeMessage(StringName, Data.GetValueString(newValue), false);
         if (!OptionBehaviour)
         {
             return;
@@ -109,7 +110,7 @@ public class ModdedEnumOption<T> : ModdedOption<T> where T : Enum
     /// <summary>
     /// Gets the string values of the enum.
     /// </summary>
-    public string[]? Values { get; }
+    public string[] Values { get; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ModdedEnumOption{T}"/> class.
@@ -117,7 +118,8 @@ public class ModdedEnumOption<T> : ModdedOption<T> where T : Enum
     /// <param name="title">The title of the option.</param>
     /// <param name="defaultValue">The default value as an int.</param>
     /// <param name="values">An option list of string values to use in place of the enum name.</param>
-    public ModdedEnumOption(string title, T defaultValue, string[]? values = null) : base(title, defaultValue)
+    /// <param name="includeInPreset">Whether to include this option in the preset or not.</param>
+    public ModdedEnumOption(string title, T defaultValue, string[]? values = null, bool includeInPreset=true) : base(title, defaultValue, includeInPreset)
     {
         Values = values ?? Enum.GetNames(typeof(T));
         Data = ScriptableObject.CreateInstance<StringGameSetting>();
@@ -127,7 +129,7 @@ public class ModdedEnumOption<T> : ModdedOption<T> where T : Enum
         data.Type = global::OptionTypes.String;
         data.Values = values is null ?
             Enum.GetNames(typeof(T)).Select(CustomStringName.CreateAndRegister).ToArray()
-            : values.Select(CustomStringName.CreateAndRegister).ToArray();
+            : [.. values.Select(CustomStringName.CreateAndRegister)];
 
         data.Index = Convert.ToInt32(Value, NumberFormatInfo.InvariantInfo);
     }

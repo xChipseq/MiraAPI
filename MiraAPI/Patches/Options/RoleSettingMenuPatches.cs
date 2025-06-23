@@ -76,7 +76,7 @@ public static class RoleSettingMenuPatches
 
         var num3 = 0;
 
-        var roleGroups = GameSettingMenuPatches.SelectedMod?.CustomRoles.Values.OfType<ICustomRole>()
+        var roleGroups = GameSettingMenuPatches.SelectedMod?.InternalRoles.Values.OfType<ICustomRole>()
             .ToLookup(x => x.RoleOptionsGroup);
 
         if (roleGroups is null)
@@ -332,7 +332,7 @@ public static class RoleSettingMenuPatches
         var num = hasImage ? -0.872f : -1;
 
         // TODO: create sub groups under the role settings.
-        var filteredOptions = GameSettingMenuPatches.SelectedMod?.OptionGroups
+        var filteredOptions = GameSettingMenuPatches.SelectedMod?.InternalOptionGroups
             .Where(x=> x.OptionableType == role.GetType())
             .SelectMany(x=>x.Options)
             .ToList() ?? [];
@@ -498,7 +498,7 @@ public static class RoleSettingMenuPatches
         roleOptionSetting.titleText.horizontalAlignment = HorizontalAlignmentOptions.Left;
 
         if (GameSettingMenuPatches.SelectedMod is null ||
-            GameSettingMenuPatches.SelectedMod.OptionGroups
+            GameSettingMenuPatches.SelectedMod.InternalOptionGroups
                 .Exists(x => x.OptionableType == role.GetType()))
         {
             var newButton = Object.Instantiate(roleOptionSetting.buttons[0], roleOptionSetting.transform);
@@ -530,7 +530,7 @@ public static class RoleSettingMenuPatches
             roleOptionSetting.ChancePlusBtn.gameObject.SetActive(false);
         }
 
-        if (index < GameSettingMenuPatches.SelectedMod?.CustomRoles.Count - 1)
+        if (index < GameSettingMenuPatches.SelectedMod?.InternalRoles.Count - 1)
         {
             ScrollerNum -= 0.43f;
         }

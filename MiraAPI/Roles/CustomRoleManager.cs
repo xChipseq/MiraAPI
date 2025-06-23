@@ -72,7 +72,7 @@ public static class CustomRoleManager
                 continue;
             }
 
-            pluginInfo.CustomRoles.Add((ushort)role.Role, role);
+            pluginInfo.InternalRoles.Add((ushort)role.Role, role);
         }
 
         pluginInfo.PluginConfig.Save();
@@ -161,7 +161,7 @@ public static class CustomRoleManager
     /// <returns>A MiraPluginInfo object representing the parent mod of the role.</returns>
     public static MiraPluginInfo FindParentMod(ICustomRole role)
     {
-        return MiraPluginManager.Instance.RegisteredPlugins().First(plugin => plugin.CustomRoles.ContainsValue(role as RoleBehaviour ?? throw new InvalidOperationException()));
+        return MiraPluginManager.Instance.RegisteredPlugins.First(plugin => plugin.InternalRoles.ContainsValue(role as RoleBehaviour ?? throw new InvalidOperationException()));
     }
 
     /// <summary>
@@ -236,7 +236,7 @@ public static class CustomRoleManager
         // we dont know how other plugins handle their configs
         // this way, all the options are saved at once, instead of one by one
         var oldConfigSetting = new Dictionary<MiraPluginInfo, bool>();
-        foreach (var plugin in MiraPluginManager.Instance.RegisteredPlugins())
+        foreach (var plugin in MiraPluginManager.Instance.RegisteredPlugins)
         {
             oldConfigSetting.Add(plugin, plugin.PluginConfig.SaveOnConfigSet);
             plugin.PluginConfig.SaveOnConfigSet = false;
@@ -271,7 +271,7 @@ public static class CustomRoleManager
             }
         }
 
-        foreach (var plugin in MiraPluginManager.Instance.RegisteredPlugins())
+        foreach (var plugin in MiraPluginManager.Instance.RegisteredPlugins)
         {
             plugin.PluginConfig.Save();
             plugin.PluginConfig.SaveOnConfigSet = oldConfigSetting[plugin];

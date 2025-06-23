@@ -43,7 +43,7 @@ public static class ModdedOptionsManager
 
         Groups.Add(group);
         TypeToGroup.Add(type, group);
-        pluginInfo.OptionGroups.Add(group);
+        pluginInfo.InternalOptionGroups.Add(group);
 
         typeof(OptionGroupSingleton<>).MakeGenericType(type)
 #pragma warning disable S3011
@@ -122,7 +122,7 @@ public static class ModdedOptionsManager
         option.ConfigDefinition = new ConfigDefinition(groupName, propertyName);
 
         option.ParentMod = pluginInfo.MiraPlugin;
-        pluginInfo.Options.Add(option);
+        pluginInfo.InternalOptions.Add(option);
         ModdedOptions.Add(option.Id, option);
         group.Options.Add(option);
     }
@@ -143,7 +143,7 @@ public static class ModdedOptionsManager
         // we dont know how other plugins handle their configs
         // this way, all the options are saved at once, instead of one by one
         var oldConfigSetting = new Dictionary<MiraPluginInfo, bool>();
-        foreach (var plugin in MiraPluginManager.Instance.RegisteredPlugins())
+        foreach (var plugin in MiraPluginManager.Instance.RegisteredPlugins)
         {
             oldConfigSetting.Add(plugin, plugin.PluginConfig.SaveOnConfigSet);
             plugin.PluginConfig.SaveOnConfigSet = false;
@@ -159,7 +159,7 @@ public static class ModdedOptionsManager
             option.HandleNetData(netData.Data);
         }
 
-        foreach (var plugin in MiraPluginManager.Instance.RegisteredPlugins())
+        foreach (var plugin in MiraPluginManager.Instance.RegisteredPlugins)
         {
             plugin.PluginConfig.Save();
             plugin.PluginConfig.SaveOnConfigSet = oldConfigSetting[plugin];

@@ -43,6 +43,49 @@ public static class Extensions
     }
 
     /// <summary>
+    /// Used if you override Minigame.Close.
+    /// </summary>
+    /// <param name="self">The minigame.</param>
+    public static void BaseClose(this Minigame self)
+    {
+        bool isComplete;
+        if (self.amClosing == Minigame.CloseState.Closing)
+        {
+            UnityEngine.Object.Destroy(self.gameObject);
+            return;
+        }
+        if (self.CloseSound && Constants.ShouldPlaySfx())
+        {
+            SoundManager.Instance.PlaySound(self.CloseSound, false, 1f, null);
+        }
+        if (PlayerControl.LocalPlayer.Data.Role.TeamType == RoleTeamTypes.Crewmate)
+        {
+            GameManager.Instance.LogicMinigame.OnMinigameClose();
+        }
+        if (PlayerControl.LocalPlayer)
+        {
+            PlayerControl.HideCursorTemporarily();
+        }
+        self.amClosing = Minigame.CloseState.Closing;
+        self.logger.Info(string.Concat("Closing minigame ", self.GetType().Name));
+        IAnalyticsReporter analytics = DestroyableSingleton<DebugAnalytics>.Instance.Analytics;
+        NetworkedPlayerInfo data = PlayerControl.LocalPlayer.Data;
+        TaskTypes taskType = self.TaskType;
+        float realtimeSinceStartup = Time.realtimeSinceStartup - self.timeOpened;
+        PlayerTask myTask = self.MyTask;
+        if (myTask != null)
+        {
+            isComplete = myTask.IsComplete;
+        }
+        else
+        {
+            isComplete = false;
+        }
+        analytics.MinigameClosed(data, taskType, realtimeSinceStartup, isComplete);
+        self.StartCoroutine(self.CoDestroySelf());
+    }
+    
+    /// <summary>
     /// Sets the cooldown of a button with a formatted string.
     /// </summary>
     /// <param name="button">The ActionButton to set the cooldown for.</param>
