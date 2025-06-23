@@ -113,10 +113,7 @@ internal static class GameSettingMenuPatches
         passiveButton.OnClick.AddListener(
             (UnityAction)(() =>
             {
-                if (!__instance.RoleSettingsTab.AdvancedRolesSettings.active)
-                {
-                    RoleSettingMenuPatches.RolePositions[SelectedModIdx] = __instance.RoleSettingsTab.scrollBar.Inner.localPosition;
-                }
+                RoleSettingMenuPatches.RolePositions[SelectedModIdx] = __instance.RoleSettingsTab.scrollBar.Inner.localPosition;
                 OptionsPositions[SelectedModIdx] = __instance.GameSettingsTab.scrollBar.Inner.localPosition;
                 SelectedModIdx += 1;
                 if (SelectedModIdx > MiraPluginManager.Instance.RegisteredPlugins().Length)
@@ -136,10 +133,7 @@ internal static class GameSettingMenuPatches
         backButton.gameObject.GetComponent<PassiveButton>().OnClick.AddListener(
             (UnityAction)(() =>
             {
-                if (!__instance.RoleSettingsTab.AdvancedRolesSettings.active)
-                {
-                    RoleSettingMenuPatches.RolePositions[SelectedModIdx] = __instance.RoleSettingsTab.scrollBar.Inner.localPosition;
-                }
+                RoleSettingMenuPatches.RolePositions[SelectedModIdx] = __instance.RoleSettingsTab.scrollBar.Inner.localPosition;
                 OptionsPositions[SelectedModIdx] = __instance.GameSettingsTab.scrollBar.Inner.localPosition;
                 SelectedModIdx -= 1;
                 if (SelectedModIdx < 0)
