@@ -30,9 +30,16 @@ public static class RoleSettingMenuPatches
 
     private static float ScrollerNum { get; set; } = 0.522f;
 
+    [HarmonyPostfix]
+    [HarmonyPatch(nameof(RolesSettingsMenu.SetQuotaTab))]
+    public static void SetQuotaTabPostfix(RolesSettingsMenu __instance)
+    {
+        __instance.scrollBar.SetScrollBounds(__instance);
+    }
+
     [HarmonyPrefix]
     [HarmonyPatch(nameof(RolesSettingsMenu.SetQuotaTab))]
-    public static bool PatchStart(RolesSettingsMenu __instance)
+    public static bool SetQuotaTabPatch(RolesSettingsMenu __instance)
     {
         Headers.ForEach(Object.Destroy);
         RoleOptionSettings.ForEach(Object.Destroy);
@@ -227,13 +234,19 @@ public static class RoleSettingMenuPatches
                 ScrollerNum -= 0.4f;
             }
         }
-        __instance.scrollBar.SetScrollBounds();
+        __instance.scrollBar.SetScrollBounds(__instance);
         return false;
     }
 
-    private static void SetScrollBounds(this Scroller scroller)
+    private static void SetScrollBounds(this Scroller scroller, RolesSettingsMenu roleMenu)
     {
-        scroller.CalculateAndSetYBounds(1 + 1.5f * Headers.Count + RoleOptionSettings.Count, 1f, 6f, 0.43f);
+        if (GameSettingMenuPatches.SelectedModIdx == 0)
+        {
+            scroller.CalculateAndSetYBounds(roleMenu.roleChances.Count + 3, 1f, 6f, 0.43f);
+            return;
+        }
+
+        scroller.CalculateAndSetYBounds(1.5f * Headers.Count + RoleOptionSettings.Count, 1f, 6f, 0.43f);
         if (RolePositions.TryGetValue(GameSettingMenuPatches.SelectedModIdx, out var scroll))
         {
             scroller.Inner.localPosition = scroll;
@@ -256,12 +269,12 @@ public static class RoleSettingMenuPatches
     [HarmonyPatch(nameof(RolesSettingsMenu.OpenChancesTab))]
     public static void OpenChancesTabPostfix(RolesSettingsMenu __instance)
     {
-        if (GameSettingMenuPatches.SelectedModIdx == 0 || !__instance.scrollBar)
+        if (!__instance.scrollBar)
         {
             return;
         }
 
-        __instance.scrollBar.SetScrollBounds();
+        __instance.scrollBar.SetScrollBounds(__instance);
     }
 
     private static void ValueChanged(OptionBehaviour obj)
