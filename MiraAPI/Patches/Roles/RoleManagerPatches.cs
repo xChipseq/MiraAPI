@@ -65,7 +65,7 @@ public static class RoleManagerPatches
     [HarmonyPatch(nameof(RoleManager.SelectRoles))]
     public static void ModifierSelectionPatches(RoleManager __instance)
     {
-        if (!AmongUsClient.Instance.AmHost)
+        if (!AmongUsClient.Instance.AmHost || !ModifierManager.MiraAssignsModifiers)
         {
             return;
         }

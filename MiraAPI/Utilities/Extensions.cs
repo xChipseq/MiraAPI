@@ -84,7 +84,7 @@ public static class Extensions
         analytics.MinigameClosed(data, taskType, realtimeSinceStartup, isComplete);
         self.StartCoroutine(self.CoDestroySelf());
     }
-    
+
     /// <summary>
     /// Sets the cooldown of a button with a formatted string.
     /// </summary>

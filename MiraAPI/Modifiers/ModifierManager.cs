@@ -16,6 +16,11 @@ namespace MiraAPI.Modifiers;
 /// </summary>
 public static class ModifierManager
 {
+    /// <summary>
+    /// Gets or sets a value indicating whether modifiers should be assigned to players.
+    /// </summary>
+    public static bool MiraAssignsModifiers { get; set; } = true;
+
     private static readonly Dictionary<uint, Type> IdToTypeModifierMap = [];
     private static readonly Dictionary<Type, uint> TypeToIdModifierMap = [];
     private static readonly Dictionary<int, List<uint>> PrioritiesToIdsMap = [];
@@ -98,7 +103,11 @@ public static class ModifierManager
         return true;
     }
 
-    internal static void AssignModifiers(List<PlayerControl> plrs)
+    /// <summary>
+    /// Assigns modifiers to players. ONLY CALL THIS METHOD IF YOU KNOW WHAT YOU ARE DOING.
+    /// </summary>
+    /// <param name="plrs">The players to assign modifiers to.</param>
+    public static void AssignModifiers(List<PlayerControl> plrs)
     {
         var rand = new Random();
 

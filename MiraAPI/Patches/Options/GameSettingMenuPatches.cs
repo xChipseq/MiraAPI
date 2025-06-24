@@ -495,7 +495,6 @@ internal static class GameSettingMenuPatches
                 .ForEach(header => header.gameObject.DestroyImmediate());
 
             gameOptMenu.Initialize();
- 
             var positions = modifiers ? ModifiersPositions : OptionsPositions;
             if (positions.TryGetValue(SelectedModIdx, out var pos))
             {

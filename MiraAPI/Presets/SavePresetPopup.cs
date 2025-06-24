@@ -9,16 +9,21 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 
 [RegisterInIl2Cpp]
-public class SavePresetPopup(nint ptr) : Minigame(ptr)
+#pragma warning disable S3903
+#pragma warning disable CA1050
+public class SavePresetPopup(nint cppPtr) : Minigame(cppPtr)
+#pragma warning restore CA1050
+#pragma warning restore S3903
 {
-    private PassiveButton saveButton;
-    private PassiveButton closeButton;
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
     private TextMeshPro textBoxText;
     private TextBoxTMP textBox;
 
     private Action<string> onSave;
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
 
     // Cleanup holder object
     public void OnDestroy()
@@ -28,13 +33,14 @@ public class SavePresetPopup(nint ptr) : Minigame(ptr)
 
     public override void Close()
     {
+        // no-op
     }
 
     private void Awake()
     {
         var textboxHolder = transform.GetChild(1).GetChild(1);
-        saveButton = transform.FindChild("SaveButton").GetComponent<PassiveButton>();
-        closeButton = transform.FindChild("CloseButton").GetComponent<PassiveButton>();
+        var saveButton = transform.FindChild("SaveButton").GetComponent<PassiveButton>();
+        var closeButton = transform.FindChild("CloseButton").GetComponent<PassiveButton>();
         textBox = textboxHolder.GetChild(0).GetComponent<TextBoxTMP>();
         textBoxText = textBox.transform.GetChild(0).GetComponent<TextMeshPro>();
 
@@ -64,7 +70,11 @@ public class SavePresetPopup(nint ptr) : Minigame(ptr)
 
         foreach (var tmp in gameObject.GetComponentsInChildren<TextMeshPro>())
         {
-            if (tmp.gameObject.transform.parent.name == "Textbox") continue;
+            if (tmp.gameObject.transform.parent.name == "Textbox")
+            {
+                continue;
+            }
+
             var text = tmp.text;
             tmp.text = $"<font=\"LiberationSans SDF\" material=\"LiberationSans SDF RadialMenu Material\">{text}</font>";
         }
@@ -78,9 +88,9 @@ public class SavePresetPopup(nint ptr) : Minigame(ptr)
             transform =
             {
                 parent = Camera.main!.transform,
+                localPosition = new Vector3(0, -1f, -500),
             },
         };
-        holder.transform.localPosition = new Vector3(0, -1f, -500);
 
         var gameObject = Instantiate(MiraAssets.PresetSavePopup.LoadAsset(), holder.transform);
         var popup = gameObject.GetComponent<SavePresetPopup>();
@@ -88,4 +98,5 @@ public class SavePresetPopup(nint ptr) : Minigame(ptr)
         popup.Begin(null);
     }
 }
+
 

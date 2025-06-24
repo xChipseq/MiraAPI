@@ -91,6 +91,6 @@ public static class PresetManager
 
             plugin.InternalPresets.Add(new OptionPreset(presetName, plugin, presetConfig));
         }
-        plugin.Presets = [.. plugin.InternalPresets];
+        plugin.Presets = [..plugin.InternalPresets];
     }
 }

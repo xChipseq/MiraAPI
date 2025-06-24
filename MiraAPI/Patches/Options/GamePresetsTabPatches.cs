@@ -89,7 +89,7 @@ internal static class GamePresetsTabPatches
 
             var prefab = GameSettingMenu.Instance.GameSettingsButton;
 
-            foreach (var preset in MiraPluginManager.Instance.RegisteredPlugins.SelectMany(x => x.Presets))
+            foreach (var preset in MiraPluginManager.Instance.RegisteredPlugins.SelectMany(x => x.InternalPresets))
             {
                 var button = Object.Instantiate(prefab, _presetHolder.transform);
                 button.buttonText.text = preset.Name;
@@ -112,7 +112,7 @@ internal static class GamePresetsTabPatches
 
             foreach (var mod in MiraPluginManager.Instance.RegisteredPlugins)
             {
-                foreach (var button in mod.Presets.Select(x => x.PresetButton))
+                foreach (var button in mod.InternalPresets.Select(x => x.PresetButton))
                 {
                     if (button != null)
                     {
@@ -154,7 +154,7 @@ internal static class GamePresetsTabPatches
 
             foreach (var mod in MiraPluginManager.Instance.RegisteredPlugins)
             {
-                foreach (var button in mod.Presets.Select(x => x.PresetButton))
+                foreach (var button in mod.InternalPresets.Select(x => x.PresetButton))
                 {
                     if (button != null)
                     {
