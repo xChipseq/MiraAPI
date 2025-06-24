@@ -129,8 +129,10 @@ public static class LobbyViewPanePatches
         __instance.rolesTabButton.SelectButton(false);
 
         ModifiersTabButton?.SelectButton(true);
+
         var filteredGroups = SelectedMod.InternalOptionGroups
-            .Where(x => x.GroupVisible() && (x.ShowInModifiersMenu || x.OptionableType?.IsAssignableTo(typeof(BaseModifier))==true));
+            .Where(x => x.GroupVisible() && (x.ShowInModifiersMenu || (x.OptionableType != null && x.OptionableType.IsAssignableTo(typeof(BaseModifier)))));
+
         DrawOptions(__instance, filteredGroups);
     }
 
@@ -149,7 +151,8 @@ public static class LobbyViewPanePatches
         }
 
         var filteredGroups = SelectedMod.InternalOptionGroups
-            .Where(x => x.OptionableType == null && x.GroupVisible.Invoke());
+            .Where(x => x is { ShowInModifiersMenu: false, OptionableType: null } && x.GroupVisible());
+
         DrawOptions(__instance, filteredGroups);
         return false;
     }
@@ -176,12 +179,15 @@ public static class LobbyViewPanePatches
     {
         var num = 1.44f;
 
-        foreach (var group in groups)
+        var groupArray = groups.Where(x => x.GroupVisible() && x.Options.Any(y => y.Visible())).ToArray();
+
+        foreach (var group in groupArray)
         {
             var categoryHeaderMasked = Object.Instantiate(
                 menu.categoryHeaderOrigin,
                 menu.settingsContainer,
                 true);
+
             categoryHeaderMasked.SetHeader(StringNames.Name, 61);
             categoryHeaderMasked.Title.text = group.GroupName;
             categoryHeaderMasked.transform.localScale = Vector3.one;
@@ -193,7 +199,7 @@ public static class LobbyViewPanePatches
 
             foreach (var option in group.Options)
             {
-                if (!option.Visible.Invoke())
+                if (!option.Visible())
                 {
                     continue;
                 }
@@ -202,6 +208,7 @@ public static class LobbyViewPanePatches
                     menu.infoPanelOrigin,
                     menu.settingsContainer,
                     true);
+
                 viewSettingsInfoPanel.transform.localScale = Vector3.one;
                 float num2;
                 if (i % 2 == 0)
@@ -240,7 +247,8 @@ public static class LobbyViewPanePatches
             num -= 0.85f;
         }
 
-        menu.scrollBar.CalculateAndSetYBounds(menu.settingsInfo.Count + 10, 2f, 6f, 0.85f);
+        menu.scrollBar.ContentYBounds.max = -num - 2;
+        menu.scrollBar.UpdateScrollBars();
     }
 
     private static void DrawRolesTab(LobbyViewSettingsPane instance)
