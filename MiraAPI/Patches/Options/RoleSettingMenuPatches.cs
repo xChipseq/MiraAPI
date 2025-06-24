@@ -368,7 +368,7 @@ public static class RoleSettingMenuPatches
             newOpt.Initialize();
         }
 
-        __instance.scrollBar.CalculateAndSetYBounds(-num - 2, 1f, 6f, 0.45f);
+        __instance.scrollBar.SetYBoundsMax(-num - 3);
         __instance.scrollBar.ScrollToTop();
     }
 
