@@ -247,8 +247,7 @@ public static class LobbyViewPanePatches
             num -= 0.85f;
         }
 
-        menu.scrollBar.ContentYBounds.max = -num - 2;
-        menu.scrollBar.UpdateScrollBars();
+        menu.scrollBar.SetYBoundsMax(-num - 2);
     }
 
     private static void DrawRolesTab(LobbyViewSettingsPane instance)
