@@ -234,6 +234,7 @@ public static class RoleSettingMenuPatches
                 ScrollerNum -= 0.4f;
             }
         }
+
         __instance.scrollBar.SetScrollBounds(__instance);
         return false;
     }
@@ -246,7 +247,7 @@ public static class RoleSettingMenuPatches
             return;
         }
 
-        scroller.CalculateAndSetYBounds(1.5f * Headers.Count + RoleOptionSettings.Count, 1f, 6f, 0.43f);
+        scroller.SetYBoundsMax(-ScrollerNum - 2);
         if (RolePositions.TryGetValue(GameSettingMenuPatches.SelectedModIdx, out var scroll))
         {
             scroller.Inner.localPosition = scroll;
@@ -367,7 +368,7 @@ public static class RoleSettingMenuPatches
             newOpt.Initialize();
         }
 
-        __instance.scrollBar.CalculateAndSetYBounds(__instance.advancedSettingChildren.Count + 3, 1f, 6f, 0.45f);
+        __instance.scrollBar.CalculateAndSetYBounds(-num - 2, 1f, 6f, 0.45f);
         __instance.scrollBar.ScrollToTop();
     }
 
