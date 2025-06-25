@@ -184,7 +184,10 @@ public abstract class CustomActionButton
 
         this.Location = location;
 
-        if (!moveButton) return;
+        if (!moveButton)
+        {
+            return;
+        }
 
         if (HudManagerPatches.BottomLeft == null || HudManagerPatches.BottomRight == null)
         {
