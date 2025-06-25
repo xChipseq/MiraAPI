@@ -2,7 +2,6 @@
 using HarmonyLib;
 using Il2CppSystem;
 using MiraAPI.Roles;
-using UnityEngine;
 using Object = Il2CppSystem.Object;
 
 namespace MiraAPI.Patches.Options;

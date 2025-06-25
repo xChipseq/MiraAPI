@@ -1,6 +1,4 @@
 ﻿using System;
-using Il2CppInterop.Runtime.InteropTypes.Fields;
-using MiraAPI.Modifiers.ModifierDisplay;
 using MiraAPI.Utilities;
 using MiraAPI.Utilities.Assets;
 using Reactor.Utilities.Attributes;
@@ -98,5 +96,6 @@ public class SavePresetPopup(nint cppPtr) : Minigame(cppPtr)
         popup.Begin(null);
     }
 }
+
 
 
