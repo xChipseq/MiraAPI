@@ -1,5 +1,5 @@
-﻿using MiraAPI.Networking;
-using System;
+﻿using System;
+using MiraAPI.Networking;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -15,8 +15,8 @@ public class ModdedToggleOption : ModdedOption<bool>
     /// </summary>
     /// <param name="title">The option title.</param>
     /// <param name="defaultValue">The default value.</param>
-    /// <param name="roleType">An optional role type.</param>
-    public ModdedToggleOption(string title, bool defaultValue, Type? roleType = null) : base(title, defaultValue, roleType)
+    /// <param name="includeInPreset">Whether to include this option in the preset or not.</param>
+    public ModdedToggleOption(string title, bool defaultValue, bool includeInPreset=true) : base(title, defaultValue, includeInPreset)
     {
         Data = ScriptableObject.CreateInstance<CheckboxGameSetting>();
 

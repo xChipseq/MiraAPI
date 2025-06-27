@@ -14,16 +14,16 @@ public class ExampleOptions2 : AbstractOptionGroup
 
     public ModdedToggleOption ToggleOpt2 { get; } = new("Toggle Option 2", false)
     {
-        Visible = () => OptionGroupSingleton<ExampleOptions2>.Instance.ToggleOpt1.Value,
+        Visible = () => OptionGroupSingleton<ExampleOptions2>.Instance.ToggleOpt1, // implicit cast from ModdedToggleOption to bool
     };
 
-    public ModdedEnumOption EnumOpt { get; } = new("Enum Opt", 0, typeof(TestingData))
+    public ModdedEnumOption<TestingData> EnumOpt { get; } = new("Enum Opt", 0)
     {
         ChangedEvent = x => Logger<ExamplePlugin>.Info($"changed Enum Opt to {x}"),
     };
 }
 
-public enum TestingData
+public enum TestingData : ulong
 {
     Happy,
     Sad,

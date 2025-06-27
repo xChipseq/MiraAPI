@@ -62,8 +62,6 @@ public static class HudManagerPatches
 
         if (role is ICustomRole { Configuration.RoleHintType: RoleHintType.RoleTab } customRole)
         {
-            customRole.HudUpdate(__instance);
-
             if (_roleTab == null)
             {
                 _roleTab = CustomRoleManager.CreateRoleTab(customRole);

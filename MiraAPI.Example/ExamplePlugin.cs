@@ -21,6 +21,7 @@ public partial class ExamplePlugin : BasePlugin, IMiraPlugin
     public ConfigFile GetConfigFile() => Config;
     public override void Load()
     {
+        ExampleEventHandlers.Initialize();
         Harmony.PatchAll();
     }
 }

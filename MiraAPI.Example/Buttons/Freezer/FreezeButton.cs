@@ -3,19 +3,21 @@ using MiraAPI.Example.Options.Roles;
 using MiraAPI.Example.Roles;
 using MiraAPI.GameOptions;
 using MiraAPI.Hud;
+using MiraAPI.Modifiers;
 using MiraAPI.Utilities;
 using MiraAPI.Utilities.Assets;
 using UnityEngine;
 
 namespace MiraAPI.Example.Buttons.Freezer;
 
-[RegisterButton]
 public class FreezeButton : CustomActionButton<PlayerControl>
 {
     public override string Name => "Freeze";
+
     public override float Cooldown => OptionGroupSingleton<FreezerRoleSettings>.Instance.FreezeDuration;
-    public override float EffectDuration => 0f;
+
     public override int MaxUses => (int)OptionGroupSingleton<FreezerRoleSettings>.Instance.FreezeUses;
+
     public override LoadableAsset<Sprite> Sprite => ExampleAssets.ExampleButton;
 
     protected override void OnClick()

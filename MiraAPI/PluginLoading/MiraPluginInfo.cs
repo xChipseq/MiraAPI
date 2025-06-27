@@ -1,9 +1,14 @@
-﻿using BepInEx;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using BepInEx;
 using BepInEx.Configuration;
 using MiraAPI.GameModes;
 using MiraAPI.GameOptions;
-using System.Collections.Generic;
+using MiraAPI.Hud;
+using MiraAPI.Modifiers;
+using MiraAPI.Presets;
 
+// ReSharper disable UnusedAutoPropertyAccessor.Global
 namespace MiraAPI.PluginLoading;
 
 /// <summary>
@@ -19,13 +24,59 @@ public class MiraPluginInfo
         PluginId = info.Metadata.GUID;
     }
 
-    internal List<AbstractOptionGroup> OptionGroups { get; } = [];
+    /// <summary>
+    /// Gets a read only collection of this plugin's modifiers. This is not safe for modifiers with constructors.
+    /// </summary>
+    public IReadOnlyCollection<BaseModifier> Modifiers { get; private set; } = null!;
 
-    internal List<IModdedOption> Options { get; } = [];
+    /// <summary>
+    /// Gets a read only collection of this plugin's Option Groups.
+    /// </summary>
+    public IReadOnlyCollection<AbstractOptionGroup> OptionGroups { get; private set; } = null!;
 
-    internal Dictionary<ushort, RoleBehaviour> CustomRoles { get; } = [];
+    /// <summary>
+    /// Gets a read only collection of this plugin's options.
+    /// </summary>
+    public IReadOnlyCollection<IModdedOption> Options { get; private set; } = null!;
 
-    internal Dictionary<int, CustomGameMode> GameModes { get; } = [];
+    /// <summary>
+    /// Gets a read only dictionary of Role IDs and the RoleBehaviour object they are associated with.
+    /// </summary>
+    public ReadOnlyDictionary<ushort, RoleBehaviour> Roles { get; private set; } = null!;
+
+    /// <summary>
+    /// Gets a read only collection of this plugin's custom buttons.
+    /// </summary>
+    public IReadOnlyCollection<CustomActionButton> Buttons { get; private set; } = null!;
+
+    /// <summary>
+    /// Gets a read only dictionary of this plugin's custom game modes.
+    /// </summary>
+    public IReadOnlyCollection<OptionPreset> Presets { get; internal set; } = null!;
+
+    internal void SavePublicCollections()
+    {
+        Presets = [..InternalPresets];
+        Modifiers = [..InternalModifiers];
+        OptionGroups = [..InternalOptionGroups];
+        Options = [..InternalOptions];
+        Roles = new ReadOnlyDictionary<ushort, RoleBehaviour>(InternalRoles);
+        Buttons = [..InternalButtons];
+    }
+
+    internal List<OptionPreset> InternalPresets { get; } = [];
+
+    internal List<AbstractOptionGroup> InternalOptionGroups { get; } = [];
+
+    internal List<IModdedOption> InternalOptions { get; } = [];
+
+    internal List<BaseModifier> InternalModifiers { get; } = [];
+
+    internal Dictionary<ushort, RoleBehaviour> InternalRoles { get; } = [];
+
+    internal Dictionary<int, CustomGameMode> InternalGameModes { get; } = [];
+
+    internal List<CustomActionButton> InternalButtons { get; } = [];
 
     /// <summary>
     /// Gets the plugin's ID, as defined in the plugin's BepInEx metadata.

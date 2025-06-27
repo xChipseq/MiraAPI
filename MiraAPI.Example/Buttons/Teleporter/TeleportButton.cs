@@ -1,14 +1,14 @@
-﻿using MiraAPI.Example.Options.Roles;
+﻿using System.Collections;
+using MiraAPI.Example.Options.Roles;
 using MiraAPI.Example.Roles;
 using MiraAPI.GameOptions;
 using MiraAPI.Hud;
 using MiraAPI.Utilities.Assets;
 using Reactor.Utilities;
-using System.Collections;
 using UnityEngine;
 
 namespace MiraAPI.Example.Buttons.Teleporter;
-[RegisterButton]
+
 public class TeleportButton : CustomActionButton
 {
     public override string Name => "Teleport";
@@ -16,16 +16,17 @@ public class TeleportButton : CustomActionButton
     public override float Cooldown => OptionGroupSingleton<TeleporterOptions>.Instance.TeleportCooldown.Value;
 
     public override float EffectDuration => OptionGroupSingleton<TeleporterOptions>.Instance.TeleportDuration;
-
-    public override int MaxUses => 0;
+    public override int MaxUses => 2;
 
     public override LoadableAsset<Sprite> Sprite => ExampleAssets.TeleportButton;
+    public override Color TextOutlineColor => new Color32(221, 176, 152, 255);
     public static bool IsZoom { get; private set; }
 
     public override bool Enabled(RoleBehaviour? role)
     {
         return role is TeleporterRole;
     }
+
     protected override void OnClick()
     {
         Coroutines.Start(ZoomOutCoroutine());

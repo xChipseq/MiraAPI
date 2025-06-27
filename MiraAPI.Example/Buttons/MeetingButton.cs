@@ -1,19 +1,16 @@
 ﻿using MiraAPI.Example.Modifiers;
 using MiraAPI.Hud;
-using MiraAPI.Utilities;
+using MiraAPI.Modifiers;
 using MiraAPI.Utilities.Assets;
 using UnityEngine;
 
 namespace MiraAPI.Example.Buttons;
 
-[RegisterButton]
 public class MeetingButton : CustomActionButton
 {
     public override string Name => "Call Meeting";
 
     public override float Cooldown => 15;
-
-    public override float EffectDuration => 0;
 
     public override int MaxUses => 3;
 
