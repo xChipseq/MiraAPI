@@ -2,6 +2,8 @@
 using Il2CppSystem;
 using MiraAPI.Roles;
 using MiraAPI.Utilities;
+using UnityEngine;
+using Object = Il2CppSystem.Object;
 
 namespace MiraAPI.Patches.Options;
 
@@ -22,7 +24,9 @@ public static class OptionsPatches
             __instance.roleMaxCount = 1;
         }
 
-        __instance.roleChance += 10;
+        var increment = Input.GetKey(KeyCode.LeftShift) ? 5 : 10;
+        __instance.roleChance += increment;
+
         if (__instance.roleChance > 100)
         {
             __instance.roleChance = 0;
@@ -46,7 +50,9 @@ public static class OptionsPatches
             __instance.roleMaxCount = 1;
         }
 
-        __instance.roleChance -= 10;
+        var increment = Input.GetKey(KeyCode.LeftShift) ? 5 : 10;
+        __instance.roleChance -= increment;
+
         if (__instance.roleChance < 0)
         {
             __instance.roleChance = 100;
