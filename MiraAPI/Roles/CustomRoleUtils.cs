@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using AmongUs.GameOptions;
 using MiraAPI.Utilities.Assets;
+using Reactor.Utilities;
 using UnityEngine;
 
 namespace MiraAPI.Roles;
@@ -56,7 +57,21 @@ public static class CustomRoleUtils
     public static LoadableAsset<AudioClip>? GetIntroSound(RoleTypes roleType)
     {
         var role = RoleManager.Instance.AllRoles.FirstOrDefault(role => role.Role == roleType);
-        if (role is ICustomRole customRole) return customRole.Configuration.IntroSound;
+        if (role is ICustomRole customRole)
+        {
+            return customRole.Configuration.IntroSound;
+        }
+
         return new PreloadedAsset<AudioClip>(role!.IntroSound);
+    }
+
+    /// <summary>
+    /// Determines if a role is a custom role or not.
+    /// </summary>
+    /// <param name="role">The RoleBehaviour to check.</param>
+    /// <returns>True if the role is a custom role, false otherwise.</returns>
+    public static bool IsCustomRole(this RoleBehaviour role)
+    {
+        return CustomRoleManager.CustomRoles.ContainsKey((ushort)role.Role);
     }
 }

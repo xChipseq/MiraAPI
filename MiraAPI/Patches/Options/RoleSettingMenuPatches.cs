@@ -493,6 +493,10 @@ public static class RoleSettingMenuPatches
         roleOptionSetting.labelSprite.color = customRole.OptionsMenuColor;
         roleOptionSetting.OnValueChanged = new Action<OptionBehaviour>(ValueChanged);
         roleOptionSetting.SetClickMask(__instance.ButtonClickMask);
+        roleOptionSetting.ChanceMinusBtn.SetInteractable(true);
+        roleOptionSetting.ChancePlusBtn.SetInteractable(true);
+        roleOptionSetting.CountMinusBtn.SetInteractable(true);
+        roleOptionSetting.CountPlusBtn.SetInteractable(true);
         __instance.roleChances.Add(roleOptionSetting);
 
         roleOptionSetting.titleText.transform.localPosition = new Vector3(-0.5376f, -0.2923f, 0f);
