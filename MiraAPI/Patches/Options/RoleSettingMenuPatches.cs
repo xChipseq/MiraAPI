@@ -211,9 +211,10 @@ public static class RoleSettingMenuPatches
             headerBtn.OnClick.AddListener(
                 (UnityAction)(() =>
                 {
-                    if (RoleGroupHidden.TryGetValue(group, out var value))
+                    RolePositions[GameSettingMenuPatches.SelectedModIdx] = __instance.scrollBar.Inner.localPosition;
+                    if (RoleGroupHidden.TryGetValue(group, out var groupHidden))
                     {
-                        RoleGroupHidden[group] = !value;
+                        RoleGroupHidden[group] = !groupHidden;
                     }
                     foreach (var header in Headers)
                     {
