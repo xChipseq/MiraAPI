@@ -334,8 +334,9 @@ public static class RoleSettingMenuPatches
 
         // TODO: create sub groups under the role settings.
         var filteredOptions = GameSettingMenuPatches.SelectedMod?.InternalOptionGroups
-            .Where(x=> x.OptionableType == role.GetType())
-            .SelectMany(x=>x.Options)
+            .Where(x => x.GroupVisible() && x.OptionableType == role.GetType())
+            .SelectMany(x => x.Options)
+            .Where(x => x.Visible())
             .ToList() ?? [];
 
         foreach (var option in filteredOptions)
