@@ -114,7 +114,7 @@ public static class HatsTabPatches
                 yield return null;
             }
 
-            __instance.scroller.ContentYBounds.max = -(__instance.YStart - (hatIndex + 1) / __instance.NumPerRow * __instance.YOffset) - 3f;
+            __instance.SetScrollerBounds();
             yield return new WaitForSeconds(0.01f);
         }
         __instance.currentHatIsEquipped = true;
