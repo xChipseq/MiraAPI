@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using HarmonyLib;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
+using MiraAPI.GameOptions;
 using MiraAPI.Networking;
 using MiraAPI.Roles;
 using MiraAPI.Utilities;
@@ -31,6 +32,7 @@ public static class RoleSettingMenuPatches
     private static float ScrollerNum { get; set; } = 0.522f;
 
     private static RoleBehaviour? CurrentRole { get; set; }
+    private static List<IModdedOption>? CurrentRoleOptions { get; set; }
 
     [HarmonyPostfix]
     [HarmonyPatch(nameof(RolesSettingsMenu.SetQuotaTab))]
@@ -48,6 +50,7 @@ public static class RoleSettingMenuPatches
         Headers.Clear();
         RoleOptionSettings.Clear();
         CurrentRole = null;
+        CurrentRoleOptions = null;
 
         __instance.roleChances = new Il2CppSystem.Collections.Generic.List<RoleOptionSetting>();
         __instance.advancedSettingChildren = new Il2CppSystem.Collections.Generic.List<OptionBehaviour>();
@@ -268,17 +271,12 @@ public static class RoleSettingMenuPatches
     public static bool UpdatePatch(RolesSettingsMenu __instance)
     {
         if (GameSettingMenuPatches.SelectedModIdx == 0) return true;
-        if (CurrentRole == null) return false;
-
-        var filteredOptions = GameSettingMenuPatches.SelectedMod?.InternalOptionGroups
-            .Where(x => x.GroupVisible() && x.OptionableType == CurrentRole.GetType())
-            .SelectMany(x => x.Options)
-            .ToList() ?? [];
+        if (CurrentRole == null || CurrentRoleOptions == null) return false;
 
         var hasImage = CurrentRole.RoleScreenshot != null;
         var num = hasImage ? -0.872f : -1;
 
-        foreach (var opt in filteredOptions)
+        foreach (var opt in CurrentRoleOptions)
         {
             if (opt.OptionBehaviour == null) continue;
 
@@ -306,6 +304,8 @@ public static class RoleSettingMenuPatches
             return;
         }
 
+        CurrentRole = null;
+        CurrentRoleOptions = null;
         __instance.scrollBar.SetScrollBounds(__instance);
     }
 
@@ -361,12 +361,13 @@ public static class RoleSettingMenuPatches
         CurrentRole = role;
         __instance.advancedSettingChildren.Clear();
 
-
         // TODO: create sub groups under the role settings.
         var filteredOptions = GameSettingMenuPatches.SelectedMod?.InternalOptionGroups
             .Where(x => x.GroupVisible() && x.OptionableType == role.GetType())
             .SelectMany(x => x.Options)
             .ToList() ?? [];
+
+        CurrentRoleOptions = filteredOptions;
 
         foreach (var option in filteredOptions)
         {
@@ -374,6 +375,7 @@ public static class RoleSettingMenuPatches
                 __instance.checkboxOrigin,
                 __instance.numberOptionOrigin,
                 __instance.stringOptionOrigin,
+                GameSettingMenu.Instance.GameSettingsTab.playerOptionOrigin,
                 __instance.AdvancedRolesSettings.transform);
 
             newOpt.SetClickMask(__instance.ButtonClickMask);

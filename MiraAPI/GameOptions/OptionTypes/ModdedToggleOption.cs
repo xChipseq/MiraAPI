@@ -26,7 +26,7 @@ public class ModdedToggleOption : ModdedOption<bool>
     }
 
     /// <inheritdoc />
-    public override OptionBehaviour CreateOption(ToggleOption toggleOpt, NumberOption numberOpt, StringOption stringOpt, Transform container)
+    public override OptionBehaviour CreateOption(ToggleOption toggleOpt, NumberOption numberOpt, StringOption stringOpt, PlayerOption playerOpt, Transform container)
     {
         var toggleOption = Object.Instantiate(toggleOpt, Vector3.zero, Quaternion.identity, container);
 

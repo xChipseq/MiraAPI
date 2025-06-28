@@ -1,5 +1,9 @@
-﻿using HarmonyLib;
+﻿using System.Collections.Generic;
+using System.Linq;
+using HarmonyLib;
 using Il2CppSystem;
+using MiraAPI.GameOptions;
+using MiraAPI.GameOptions.OptionTypes;
 using MiraAPI.Roles;
 using MiraAPI.Utilities;
 using UnityEngine;
@@ -113,6 +117,7 @@ public static class OptionsPatches
     [HarmonyPrefix]
     [HarmonyPatch(typeof(NumberOption), nameof(NumberOption.AdjustButtonsActiveState))]
     [HarmonyPatch(typeof(StringOption), nameof(StringOption.AdjustButtonsActiveState))]
+    [HarmonyPatch(typeof(PlayerOption), nameof(PlayerOption.AdjustButtonsActiveState))]
     [HarmonyPatch(typeof(RoleOptionSetting), nameof(RoleOptionSetting.AdjustChanceButtonsActiveState))]
     [HarmonyPatch(typeof(RoleOptionSetting), nameof(RoleOptionSetting.AdjustCountButtonsActiveState))]
     public static bool AdjustButtonsPrefix(OptionBehaviour __instance)
@@ -128,6 +133,11 @@ public static class OptionsPatches
             {
                 stringOption.MinusBtn.SetInteractable(true);
                 stringOption.PlusBtn.SetInteractable(true);
+            }
+            if (__instance.TryCast<PlayerOption>() is { } playerOption)
+            {
+                playerOption.MinusBtn.SetInteractable(true);
+                playerOption.PlusBtn.SetInteractable(true);
             }
 
             return false;
@@ -178,6 +188,7 @@ public static class OptionsPatches
     [HarmonyPrefix]
     [HarmonyPatch(typeof(StringOption), nameof(StringOption.UpdateValue))]
     [HarmonyPatch(typeof(NumberOption), nameof(NumberOption.UpdateValue))]
+    [HarmonyPatch(typeof(PlayerOption), nameof(PlayerOption.UpdateValue))]
     public static bool UpdateValuePrefix(OptionBehaviour __instance)
     {
         return !__instance.IsCustom();

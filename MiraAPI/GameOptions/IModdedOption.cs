@@ -62,9 +62,10 @@ public interface IModdedOption
     /// <param name="toggleOpt">The ToggleOption template.</param>
     /// <param name="numberOpt">The NumberOption template.</param>
     /// <param name="stringOpt">The StringOption template.</param>
+    /// <param name="playerOpt">The PlayerOption template.</param>
     /// <param name="container">>The Transform container for the option.</param>
     /// <returns>>The created OptionBehaviour object.</returns>
-    OptionBehaviour CreateOption(ToggleOption toggleOpt, NumberOption numberOpt, StringOption stringOpt, Transform container);
+    OptionBehaviour CreateOption(ToggleOption toggleOpt, NumberOption numberOpt, StringOption stringOpt, PlayerOption playerOpt, Transform container);
 
     /// <summary>
     /// Gets the value as a float.
