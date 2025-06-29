@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using MiraAPI.Hud;
+using Reactor.Utilities;
 using Reactor.Utilities.Extensions;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -77,7 +78,14 @@ public static class HudManagerPatches
                 continue;
             }
 
-            button.CreateButton(location);
+            try
+            {
+                button.CreateButton(location);
+            }
+            catch (System.Exception e)
+            {
+                Logger<MiraApiPlugin>.Error($"Failed to create custom button {button.GetType().Name}: {e}");
+            }
         }
 
         gridArrange.Start();
@@ -105,7 +113,14 @@ public static class HudManagerPatches
 
         foreach (var button in CustomButtonManager.CustomButtons)
         {
-            button.SetActive(isActive, role);
+            try
+            {
+                button.SetActive(isActive, role);
+            }
+            catch (System.Exception e)
+            {
+                Logger<MiraApiPlugin>.Error($"Failed to set custom button {button.GetType().Name} active: {e}");
+            }
         }
     }
 }
