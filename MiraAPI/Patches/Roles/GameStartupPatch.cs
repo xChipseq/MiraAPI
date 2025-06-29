@@ -23,7 +23,11 @@ public static class GameStartupPatch
 
         _runOnce = true;
 
-        if (MiraPluginManager.Instance.QueuedRoleRegistrations.Count <= 0) return;
+        if (MiraPluginManager.Instance.QueuedRoleRegistrations.Count <= 0)
+        {
+            return;
+        }
+
         foreach (var queue in MiraPluginManager.Instance.QueuedRoleRegistrations)
         {
             CustomRoleManager.RegisterRoleTypes(queue.Value, queue.Key);

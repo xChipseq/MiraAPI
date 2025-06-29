@@ -35,6 +35,16 @@ public static class CustomRoleManager
     public static readonly LoadableAsset<AudioClip> ImpostorIntroSound =
         CustomRoleUtils.GetIntroSound(RoleTypes.Impostor)!;
 
+    /// <summary>
+    /// Gets the list of custom roles as RoleBehaviour objects.
+    /// </summary>
+    public static IReadOnlyList<RoleBehaviour> CustomRoleBehaviours { get; private set; } = [];
+
+    /// <summary>
+    /// Gets the list of custom roles as ICustomRole objects.
+    /// </summary>
+    public static IReadOnlyList<ICustomRole> CustomMiraRoles { get; private set; } = [];
+
     internal static readonly Dictionary<ushort, RoleBehaviour> CustomRoles = [];
     internal static readonly Dictionary<Type, ushort> RoleIds = [];
 
@@ -53,6 +63,9 @@ public static class CustomRoleManager
         {
             RoleManager.GhostRoles.Add(role.Role);
         }
+
+        CustomRoleBehaviours = CustomRoles.Values.ToList();
+        CustomMiraRoles = CustomRoles.Values.OfType<ICustomRole>().ToList();
     }
 
     internal static void RegisterRoleTypes(List<Type> roles, MiraPluginInfo pluginInfo)
