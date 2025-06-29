@@ -31,4 +31,3 @@ public static class ChatControllerPatch
         __instance.freeChatField.textArea.SetText(__instance.freeChatField.textArea.text + clipboard);
     }
 }
-

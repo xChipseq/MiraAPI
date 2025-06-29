@@ -47,8 +47,12 @@ public class ModdedPlayerOption : ModdedOption<int>
     }
 
     /// <inheritdoc />
-    public override OptionBehaviour CreateOption(ToggleOption toggleOpt, NumberOption numberOpt, StringOption stringOpt,
-        PlayerOption playerOpt, Transform container)
+    public override OptionBehaviour CreateOption(
+        ToggleOption toggleOpt,
+        NumberOption numberOpt,
+        StringOption stringOpt,
+        PlayerOption playerOpt,
+        Transform container)
     {
         var playerOption = Object.Instantiate(playerOpt, container);
 
