@@ -37,6 +37,7 @@ public abstract class ModdedOption<T> : IModdedOption
         {
             if (_parentMod != null || value == null) return;
             _parentMod = value;
+
             var entry = _parentMod.GetConfigFile().Bind(ConfigDefinition, DefaultValue);
             Value = entry.Value;
         }
@@ -177,6 +178,7 @@ public abstract class ModdedOption<T> : IModdedOption
         ToggleOption toggleOpt,
         NumberOption numberOpt,
         StringOption stringOpt,
+        PlayerOption playerOpt,
         Transform container);
 
     /// <summary>

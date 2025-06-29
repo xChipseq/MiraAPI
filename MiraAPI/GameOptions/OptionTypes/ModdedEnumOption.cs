@@ -44,7 +44,7 @@ public class ModdedEnumOption : ModdedOption<int>
     }
 
     /// <inheritdoc />
-    public override OptionBehaviour CreateOption(ToggleOption toggleOpt, NumberOption numberOpt, StringOption stringOpt, Transform container)
+    public override OptionBehaviour CreateOption(ToggleOption toggleOpt, NumberOption numberOpt, StringOption stringOpt, PlayerOption playerOpt, Transform container)
     {
         var stringOption = Object.Instantiate(stringOpt, container);
 
@@ -135,7 +135,7 @@ public class ModdedEnumOption<T> : ModdedOption<T> where T : Enum
     }
 
     /// <inheritdoc />
-    public override OptionBehaviour CreateOption(ToggleOption toggleOpt, NumberOption numberOpt, StringOption stringOpt, Transform container)
+    public override OptionBehaviour CreateOption(ToggleOption toggleOpt, NumberOption numberOpt, StringOption stringOpt, PlayerOption playerOpt, Transform container)
     {
         var stringOption = Object.Instantiate(stringOpt, container);
 

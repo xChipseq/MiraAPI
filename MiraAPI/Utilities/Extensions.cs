@@ -155,6 +155,24 @@ public static class Extensions
     }
 
     /// <summary>
+    /// Used to convert a System.Collections.Generic.List to Il2cppSystem.
+    /// </summary>
+    /// <param name="systemList">The list.</param>
+    /// <typeparam name="T">The type in the list.</typeparam>
+    /// <returns>The converted list.</returns>
+    public static Il2CppSystem.Collections.Generic.List<T> ToIl2CppList<T>(this List<T> systemList)
+    {
+        var il2cppList = new Il2CppSystem.Collections.Generic.List<T>();
+
+        foreach (var item in systemList)
+        {
+            il2cppList.Add(item);
+        }
+
+        return il2cppList;
+    }
+
+    /// <summary>
     /// Determines if a float is an integer.
     /// </summary>
     /// <param name="number">The float number.</param>

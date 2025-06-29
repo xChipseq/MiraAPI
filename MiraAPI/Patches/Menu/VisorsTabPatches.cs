@@ -90,7 +90,7 @@ public static class VisorsTabPatches
             hatIndex += 1;
         }
 
-        __instance.scroller.ContentYBounds.max = -(__instance.YStart - (hatIndex + 1) / __instance.NumPerRow * __instance.YOffset) - 3f;
+        __instance.SetScrollerBounds();
         __instance.currentVisorIsEquipped = true;
     }
 
