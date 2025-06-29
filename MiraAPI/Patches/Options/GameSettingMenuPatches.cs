@@ -288,7 +288,7 @@ internal static class GameSettingMenuPatches
     {
         if (_text is not null && SelectedModIdx == 0)
         {
-            _text.text = "Default";
+            _text.text = $"<size=40%>(Page 0/{MiraPluginManager.Instance.RegisteredPlugins.Length})</size>\nDefault";
             _text.fontSizeMax = 3.2f;
             SelectedMod = null;
         }
@@ -298,7 +298,7 @@ internal static class GameSettingMenuPatches
             SelectedMod = MiraPluginManager.Instance.RegisteredPlugins[SelectedModIdx - 1];
 
             var name = SelectedMod.MiraPlugin.OptionsTitleText;
-            _text.text = name[..Math.Min(name.Length, 25)];
+            _text.text = $"<size=50%>(Page {SelectedModIdx}/{MiraPluginManager.Instance.RegisteredPlugins.Length})</size>\n" + name[..Math.Min(name.Length, 25)];
         }
 
         bool replaceWithModifiers = true;
