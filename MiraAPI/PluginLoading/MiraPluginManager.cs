@@ -130,6 +130,8 @@ public sealed class MiraPluginManager
 
             // Cache all the registered plugins into an array for easy access
             RegisteredPlugins = [.._registeredPlugins.Values];
+
+            ModifierManager.Modifiers = new ReadOnlyCollection<BaseModifier>(ModifierManager.InternalModifiers);
         };
     }
 

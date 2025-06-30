@@ -21,6 +21,13 @@ public static class ModifierManager
     /// </summary>
     public static bool MiraAssignsModifiers { get; set; } = true;
 
+    /// <summary>
+    /// Gets the list of all registered modifiers.
+    /// </summary>
+    public static IReadOnlyList<BaseModifier> Modifiers { get; internal set; } = [];
+
+    internal static List<BaseModifier> InternalModifiers { get; } = [];
+
     private static readonly Dictionary<uint, Type> IdToTypeModifierMap = [];
     private static readonly Dictionary<Type, uint> TypeToIdModifierMap = [];
     private static readonly Dictionary<int, List<uint>> PrioritiesToIdsMap = [];
@@ -80,6 +87,7 @@ public static class ModifierManager
         }
 
         info.InternalModifiers.Add(modifier);
+        InternalModifiers.Add(modifier);
 
         if (modifier is not GameModifier gameModifier)
         {
