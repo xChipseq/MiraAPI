@@ -73,7 +73,7 @@ public static class NameplatesTabPatches
         text.gameObject.transform.localScale = Vector3.one;
         text.GetComponent<TextTranslatorTMP>().Destroy();
         text.EnableStencilMasking();
-        text.text = $"{groupName}\nPress Ctrl or Tab to cycle pages";
+        text.text = $"{groupName} ({currentPage + 1}/{SortedNameplates.Count})\nPress Ctrl or Tab to cycle pages";
         text.alignment = TextAlignmentOptions.Center;
         text.fontSize = 3f;
         text.fontSizeMax = 3f;
