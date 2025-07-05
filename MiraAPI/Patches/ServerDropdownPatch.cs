@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 
 namespace MiraAPI.Patches;
 
@@ -14,6 +15,8 @@ public static class ServerDropdownPatch
 
         foreach (var regionInfo in DestroyableSingleton<ServerManager>.Instance.AvailableRegions)
         {
+            var findingGame = SceneManager.GetActiveScene().name is "FindAGame";
+
             if (DestroyableSingleton<ServerManager>.Instance.CurrentRegion.Equals(regionInfo))
             {
                 __instance.defaultButtonSelected = __instance.firstOption;
@@ -27,6 +30,10 @@ public static class ServerDropdownPatch
                 var region = regionInfo;
                 var serverListButton = __instance.ButtonPool.Get<ServerListButton>();
                 var x = num % 2 == 0 ? -2 : 2;
+                if (findingGame)
+                {
+                    x += 2;
+                }
                 var y = -0.55f * (num / 2);
                 serverListButton.transform.localPosition = new Vector3(x, __instance.y_posButton + y, -1f);
                 serverListButton.transform.localScale = Vector3.one;
@@ -39,7 +46,7 @@ public static class ServerDropdownPatch
                 serverListButton.Button.OnClick.AddListener((UnityAction)(() => { __instance.ChooseOption(region); }));
                 __instance.controllerSelectable.Add(serverListButton.Button);
                 __instance.background.transform.localPosition = new Vector3(
-                    0f,
+                    findingGame ? 2f : 0f,
                     __instance.initialYPos + (-0.3f * (num / 2)),
                     0f);
                 __instance.background.size = new Vector2(__instance.background.size.x, 1.2f + (0.6f * (num / 2)));
