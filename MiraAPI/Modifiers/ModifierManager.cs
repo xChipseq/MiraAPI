@@ -5,6 +5,7 @@ using System.Runtime.Serialization;
 using MiraAPI.Modifiers.Types;
 using MiraAPI.PluginLoading;
 using MiraAPI.Roles;
+using MiraAPI.Utilities;
 using Reactor.Utilities;
 using Reactor.Utilities.Extensions;
 using Random = System.Random;
@@ -125,6 +126,7 @@ public static class ModifierManager
             .Select(x => Activator.CreateInstance(x.Value) as GameModifier)
             .OfType<GameModifier>()
             .Where(x => x.GetAmountPerGame() > 0 && x.GetAssignmentChance() > 0)
+            .Shuffle()
             .OrderByDescending(x => x.Priority())
             .ToArray();
 
