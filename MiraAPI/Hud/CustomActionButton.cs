@@ -5,6 +5,7 @@ using MiraAPI.Events.Mira;
 using MiraAPI.Patches;
 using MiraAPI.Utilities;
 using MiraAPI.Utilities.Assets;
+using Rewired;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -51,6 +52,11 @@ public abstract class CustomActionButton
     /// Gets the maximum amount of uses the button has. If the button has infinite uses, set to 0.
     /// </summary>
     public virtual int MaxUses => 0;
+
+    /// <summary>
+    /// Gets or sets the current key binding for this button.
+    /// </summary>
+    public abstract KeyboardKeyCode CurrentKeybind { get; }
 
     /// <summary>
     /// Gets the button's text outline color.

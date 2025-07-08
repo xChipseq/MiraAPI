@@ -1,7 +1,11 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using Il2CppSystem.IO;
+using MiraAPI.Keybinds;
+using Rewired;
 using TMPro;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -19,7 +23,7 @@ public static class Helpers
     /// <returns>A list of alive players.</returns>
     public static List<PlayerControl> GetAlivePlayers()
     {
-        return [.. GameData.Instance.AllPlayers.ToArray().Where(x => !x.IsDead && !x.Disconnected && x.Object).Select(x=>x.Object)];
+        return [.. GameData.Instance.AllPlayers.ToArray().Where(x => !x.IsDead && !x.Disconnected && x.Object).Select(x => x.Object)];
     }
 
     /// <summary>
@@ -36,10 +40,10 @@ public static class Helpers
             case 100:
                 return true;
             default:
-            {
-                var num = Random.RandomRangeInt(1, 101);
-                return num <= probability;
-            }
+                {
+                    var num = UnityEngine.Random.RandomRangeInt(1, 101);
+                    return num <= probability;
+                }
         }
     }
 
@@ -398,6 +402,25 @@ public static class Helpers
     public static string RandomString(int length, string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
     {
         return new string(Enumerable.Repeat(chars, length)
-            .Select(s => s[Random.RandomRangeInt(0, s.Length)]).ToArray());
+            .Select(s => s[UnityEngine.Random.RandomRangeInt(0, s.Length)]).ToArray());
+    }
+
+    /// <summary>
+    /// Finds and returns an unused KeyCode that is not equal to the excluded key.
+    /// </summary>
+    /// <param name="exclude">The KeyCode to skip during the search.</param>
+    /// <returns>
+    /// The first available KeyCode not currently used by any registered keybind,
+    /// or KeyCode.None if none are available.
+    /// </returns>
+    public static KeyboardKeyCode FindAvailableKey(KeyboardKeyCode exclude)
+    {
+        foreach (KeyboardKeyCode key in Enum.GetValues(typeof(KeyboardKeyCode)))
+        {
+            if (key == exclude) continue;
+            bool used = KeybindManager.GetEntries().Exists(e => e.Key == key);
+            if (!used) return key;
+        }
+        return KeyboardKeyCode.None;
     }
 }

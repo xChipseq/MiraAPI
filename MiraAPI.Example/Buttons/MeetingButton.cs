@@ -2,6 +2,7 @@
 using MiraAPI.Hud;
 using MiraAPI.Modifiers;
 using MiraAPI.Utilities.Assets;
+using Rewired;
 using UnityEngine;
 
 namespace MiraAPI.Example.Buttons;
@@ -15,6 +16,7 @@ public class MeetingButton : CustomActionButton
     public override int MaxUses => 3;
 
     public override LoadableAsset<Sprite> Sprite => ExampleAssets.ExampleButton;
+    public override KeyboardKeyCode CurrentKeybind => KeyboardKeyCode.P;
 
     public override bool Enabled(RoleBehaviour? role)
     {

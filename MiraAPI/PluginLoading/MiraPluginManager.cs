@@ -11,12 +11,14 @@ using MiraAPI.GameEnd;
 using MiraAPI.GameOptions;
 using MiraAPI.GameOptions.Attributes;
 using MiraAPI.Hud;
+using MiraAPI.Keybinds;
 using MiraAPI.Modifiers;
 using MiraAPI.Presets;
 using MiraAPI.Roles;
 using MiraAPI.Utilities;
 using Reactor.Networking;
 using Reactor.Utilities;
+using UnityEngine;
 
 namespace MiraAPI.PluginLoading;
 
@@ -129,9 +131,28 @@ public sealed class MiraPluginManager
             CustomButtonManager.Buttons = new ReadOnlyCollection<CustomActionButton>(CustomButtonManager.CustomButtons);
 
             // Cache all the registered plugins into an array for easy access
-            RegisteredPlugins = [.._registeredPlugins.Values];
+            RegisteredPlugins = [.. _registeredPlugins.Values];
 
             ModifierManager.Modifiers = new ReadOnlyCollection<BaseModifier>(ModifierManager.InternalModifiers);
+
+            foreach (var button in CustomButtonManager.Buttons)
+            {
+
+                KeybindManager.Register($"{button.Name}_Keybind", $"Keybind for {button.Name}", button.CurrentKeybind, button.ClickHandler);
+
+                Logger<MiraApiPlugin>.Info($"Registered keybind for button '{button.GetType().Name}' with default key {button.CurrentKeybind}.");
+            }
+
+            var conflicts = KeybindManager.GetConflicts();
+            foreach (var (a, b) in conflicts)
+            {
+                Logger<MiraApiPlugin>.Warning($"Keybind conflict detected: {a.Id} and {b.Id} share {a.Key}");
+
+                var newKey = Helpers.FindAvailableKey(a.Key);
+                b.Key = newKey;
+
+                Logger<MiraApiPlugin>.Info($"Resolved conflict: '{b.Id}' reassigned to {newKey}.");
+            }
         };
     }
 
