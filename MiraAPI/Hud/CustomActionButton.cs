@@ -56,7 +56,7 @@ public abstract class CustomActionButton
     /// <summary>
     /// Gets or sets the current key binding for this button.
     /// </summary>
-    public abstract KeyboardKeyCode CurrentKeybind { get; }
+    public abstract KeyboardKeyCode Defaultkeybind { get; }
 
     /// <summary>
     /// Gets the button's text outline color.

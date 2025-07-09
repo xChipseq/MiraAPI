@@ -20,7 +20,7 @@ public class FreezeButton : CustomActionButton<PlayerControl>
     public override int MaxUses => (int)OptionGroupSingleton<FreezerRoleSettings>.Instance.FreezeUses;
 
     public override LoadableAsset<Sprite> Sprite => ExampleAssets.ExampleButton;
-    public override KeyboardKeyCode CurrentKeybind => KeyboardKeyCode.T;
+    public override KeyboardKeyCode Defaultkeybind => KeyboardKeyCode.T;
 
     protected override void OnClick()
     {

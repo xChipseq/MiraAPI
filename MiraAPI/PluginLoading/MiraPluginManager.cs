@@ -138,9 +138,9 @@ public sealed class MiraPluginManager
             foreach (var button in CustomButtonManager.Buttons)
             {
 
-                KeybindManager.Register($"{button.Name}_Keybind", $"Keybind for {button.Name}", button.CurrentKeybind, button.ClickHandler);
+                KeybindManager.Register($"{button.Name}_Keybind", $"Keybind for {button.Name}", button.Defaultkeybind, button.ClickHandler);
 
-                Logger<MiraApiPlugin>.Info($"Registered keybind for button '{button.GetType().Name}' with default key {button.CurrentKeybind}.");
+                Logger<MiraApiPlugin>.Info($"Registered keybind for button '{button.GetType().Name}' with default key {button.Defaultkeybind}.");
             }
 
             var conflicts = KeybindManager.GetConflicts();
