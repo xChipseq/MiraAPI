@@ -547,6 +547,8 @@ public static class Extensions
         renderer.material.SetColor(ShaderID.AddColor, color ?? Color.clear);
     }
 
+    // Inspired by: https://github.com/eDonnes124/Town-Of-Us-R/blob/master/source/Patches/Keybinds.cs#L29
+
     /// <summary>
     /// Registers a new mod keybind as a user-assignable button action in Rewired.
     /// </summary>
