@@ -10,6 +10,7 @@ using MiraAPI.Utilities;
 using MiraAPI.Utilities.Assets;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
 
@@ -19,7 +20,6 @@ namespace MiraAPI.Patches.Freeplay;
 internal static class TaskAdderPatches
 {
     private static Scroller _scroller = null!;
-
     [HarmonyPostfix]
     [HarmonyPatch(nameof(TaskAdderGame.Begin))]
     public static void AddRolesFolder(TaskAdderGame __instance)
@@ -31,6 +31,11 @@ internal static class TaskAdderPatches
         _scroller.allowX = false;
         _scroller.allowY = true;
         _scroller.Inner = inner.transform;
+
+        var scrollerHelper = __instance.TaskParent.gameObject.AddComponent<ManualScrollHelper>();
+        scrollerHelper.scroller = _scroller;
+        scrollerHelper.verticalAxis = RewiredConstsEnum.Action.TaskRVertical;
+        scrollerHelper.scrollSpeed = 10f;
 
         GameObject hitbox = new("Hitbox")
         {
@@ -295,7 +300,7 @@ internal static class TaskAdderPatches
 
         if (_scroller)
         {
-            _scroller.CalculateAndSetYBounds(__instance.ActiveItems.Count, 6, 5, 1.4f);
+            _scroller.CalculateAndSetYBounds(__instance.ActiveItems.Count, 6, 4.5f, 1.65f);
             _scroller.SetYBoundsMin(0.0f);
             _scroller.ScrollToTop();
         }
@@ -332,7 +337,8 @@ internal static class TaskAdderPatches
             taskAddButton.SafePositionWorld = instance.SafePositionWorld;
             taskAddButton.Text.text = modifier.ModifierName;
             taskAddButton.Text.EnableMasking();
-
+            taskAddButton.FileImage.color = modifier.FreeplayFileColor;
+            taskAddButton.RolloverHandler.OutColor = modifier.FreeplayFileColor;
             taskAddButton.Button.OnClick = new Button.ButtonClickedEvent();
             taskAddButton.Button.OnClick.AddListener((UnityEngine.Events.UnityAction)(() =>
             {
@@ -384,6 +390,20 @@ internal static class TaskAdderPatches
 
             instance.AddFileAsChildCustom(taskAddButton2, ref num, ref num2, ref num3);
             taskAddButton2.Role = roleBehaviour;
+            if (roleBehaviour is ICustomRole custom)
+            {
+                var customColor = custom.IntroConfiguration?.IntroTeamColor ?? Color.gray;
+                if (custom.Team is ModdedRoleTeams.Crewmate)
+                {
+                    customColor = Palette.CrewmateBlue;
+                }
+                else if (custom.Team is ModdedRoleTeams.Impostor)
+                {
+                    customColor = Palette.ImpostorRed;
+                }
+                taskAddButton2.FileImage.color = customColor;
+                taskAddButton2.RolloverHandler.OutColor = customColor;
+            }
             if (taskAddButton2.Button == null)
             {
                 continue;
