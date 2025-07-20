@@ -65,7 +65,7 @@ public abstract class BaseModifier : IOptionable
     public virtual bool ShowInFreeplay => false;
 
     /// <summary>
-    /// Gets a value indicating the color that should be used for the modifier within freeplay
+    /// Gets a value indicating the color that should be used for the modifier within freeplay.
     /// </summary>
     public virtual Color FreeplayFileColor => Color.gray;
 
