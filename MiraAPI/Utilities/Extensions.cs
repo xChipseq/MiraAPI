@@ -513,6 +513,7 @@ public static class Extensions
     /// <param name="includeImpostors">Whether impostors should be included in the search.</param>
     /// <param name="distance">The radius to search within.</param>
     /// <param name="ignoreColliders">Whether colliders should be ignored when searching.</param>
+    /// <param name="includeGhosts">Determines if Ghosts are included</param>
     /// <param name="predicate">Optional predicate to test if the object is valid.</param>
     /// <returns>The closest player if there is one, false otherwise.</returns>
     public static PlayerControl? GetClosestPlayer(
@@ -520,16 +521,16 @@ public static class Extensions
         bool includeImpostors,
         float distance,
         bool ignoreColliders = false,
+        bool includeGhosts = false,
         Predicate<PlayerControl>? predicate = null)
     {
         var filteredPlayers = Helpers.GetClosestPlayers(playerControl, distance, ignoreColliders)
             .Where(
                 playerInfo => !playerInfo.Data.Disconnected &&
                               playerInfo.PlayerId != playerControl.PlayerId &&
-                              !playerInfo.Data.IsDead &&
+                              (includeGhosts || !playerInfo.Data.IsDead) &&
                               (includeImpostors || !playerInfo.Data.Role.IsImpostor))
             .ToList();
-
         return predicate != null ? filteredPlayers.Find(predicate) : filteredPlayers.FirstOrDefault();
     }
 
