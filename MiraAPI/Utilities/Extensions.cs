@@ -513,7 +513,7 @@ public static class Extensions
     /// <param name="includeImpostors">Whether impostors should be included in the search.</param>
     /// <param name="distance">The radius to search within.</param>
     /// <param name="ignoreColliders">Whether colliders should be ignored when searching.</param>
-    /// <param name="includeGhosts">Determines if Ghosts are included</param>
+    /// <param name="includeGhosts">Determines if Ghosts are included.</param>
     /// <param name="predicate">Optional predicate to test if the object is valid.</param>
     /// <returns>The closest player if there is one, false otherwise.</returns>
     public static PlayerControl? GetClosestPlayer(
