@@ -61,6 +61,11 @@ public static class IntroCutscenePatches
     public static void GameBeginPatch(IntroCutscene __instance)
     {
         MiraEventManager.InvokeEvent(new IntroEndEvent(__instance));
+
+        var @event = new BeforeRoundStartEvent(true);
+        MiraEventManager.InvokeEvent(@event);
+
+        if (@event.IsCancelled) return;
         MiraEventManager.InvokeEvent(new RoundStartEvent(true));
     }
 }
