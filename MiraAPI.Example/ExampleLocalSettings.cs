@@ -1,5 +1,6 @@
 ﻿using BepInEx.Configuration;
 using MiraAPI.LocalSettings;
+using MiraAPI.LocalSettings.Attributes;
 using Reactor.Utilities;
 using UnityEngine;
 
@@ -7,9 +8,11 @@ namespace MiraAPI.Example;
 
 public static class ExampleLocalSettings
 {
-    public static ModSettingsTab ExampleTab;
+    public static LocalSettingsTab ExampleTab;
     
     public static ConfigEntry<bool> ExampleBoolEntry;
+    
+    
     public static ConfigEntry<bool> ExampleColoredEntry;
     public static ConfigEntry<int> ExampleIntEntry;
     public static ConfigEntry<float> ExampleFloatEntry;
@@ -41,4 +44,13 @@ public static class ExampleLocalSettings
         ExampleTab.BindEntry(ExampleFloatEntry);
         ExampleTab.BindEnumEntry(ExampleEnumEntry, enumType: typeof(ExampleSettingEnum), customNames: ["Cheeseburger", "Fries", "Pizza", "Chicken Nuggets"]);
     }
+}
+
+public class ExampleClientTab : LocalSettingsTab
+{
+    public override string Name => "Example";
+    public override bool TabButtonEnabled => true;
+
+    [ClientBoolSetting(configentr)]
+    public bool ExampleBool { get; set; } = true;
 }

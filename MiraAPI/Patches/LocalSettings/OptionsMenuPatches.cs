@@ -2,6 +2,7 @@
 using System.Linq;
 using HarmonyLib;
 using MiraAPI.LocalSettings;
+using MiraAPI.LocalSettings.ConfigEntrySettings;
 using Reactor.Localization.Utilities;
 using Reactor.Utilities.Extensions;
 using TMPro;
@@ -13,7 +14,7 @@ namespace MiraAPI.Patches.LocalSettings;
 [HarmonyPatch(typeof(OptionsMenuBehaviour))]
 public static class OptionsMenuPatches
 {
-    private static Dictionary<ModSettingsTab, TabGroup> tabs = [];
+    private static Dictionary<LocalSettingsTab, TabGroup> tabs = [];
     
     /// <summary>
     /// Creates the tabs and their content
@@ -184,7 +185,7 @@ public static class OptionsMenuPatches
         tabs.ToList().ForEach(CustomClose);
     }
 
-    private static void CustomOpen(KeyValuePair<ModSettingsTab, TabGroup> pair)
+    private static void CustomOpen(KeyValuePair<LocalSettingsTab, TabGroup> pair)
     {
         // For some reason this method kept throwing null reference errors randomly so...
         if (pair.Value.Button)
@@ -196,7 +197,7 @@ public static class OptionsMenuPatches
         if (pair.Value.Content)
             pair.Value.Content.SetActive(true);
     }
-    private static void CustomClose(KeyValuePair<ModSettingsTab, TabGroup> pair)
+    private static void CustomClose(KeyValuePair<LocalSettingsTab, TabGroup> pair)
     {
         // The same here
         if (pair.Value.Button)
@@ -272,7 +273,7 @@ public static class OptionsMenuPatches
         return toggle;
     }
     
-    public static SlideBar CreateSlider(GameObject template, Transform parent, ConfigEntryFloatSetting setting, ref float offset, ref int order)
+    public static SlideBar CreateSlider(GameObject template, Transform parent, ClientFloatSetting setting, ref float offset, ref int order)
     {
         var slider = GameObject.Instantiate(template, parent).GetComponent<SlideBar>();
         var rollover = slider.GetComponent<ButtonRolloverHandler>();

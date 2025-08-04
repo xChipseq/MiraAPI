@@ -5,36 +5,51 @@ using System.Reflection;
 using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Unity.IL2CPP;
+using MiraAPI.LocalSettings.ConfigEntrySettings;
 using Reactor.Utilities;
 using UnityEngine;
+using xCloud;
 
 namespace MiraAPI.LocalSettings;
 
 /// <summary>
 /// Class for storing each mod's settings
 /// </summary>
-public class ModSettingsTab
+public abstract class LocalSettingsTab
 {
-    public readonly BasePlugin Plugin;
-    public readonly List<IConfigEntrySetting> ConfigEntries = new();
-
-    public readonly string Title;
-    public readonly string ShortTitle;
-    public readonly Color TabColor;
-    public readonly Color TabHoverColor;
-    public readonly Sprite Icon;
+    internal readonly List<IClientSetting> ConfigEntries = new();
     
-    public ModSettingsTab(BasePlugin plugin, string title = null, string shortTitle = null, Color? tabColor = null, Color? tabHoverColor = null, Sprite icon = null)
-    {
-        Plugin = plugin;
-
-        var metadata = MetadataHelper.GetMetadata(plugin);
-        Title = title ?? metadata.Name;
-        ShortTitle = shortTitle ?? ShortParseName(Title);
-        TabColor = tabColor ?? Color.white;
-        TabHoverColor = tabHoverColor ?? Palette.AcceptedGreen;
-        Icon = icon;
-    }
+    /// <summary>
+    /// Gets the name of your tab.
+    /// </summary>
+    public abstract string Name { get; }
+    
+    /// <summary>
+    /// Gets the short version of your name. Showed when there is no <see cref="TabIcon"/>.
+    /// </summary>
+    public virtual string ShortName => ShortParseName(Name);
+    
+    /// <summary>
+    /// Indicates whether there should be a button for your tab.
+    /// If false, the tab needs to be shown manually with <see cref="Open"/>.
+    /// </summary>
+    public abstract bool TabButtonEnabled { get; }
+    
+    /// <summary>
+    /// Gets the color of the tab.
+    /// </summary>
+    public virtual Color TabColor => Color.white;
+    
+    /// <summary>
+    /// Gets the color of the tab in hovered state.
+    /// </summary>
+    public virtual Color TabHoverColor => Palette.AcceptedGreen;
+    
+    /// <summary>
+    /// Gets the icon of the tab.
+    /// Replaces <see cref="ShortName"/>
+    /// </summary>
+    public virtual Sprite TabIcon { get; }
     
     /// <summary>
     /// Creates a setting for your ConfigEntry.
@@ -44,9 +59,9 @@ public class ModSettingsTab
     /// <param name="name">Overriden name of your setting.</param>
     /// <param name="description">Overriden description of your setting.</param>
     /// <returns>The created setting. Null if entry type is not supported or something else went wrong.</returns>
-    public IConfigEntrySetting? BindEntry(ConfigEntryBase entry, string name = null, string description = null)
+    public IClientSetting? BindEntry(ConfigEntryBase entry, string name = null, string description = null)
     {
-        IConfigEntrySetting setting = null;
+        IClientSetting setting = null;
         switch (entry)
         {
             case ConfigEntry<bool> boolEntry:
@@ -67,7 +82,7 @@ public class ModSettingsTab
                     // Make it generic using the enum type
                     MethodInfo genericMethod = method.MakeGenericMethod(entry.SettingType);
                     
-                    setting = genericMethod.Invoke(this, new object[] { entry, entry.SettingType, name, description, null, null }) as IConfigEntrySetting;
+                    setting = genericMethod.Invoke(this, new object[] { entry, entry.SettingType, name, description, null, null }) as IClientSetting;
                     break;
                 }
                 Logger<MiraApiPlugin>.Error($"Unsupported type of {entry.Definition} from {Plugin}: {entry.SettingType.Name}");
@@ -77,37 +92,45 @@ public class ModSettingsTab
         return setting;
     }
 
-    public ConfigEntryBoolSetting BindBoolEntry(ConfigEntry<bool> entry, string name = null, string description = null,
+    public ClientBoolSetting BindBoolEntry(ConfigEntry<bool> entry, string name = null, string description = null,
         Color? onColor = null, Color? offColor = null)
     {
-        ConfigEntryBoolSetting setting = new(Plugin, entry, name, description, onColor, offColor);
+        ClientBoolSetting setting = new(Plugin, entry, name, description, onColor, offColor);
         ConfigEntries.Add(setting);
         Logger<MiraApiPlugin>.Info($"{setting.GetType().Name} created for {entry.Definition} from {Plugin}");
         return setting;
     }
 
-    public ConfigEntryFloatSetting BindFloatEntry(ConfigEntry<float> entry, string name = null, string description = null, Color? color = null, FloatRange sliderRange = null)
+    public ClientFloatSetting BindFloatEntry(ConfigEntry<float> entry, string name = null, string description = null, Color? color = null, FloatRange sliderRange = null)
     {
-        ConfigEntryFloatSetting setting = new(Plugin, entry, name, color, sliderRange);
+        ClientFloatSetting setting = new(Plugin, entry, name, color, sliderRange);
         ConfigEntries.Add(setting);
         Logger<MiraApiPlugin>.Info($"{setting.GetType().Name} created for {entry.Definition} from {Plugin}");
         return setting;
     }
     
-    public ConfigEntryIntSetting BindIntEntry(ConfigEntry<int> entry, string name = null, string description = null, Color? color = null, IntRange range = null)
+    public ClientIntSetting BindIntEntry(ConfigEntry<int> entry, string name = null, string description = null, Color? color = null, IntRange range = null)
     {
-        ConfigEntryIntSetting setting = new(Plugin, entry, name, description, color, range);
+        ClientIntSetting setting = new(Plugin, entry, name, description, color, range);
         ConfigEntries.Add(setting);
         Logger<MiraApiPlugin>.Info($"{setting.GetType().Name} created for {entry.Definition} from {Plugin}");
         return setting;
     }
     
-    public ConfigEntryEnumSetting<T> BindEnumEntry<T>(ConfigEntry<T> entry, Type enumType, string name = null, string description = null, Color? color = null, string[] customNames = null) where T : Enum
+    public ClientEnumSetting<T> BindEnumEntry<T>(ConfigEntry<T> entry, Type enumType, string name = null, string description = null, Color? color = null, string[] customNames = null) where T : Enum
     {
-        ConfigEntryEnumSetting<T> setting = new(Plugin, entry, enumType, name, description, color, customNames);
+        ClientEnumSetting<T> setting = new(Plugin, entry, enumType, name, description, color, customNames);
         ConfigEntries.Add(setting);
         Logger<MiraApiPlugin>.Info($"{setting.GetType().Name} created for {entry.Definition} from {Plugin}");
         return setting;
+    }
+    
+    /// <summary>
+    /// Opens the tab
+    /// </summary>
+    public void Open()
+    {
+        
     }
     
     private static string ShortParseName(string name)

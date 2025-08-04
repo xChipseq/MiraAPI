@@ -10,7 +10,7 @@ namespace MiraAPI.LocalSettings;
 /// </summary>
 public static class LocalSettingsManager
 {
-    internal static readonly List<ModSettingsTab> AllTabs = new();
+    internal static readonly List<LocalSettingsTab> AllTabs = new();
 
     /// <summary>
     /// Creates a settings tab for your mod
@@ -22,11 +22,11 @@ public static class LocalSettingsManager
     /// <param name="tabHoverColor">Color of the tab button when it's hovered.</param>
     /// <param name="icon">Icon of your tab button.</param>
     /// <returns>The created tab.</returns>
-    public static ModSettingsTab CreateSettingsTab(BasePlugin plugin, string title = null, string shortTitle = null, Color? tabColor = null, Color? tabHoverColor = null, Sprite icon = null)
+    public static LocalSettingsTab CreateSettingsTab(string title = null, string shortTitle = null, Color? tabColor = null, Color? tabHoverColor = null, Sprite icon = null)
     {
-        ModSettingsTab settings = new(plugin, title, shortTitle, tabColor, tabHoverColor, icon);
+        LocalSettingsTab settings = new(title, shortTitle, tabColor, tabHoverColor, icon);
         AllTabs.Add(settings);
-        Logger<MiraApiPlugin>.Info($"Settings tab created for {plugin}");
+        Logger<MiraApiPlugin>.Info($"Settings tab created");
         return settings;
     }
 }
