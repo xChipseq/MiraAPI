@@ -66,6 +66,6 @@ internal static class DummyBehaviourPatches
     private static bool DidVote(this DummyBehaviour dummy)
     {
         var dummyVoteData = dummy.myPlayer.GetVoteData();
-        return dummyVoteData.Votes.Count > 0;
+        return dummyVoteData.VotesRemaining > 0;
     }
 }
