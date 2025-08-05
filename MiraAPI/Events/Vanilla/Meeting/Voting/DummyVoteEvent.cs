@@ -10,7 +10,7 @@ namespace MiraAPI.Events.Vanilla.Meeting.Voting;
 public class DummyVoteEvent : MiraCancelableEvent
 {
     /// <summary>
-    /// Gets the dummy that needs to vote
+    /// Gets the dummy that needs to vote.
     /// </summary>
     public DummyBehaviour Dummy { get; }
 

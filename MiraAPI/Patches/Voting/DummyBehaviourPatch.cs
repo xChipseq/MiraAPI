@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using BepInEx.Unity.IL2CPP.Utils.Collections;
 using HarmonyLib;
 using MiraAPI.Events;
 using MiraAPI.Events.Vanilla.Meeting.Voting;
@@ -22,9 +23,16 @@ internal static class DummyBehaviourPatches
         NetworkedPlayerInfo data = __instance.myPlayer.Data;
         if (data == null || data.IsDead) return false;
 
-        if (MeetingHud.Instance && !__instance.DidVote())
+        if (MeetingHud.Instance)
         {
-            Coroutines.Start(CoDoVote(__instance));
+            if (!__instance.voted)
+            {
+                __instance.StartCoroutine(CoDoVote(__instance).WrapToIl2Cpp());
+            }
+        }
+        else
+        {
+            __instance.voted = false;
         }
 
         return false;
@@ -32,9 +40,9 @@ internal static class DummyBehaviourPatches
 
     private static IEnumerator CoDoVote(DummyBehaviour dummy)
     {
+        Logger<MiraApiPlugin>.Warning(dummy.voted);
         dummy.voted = true;
         yield return new WaitForSeconds(dummy.voteTime.Next());
-        if (DidVote(dummy)) yield break;
 
         var dummyVoteEvent = new DummyVoteEvent(dummy);
         MiraEventManager.InvokeEvent(dummyVoteEvent);
@@ -57,13 +65,13 @@ internal static class DummyBehaviourPatches
             potentialSuspects.Add(253);
         }
 
-        if (dummy.myPlayer.GetVoteData().VotesRemaining > 0)
+        if (CanVote(dummy))
         {
             VotingUtils.RpcCastVote(PlayerControl.LocalPlayer, dummy.myPlayer.PlayerId, potentialSuspects.Random());
         }
     }
 
-    private static bool DidVote(this DummyBehaviour dummy)
+    private static bool CanVote(this DummyBehaviour dummy)
     {
         var dummyVoteData = dummy.myPlayer.GetVoteData();
         return dummyVoteData.VotesRemaining > 0;
