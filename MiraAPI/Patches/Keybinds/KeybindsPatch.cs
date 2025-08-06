@@ -13,7 +13,7 @@ namespace MiraAPI.Patches.Keybinds
         {
             foreach (var entry in KeybindManager.GetEntries())
             {
-                __instance.userData.RegisterModBind(entry.Id, entry.Description, entry.Key);
+                __instance.userData.RegisterModBind(entry.Id, entry.Description, entry.Key, modifier1: entry.Modifier1, modifier2: entry.Modifier2, modifier3: entry.Modifier3);
             }
         }
     }

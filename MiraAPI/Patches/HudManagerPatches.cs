@@ -138,8 +138,12 @@ public static class HudManagerPatches
         foreach (var entry in KeybindManager.GetEntries())
         {
             var player = ReInput.players.GetPlayer(0);
+            var keyboard = player.controllers.Keyboard;
 
-            if (player.GetButtonDown(entry.Id))
+            if (player.GetButtonDown(entry.Id) &&
+               (entry.Modifier1 == ModifierKey.None || keyboard.GetModifierKey(entry.Modifier1)) &&
+               (entry.Modifier2 == ModifierKey.None || keyboard.GetModifierKey(entry.Modifier2)) &&
+               (entry.Modifier3 == ModifierKey.None || keyboard.GetModifierKey(entry.Modifier3)))
             {
                 entry.Handler?.Invoke();
             }

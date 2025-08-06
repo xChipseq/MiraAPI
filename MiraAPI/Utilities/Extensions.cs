@@ -559,8 +559,11 @@ public static class Extensions
     /// <param name="category">Category ID to group actions in Rewired (default is 0).</param>
     /// <param name="elementIdentifierId">The element identifier ID (default is -1, meaning none specified).</param>
     /// <param name="type">The <see cref="InputActionType"/> for this action (default is Button).</param>
+    /// <param name="modifier1">The first optional modifier key (e.g., <c>Control</c>, <c>Shift</c>, <c>Alt</c>) that must be held together with the main key.</param>
+    /// <param name="modifier2">The second optional modifier key. Set to <see cref="ModifierKey.None"/> if not used.</param>
+    /// <param name="modifier3">The third optional modifier key. Set to <see cref="ModifierKey.None"/> if not used.</param>
     /// <returns>The action ID of the newly registered action.</returns>
-    public static int RegisterModBind(this UserData userData, string actionName, string description, KeyboardKeyCode key, int category = 0, int elementIdentifierId = -1, InputActionType type = InputActionType.Button)
+    public static int RegisterModBind(this UserData userData, string actionName, string description, KeyboardKeyCode key, int category = 0, int elementIdentifierId = -1, InputActionType type = InputActionType.Button, ModifierKey modifier1 = ModifierKey.None, ModifierKey modifier2 = ModifierKey.None, ModifierKey modifier3 = ModifierKey.None)
     {
         userData.AddAction(category);
 
@@ -579,9 +582,9 @@ public static class Extensions
             _elementType = ControllerElementType.Button,
             _axisContribution = Pole.Positive,
             _keyboardKeyCode = key,
-            _modifierKey1 = ModifierKey.None,
-            _modifierKey2 = ModifierKey.None,
-            _modifierKey3 = ModifierKey.None,
+            _modifierKey1 = modifier1,
+            _modifierKey2 = modifier2,
+            _modifierKey3 = modifier3,
         };
         userData.keyboardMaps[0].actionElementMaps.Add(map);
         userData.joystickMaps[0].actionElementMaps.Add(map);

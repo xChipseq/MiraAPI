@@ -137,8 +137,7 @@ public sealed class MiraPluginManager
 
             foreach (var button in CustomButtonManager.Buttons)
             {
-
-                KeybindManager.Register($"{button.Name}_Keybind", $"Keybind for {button.Name}", button.Defaultkeybind, button.ClickHandler);
+                KeybindManager.Register($"{button.Name}_Keybind", $"Keybind for {button.Name}", button.Defaultkeybind, button.ClickHandler, modifier1: button.Modifier1, modifier2: button.Modifier2, modifier3: button.Modifier3);
 
                 Logger<MiraApiPlugin>.Info($"Registered keybind for button '{button.GetType().Name}' with default key {button.Defaultkeybind}.");
             }

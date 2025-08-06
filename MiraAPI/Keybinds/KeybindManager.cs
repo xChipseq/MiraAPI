@@ -34,6 +34,21 @@ namespace MiraAPI.Keybinds
             /// If true, this keybind will be checked for conflicts with other exclusive keybinds using the same key.
             /// </summary>
             public bool Exclusive;
+
+            /// <summary>
+            /// The first optional modifier key (e.g., Control, Shift, Alt) that must be held with the main key.
+            /// </summary>
+            public ModifierKey Modifier1 = ModifierKey.None;
+
+            /// <summary>
+            /// The second optional modifier key, if needed. Set to <c>ModifierKey.None</c> if unused.
+            /// </summary>
+            public ModifierKey Modifier2 = ModifierKey.None;
+
+            /// <summary>
+            /// The third optional modifier key, if needed. Set to <c>ModifierKey.None</c> if unused.
+            /// </summary>
+            public ModifierKey Modifier3 = ModifierKey.None;
         }
 
         private static readonly List<KeybindEntry> Registered = new();
@@ -46,8 +61,11 @@ namespace MiraAPI.Keybinds
         /// <param name="key">Default key to use if no rebind exists.</param>
         /// <param name="handler">Method to invoke when the keybind is pressed.</param>
         /// <param name="exclusive">If true, conflicts with other exclusive keybinds on the same key.</param>
+        /// <param name="modifier1">Optional first modifier key (e.g., <c>Control</c>, <c>Shift</c>, <c>Alt</c>) that must be held with the main key.</param>
+        /// <param name="modifier2">Optional second modifier key. Use <c>ModifierKey.None</c> if unused.</param>
+        /// <param name="modifier3">Optional third modifier key. Use <c>ModifierKey.None</c> if unused.</param>
         /// <returns> Returns the key that was registered for this keybind. </returns>
-        public static KeyboardKeyCode Register(string id, string description, KeyboardKeyCode key, Action handler, bool exclusive = true)
+        public static KeyboardKeyCode Register(string id, string description, KeyboardKeyCode key, Action handler, bool exclusive = true, ModifierKey modifier1 = ModifierKey.None, ModifierKey modifier2 = ModifierKey.None, ModifierKey modifier3 = ModifierKey.None)
         {
             Registered.Add(new KeybindEntry
             {
@@ -56,6 +74,9 @@ namespace MiraAPI.Keybinds
                 Key = key,
                 Handler = handler,
                 Exclusive = exclusive,
+                Modifier1 = modifier1,
+                Modifier2 = modifier2,
+                Modifier3 = modifier3,
             });
 
             return key;

@@ -21,6 +21,7 @@ public class FreezeButton : CustomActionButton<PlayerControl>
 
     public override LoadableAsset<Sprite> Sprite => ExampleAssets.ExampleButton;
     public override KeyboardKeyCode Defaultkeybind => KeyboardKeyCode.T;
+    public override ModifierKey Modifier1 => ModifierKey.Control;
 
     protected override void OnClick()
     {

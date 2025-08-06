@@ -59,6 +59,23 @@ public abstract class CustomActionButton
     public abstract KeyboardKeyCode Defaultkeybind { get; }
 
     /// <summary>
+    /// The first optional modifier key (e.g., Control, Shift, Alt) that must be held with the main key to activate the button.
+    /// </summary>
+    public virtual ModifierKey Modifier1 => ModifierKey.None;
+
+    /// <summary>
+    /// The second optional modifier key.
+    /// Set to <see cref="ModifierKey.None"/> if unused.
+    /// </summary>
+    public virtual ModifierKey Modifier2 => ModifierKey.None;
+
+    /// <summary>
+    /// The third optional modifier key.
+    /// Set to <see cref="ModifierKey.None"/> if unused.
+    /// </summary>
+    public virtual ModifierKey Modifier3 => ModifierKey.None;
+
+    /// <summary>
     /// Gets the button's text outline color.
     /// </summary>
     public virtual Color TextOutlineColor => Color.clear;

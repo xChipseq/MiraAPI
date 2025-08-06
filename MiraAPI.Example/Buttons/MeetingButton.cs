@@ -17,6 +17,8 @@ public class MeetingButton : CustomActionButton
 
     public override LoadableAsset<Sprite> Sprite => ExampleAssets.ExampleButton;
     public override KeyboardKeyCode Defaultkeybind => KeyboardKeyCode.P;
+    public override ModifierKey Modifier1 => ModifierKey.Control;
+    public override ModifierKey Modifier2 => ModifierKey.Shift;
 
     public override bool Enabled(RoleBehaviour? role)
     {
