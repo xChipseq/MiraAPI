@@ -141,17 +141,6 @@ public sealed class MiraPluginManager
 
                 Logger<MiraApiPlugin>.Info($"Registered keybind for button '{button.GetType().Name}' with default key {button.Defaultkeybind}.");
             }
-
-            var conflicts = KeybindManager.GetConflicts();
-            foreach (var (a, b) in conflicts)
-            {
-                Logger<MiraApiPlugin>.Warning($"Keybind conflict detected: {a.Id} and {b.Id} share {a.Key}");
-
-                var newKey = Helpers.FindAvailableKey(a.Key);
-                b.Key = newKey;
-
-                Logger<MiraApiPlugin>.Info($"Resolved conflict: '{b.Id}' reassigned to {newKey}.");
-            }
         };
     }
 
