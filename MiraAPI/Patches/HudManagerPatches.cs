@@ -1,7 +1,11 @@
-﻿using HarmonyLib;
+﻿using System;
+using System.Collections;
+using HarmonyLib;
 using MiraAPI.Hud;
+using MiraAPI.Keybinds;
 using Reactor.Utilities;
 using Reactor.Utilities.Extensions;
+using Rewired;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -120,6 +124,28 @@ public static class HudManagerPatches
             catch (System.Exception e)
             {
                 Logger<MiraApiPlugin>.Error($"Failed to set custom button {button.GetType().Name} active: {e}");
+            }
+        }
+    }
+
+    [HarmonyPatch(nameof(HudManager.Update))]
+    [HarmonyPostfix]
+    public static void StartPostfix()
+    {
+        if (AmongUsClient.Instance.GameState != InnerNet.InnerNetClient.GameStates.Started) return;
+        if (PlayerControl.LocalPlayer.Data.IsDead) return;
+
+        foreach (var entry in KeybindManager.GetEntries())
+        {
+            var player = ReInput.players.GetPlayer(0);
+            var keyboard = player.controllers.Keyboard;
+
+            if (player.GetButtonDown(entry.Id) &&
+               (entry.Modifier1 == ModifierKey.None || keyboard.GetModifierKey(entry.Modifier1)) &&
+               (entry.Modifier2 == ModifierKey.None || keyboard.GetModifierKey(entry.Modifier2)) &&
+               (entry.Modifier3 == ModifierKey.None || keyboard.GetModifierKey(entry.Modifier3)))
+            {
+                entry.Handler?.Invoke();
             }
         }
     }

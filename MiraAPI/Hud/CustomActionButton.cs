@@ -5,6 +5,7 @@ using MiraAPI.Events.Mira;
 using MiraAPI.Patches;
 using MiraAPI.Utilities;
 using MiraAPI.Utilities.Assets;
+using Rewired;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -51,6 +52,28 @@ public abstract class CustomActionButton
     /// Gets the maximum amount of uses the button has. If the button has infinite uses, set to 0.
     /// </summary>
     public virtual int MaxUses => 0;
+
+    /// <summary>
+    /// Gets or sets the current key binding for this button.
+    /// </summary>
+    public abstract KeyboardKeyCode Defaultkeybind { get; }
+
+    /// <summary>
+    /// The first optional modifier key (e.g., Control, Shift, Alt) that must be held with the main key to activate the button.
+    /// </summary>
+    public virtual ModifierKey Modifier1 => ModifierKey.None;
+
+    /// <summary>
+    /// The second optional modifier key.
+    /// Set to <see cref="ModifierKey.None"/> if unused.
+    /// </summary>
+    public virtual ModifierKey Modifier2 => ModifierKey.None;
+
+    /// <summary>
+    /// The third optional modifier key.
+    /// Set to <see cref="ModifierKey.None"/> if unused.
+    /// </summary>
+    public virtual ModifierKey Modifier3 => ModifierKey.None;
 
     /// <summary>
     /// Gets the button's text outline color.
