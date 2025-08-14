@@ -1,31 +1,44 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Reflection;
-using Reactor.Utilities;
+using MiraAPI.Events.Mira;
+using MiraAPI.PluginLoading;
 
 namespace MiraAPI.Hud;
 
-internal static class CustomButtonManager
+/// <summary>
+/// Custom button manager for handling custom buttons.
+/// </summary>
+public static class CustomButtonManager
 {
+    /// <summary>
+    /// Gets a list of all registered custom buttons.
+    /// </summary>
+    public static ReadOnlyCollection<CustomActionButton> Buttons { get; internal set; } = new([]);
+
     internal static readonly List<CustomActionButton> CustomButtons = [];
+    internal static readonly Dictionary<Type, Type> ButtonEventTypes = [];
+    internal static readonly Dictionary<Type, Type> ButtonCancelledEventTypes = [];
 
-    internal static void RegisterButton(Type buttonType)
+    internal static bool RegisterButton(Type buttonType, MiraPluginInfo pluginInfo)
     {
-        if (!typeof(CustomActionButton).IsAssignableFrom(buttonType))
+        if (!buttonType.IsAssignableTo(typeof(CustomActionButton)) || Activator.CreateInstance(buttonType) is not CustomActionButton button)
         {
-            Logger<MiraApiPlugin>.Error($"{buttonType?.Name} does not inherit from CustomActionButton.");
-            return;
-        }
-
-        if (Activator.CreateInstance(buttonType) is not CustomActionButton button)
-        {
-            Logger<MiraApiPlugin>.Error($"Failed to create button from {buttonType.Name}");
-            return;
+            return false;
         }
 
         CustomButtons.Add(button);
+        pluginInfo.InternalButtons.Add(button);
         typeof(CustomButtonSingleton<>).MakeGenericType(buttonType)
+#pragma warning disable S3011
             .GetField("_instance", BindingFlags.Static | BindingFlags.NonPublic)!
+#pragma warning restore S3011
             .SetValue(null, button);
+
+        ButtonEventTypes.Add(buttonType, typeof(MiraButtonClickEvent<>).MakeGenericType(buttonType));
+        ButtonCancelledEventTypes.Add(buttonType, typeof(MiraButtonCancelledEvent<>).MakeGenericType(buttonType));
+
+        return true;
     }
 }

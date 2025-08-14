@@ -1,20 +1,34 @@
-﻿using MiraAPI.Modifiers;
+﻿using MiraAPI.Example.Options.Modifiers;
+using MiraAPI.GameOptions;
+using MiraAPI.Modifiers;
 using MiraAPI.Modifiers.Types;
+using MiraAPI.Utilities.Assets;
+using UnityEngine;
 
 namespace MiraAPI.Example.Modifiers;
 
-[RegisterModifier]
 public class CaptainModifier : GameModifier
 {
     public override string ModifierName => "Captain";
+    public override LoadableAsset<Sprite>? ModifierIcon => ExampleAssets.CallMeetingButton;
 
-    public override int GetAmountPerGame()
+    public override void OnDeath(DeathReason reason)
     {
-        return 1;
+        Player.RemoveModifier(this);
+    }
+
+    public override string GetDescription()
+    {
+        return $"You can call a meeting from anywhere on the map.";
     }
 
     public override int GetAssignmentChance()
     {
-        return 100;
+        return (int)OptionGroupSingleton<CaptainModifierSettings>.Instance.Chance;
+    }
+
+    public override int GetAmountPerGame()
+    {
+        return (int)OptionGroupSingleton<CaptainModifierSettings>.Instance.Amount;
     }
 }

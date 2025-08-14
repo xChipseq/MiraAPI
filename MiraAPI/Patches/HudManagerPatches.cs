@@ -1,6 +1,5 @@
 ﻿using HarmonyLib;
 using MiraAPI.Hud;
-using MiraAPI.Roles;
 using Reactor.Utilities.Extensions;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -14,7 +13,9 @@ namespace MiraAPI.Patches;
 public static class HudManagerPatches
 {
     // Custom buttons parent.
-    private static GameObject? _bottomLeft;
+    public static GameObject? BottomLeft { get; private set; }
+    public static Transform? BottomRight { get; private set; }
+    public static Transform? Buttons { get; private set; }
 
     /*
     /// <summary>
@@ -35,23 +36,30 @@ public static class HudManagerPatches
     [HarmonyPatch(nameof(HudManager.Start))]
     public static void StartPostfix(HudManager __instance)
     {
-        var buttons = __instance.transform.Find("Buttons");
-        var bottomRight = buttons.Find("BottomRight");
-
-        if (_bottomLeft == null)
+        if (Buttons == null)
         {
-            _bottomLeft = Object.Instantiate(bottomRight.gameObject, buttons);
+            Buttons = __instance.transform.Find("Buttons");
         }
 
-        foreach (var t in _bottomLeft.GetComponentsInChildren<ActionButton>(true))
+        if (BottomRight == null)
+        {
+            BottomRight = Buttons.Find("BottomRight");
+        }
+
+        if (BottomLeft == null)
+        {
+            BottomLeft = Object.Instantiate(BottomRight.gameObject, Buttons);
+        }
+
+        foreach (var t in BottomLeft.GetComponentsInChildren<ActionButton>(true))
         {
             t.gameObject.Destroy();
         }
 
-        var gridArrange = _bottomLeft.GetComponent<GridArrange>();
-        var aspectPosition = _bottomLeft.GetComponent<AspectPosition>();
+        var gridArrange = BottomLeft.GetComponent<GridArrange>();
+        var aspectPosition = BottomLeft.GetComponent<AspectPosition>();
 
-        _bottomLeft.name = "BottomLeft";
+        BottomLeft.name = "BottomLeft";
         gridArrange.Alignment = GridArrange.StartAlign.Right;
         aspectPosition.Alignment = AspectPosition.EdgeAlignments.LeftBottom;
 
@@ -59,8 +67,8 @@ public static class HudManagerPatches
         {
             var location = button.Location switch
             {
-                ButtonLocation.BottomLeft => _bottomLeft.transform,
-                ButtonLocation.BottomRight => bottomRight,
+                ButtonLocation.BottomLeft => BottomLeft.transform,
+                ButtonLocation.BottomRight => BottomRight,
                 _ => null,
             };
 
