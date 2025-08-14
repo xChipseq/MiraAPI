@@ -1,9 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using HarmonyLib;
 using Il2CppInterop.Runtime.Attributes;
+using MiraAPI.Patches.Roles;
 using MiraAPI.Utilities.Assets;
+using Reactor.Utilities;
 using Reactor.Utilities.Attributes;
 using Reactor.Utilities.Extensions;
 using TMPro;
@@ -94,6 +97,16 @@ public class ModifierDisplayComponent(nint cppPtr) : MonoBehaviour(cppPtr)
 
         IsOpen = false;
         _children.gameObject.SetActive(false);
+
+        if (PluginSingleton<MiraApiPlugin>.Instance.MiraConfig!.ModifiersHudLeftSide.Value)
+        {
+            var aspect = GetComponent<AspectPosition>();
+            _toggleButton.transform.localPosition = new Vector3(-1f, 2.7f, 0f);
+            _children.transform.localPosition = new Vector3(-0.2f, -0.05f, 0f);
+            aspect.Alignment = AspectPosition.EdgeAlignments.LeftTop;
+            aspect.DistanceFromEdge = new Vector3(1.8f, 2.55f, -20f);
+            aspect.AdjustPosition();
+        }
     }
 
     /// <summary>
@@ -109,7 +122,16 @@ public class ModifierDisplayComponent(nint cppPtr) : MonoBehaviour(cppPtr)
     /// </summary>
     public void ToggleTab()
     {
-        IsOpen = !IsOpen;
+        SetOpened(!IsOpen);
+    }
+
+    /// <summary>
+    /// Use this to set the visibility of the modifiers tab.
+    /// </summary>
+    /// <param name="val">Whether it should be visible or not.</param>
+    public void SetOpened(bool val)
+    {
+        IsOpen = val;
         _children.gameObject.SetActive(IsOpen);
         RefreshModifiers();
     }
@@ -118,7 +140,6 @@ public class ModifierDisplayComponent(nint cppPtr) : MonoBehaviour(cppPtr)
     {
         _modifiers.Remove(component.Modifier!);
         component.gameObject.DestroyImmediate();
-
         RefreshModifiers();
     }
 
@@ -194,13 +215,7 @@ public class ModifierDisplayComponent(nint cppPtr) : MonoBehaviour(cppPtr)
 
         _toggleBtnText.text = $"Modifiers ({filteredModifiers.Count})";
 
-        if (filteredModifiers.Count == 0)
-        {
-            _toggleButton.gameObject.SetActive(false);
-            return;
-        }
-
-        _toggleButton.gameObject.SetActive(true);
+        _toggleButton.gameObject.SetActive(filteredModifiers.Count != 0);
 
         foreach (var mod in modifiersToAdd)
         {
