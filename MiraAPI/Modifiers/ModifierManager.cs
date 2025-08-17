@@ -5,6 +5,7 @@ using System.Runtime.Serialization;
 using MiraAPI.Modifiers.Types;
 using MiraAPI.PluginLoading;
 using MiraAPI.Roles;
+using MiraAPI.Utilities;
 using Reactor.Utilities;
 using Reactor.Utilities.Extensions;
 using Random = System.Random;
@@ -20,6 +21,13 @@ public static class ModifierManager
     /// Gets or sets a value indicating whether modifiers should be assigned to players.
     /// </summary>
     public static bool MiraAssignsModifiers { get; set; } = true;
+
+    /// <summary>
+    /// Gets the list of all registered modifiers.
+    /// </summary>
+    public static IReadOnlyList<BaseModifier> Modifiers { get; internal set; } = [];
+
+    internal static List<BaseModifier> InternalModifiers { get; } = [];
 
     private static readonly Dictionary<uint, Type> IdToTypeModifierMap = [];
     private static readonly Dictionary<Type, uint> TypeToIdModifierMap = [];
@@ -80,6 +88,7 @@ public static class ModifierManager
         }
 
         info.InternalModifiers.Add(modifier);
+        InternalModifiers.Add(modifier);
 
         if (modifier is not GameModifier gameModifier)
         {
@@ -117,6 +126,7 @@ public static class ModifierManager
             .Select(x => Activator.CreateInstance(x.Value) as GameModifier)
             .OfType<GameModifier>()
             .Where(x => x.GetAmountPerGame() > 0 && x.GetAssignmentChance() > 0)
+            .Shuffle()
             .OrderByDescending(x => x.Priority())
             .ToArray();
 

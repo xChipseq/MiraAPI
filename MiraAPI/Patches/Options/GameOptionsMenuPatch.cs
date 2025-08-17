@@ -220,6 +220,7 @@ internal static class GameOptionsMenuPatch
                 menu.checkboxOrigin,
                 menu.numberOptionOrigin,
                 menu.stringOptionOrigin,
+                menu.playerOptionOrigin,
                 menu.settingsContainer));
 
         foreach (var newOpt in options)

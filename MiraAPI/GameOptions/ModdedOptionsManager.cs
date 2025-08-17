@@ -6,6 +6,7 @@ using System.Reflection;
 using BepInEx.Configuration;
 using HarmonyLib;
 using MiraAPI.GameOptions.Attributes;
+using MiraAPI.GameOptions.OptionTypes;
 using MiraAPI.Networking;
 using MiraAPI.PluginLoading;
 using MiraAPI.Utilities;
@@ -22,6 +23,7 @@ public static class ModdedOptionsManager
     private static readonly Dictionary<PropertyInfo, ModdedOptionAttribute> OptionAttributes = [];
     private static readonly Dictionary<Type, AbstractOptionGroup> TypeToGroup = [];
 
+    internal static readonly Dictionary<OptionBehaviour, ModdedPlayerOption> CreatedPlayerOptions = [];
     internal static readonly Dictionary<uint, IModdedOption> ModdedOptions = [];
     internal static readonly List<AbstractOptionGroup> Groups = [];
 

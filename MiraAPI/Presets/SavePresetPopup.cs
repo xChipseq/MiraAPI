@@ -96,6 +96,3 @@ public class SavePresetPopup(nint cppPtr) : Minigame(cppPtr)
         popup.Begin(null);
     }
 }
-
-
-

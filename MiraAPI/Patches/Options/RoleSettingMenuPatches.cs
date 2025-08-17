@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using HarmonyLib;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
+using MiraAPI.GameOptions;
 using MiraAPI.Networking;
 using MiraAPI.Roles;
 using MiraAPI.Utilities;
@@ -30,6 +31,9 @@ public static class RoleSettingMenuPatches
 
     private static float ScrollerNum { get; set; } = 0.522f;
 
+    private static RoleBehaviour? CurrentRole { get; set; }
+    private static List<IModdedOption>? CurrentRoleOptions { get; set; }
+
     [HarmonyPostfix]
     [HarmonyPatch(nameof(RolesSettingsMenu.SetQuotaTab))]
     public static void SetQuotaTabPostfix(RolesSettingsMenu __instance)
@@ -45,6 +49,8 @@ public static class RoleSettingMenuPatches
         RoleOptionSettings.ForEach(Object.Destroy);
         Headers.Clear();
         RoleOptionSettings.Clear();
+        CurrentRole = null;
+        CurrentRoleOptions = null;
 
         __instance.roleChances = new Il2CppSystem.Collections.Generic.List<RoleOptionSetting>();
         __instance.advancedSettingChildren = new Il2CppSystem.Collections.Generic.List<OptionBehaviour>();
@@ -262,9 +268,31 @@ public static class RoleSettingMenuPatches
 
     [HarmonyPrefix]
     [HarmonyPatch(nameof(RolesSettingsMenu.Update))]
-    public static bool UpdatePatch()
+    public static bool UpdatePatch(RolesSettingsMenu __instance)
     {
-        return GameSettingMenuPatches.SelectedModIdx == 0;
+        if (GameSettingMenuPatches.SelectedModIdx == 0) return true;
+        if (CurrentRole == null || CurrentRoleOptions == null) return false;
+
+        var hasImage = CurrentRole.RoleScreenshot != null;
+        var num = hasImage ? -0.872f : -1;
+
+        foreach (var opt in CurrentRoleOptions)
+        {
+            if (opt.OptionBehaviour == null) continue;
+
+            if (!opt.Visible.Invoke())
+            {
+                opt.OptionBehaviour.gameObject.SetActive(false);
+                continue;
+            }
+
+            opt.OptionBehaviour.transform.localPosition = new Vector3(hasImage ? 2.17f : 1.1f, num, -2f);
+            opt.OptionBehaviour.gameObject.SetActive(true);
+            num += -0.45f;
+        }
+
+        __instance.scrollBar.SetYBoundsMax(-num - 3);
+        return false;
     }
 
     [HarmonyPostfix]
@@ -276,6 +304,8 @@ public static class RoleSettingMenuPatches
             return;
         }
 
+        CurrentRole = null;
+        CurrentRoleOptions = null;
         __instance.scrollBar.SetScrollBounds(__instance);
     }
 
@@ -328,17 +358,16 @@ public static class RoleSettingMenuPatches
             optBehaviour.gameObject.DestroyImmediate();
         }
 
+        CurrentRole = role;
         __instance.advancedSettingChildren.Clear();
-
-        var hasImage = role.RoleScreenshot != null;
-        var num = hasImage ? -0.872f : -1;
 
         // TODO: create sub groups under the role settings.
         var filteredOptions = GameSettingMenuPatches.SelectedMod?.InternalOptionGroups
             .Where(x => x.GroupVisible() && x.OptionableType == role.GetType())
             .SelectMany(x => x.Options)
-            .Where(x => x.Visible())
             .ToList() ?? [];
+
+        CurrentRoleOptions = filteredOptions;
 
         foreach (var option in filteredOptions)
         {
@@ -346,9 +375,9 @@ public static class RoleSettingMenuPatches
                 __instance.checkboxOrigin,
                 __instance.numberOptionOrigin,
                 __instance.stringOptionOrigin,
+                GameSettingMenu.Instance.GameSettingsTab.playerOptionOrigin,
                 __instance.AdvancedRolesSettings.transform);
 
-            newOpt.transform.localPosition = new Vector3(hasImage ? 2.17f : 1.1f, num, -2f);
             newOpt.SetClickMask(__instance.ButtonClickMask);
 
             SpriteRenderer[] componentsInChildren = newOpt.GetComponentsInChildren<SpriteRenderer>(true);
@@ -366,11 +395,10 @@ public static class RoleSettingMenuPatches
             newOpt.LabelBackground.enabled = false;
             __instance.advancedSettingChildren.Add(newOpt);
 
-            num += -0.45f;
+            newOpt.gameObject.SetActive(false);
             newOpt.Initialize();
         }
 
-        __instance.scrollBar.SetYBoundsMax(-num - 3);
         __instance.scrollBar.ScrollToTop();
     }
 
@@ -506,7 +534,7 @@ public static class RoleSettingMenuPatches
 
         if (GameSettingMenuPatches.SelectedMod is null ||
             GameSettingMenuPatches.SelectedMod.InternalOptionGroups
-                .Exists(x => x.OptionableType == role.GetType()))
+                .Exists(x => x.GroupVisible() && x.OptionableType == role.GetType() && x.Options.Any(y => y.Visible())))
         {
             var newButton = Object.Instantiate(roleOptionSetting.buttons[0], roleOptionSetting.transform);
             newButton.name = "ConfigButton";

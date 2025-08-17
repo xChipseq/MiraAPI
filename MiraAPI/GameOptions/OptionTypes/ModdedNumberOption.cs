@@ -93,6 +93,7 @@ public class ModdedNumberOption : ModdedOption<float>
         ToggleOption toggleOpt,
         NumberOption numberOpt,
         StringOption stringOpt,
+        PlayerOption playerOpt,
         Transform container)
     {
         var numberOption = Object.Instantiate(numberOpt, Vector3.zero, Quaternion.identity, container);

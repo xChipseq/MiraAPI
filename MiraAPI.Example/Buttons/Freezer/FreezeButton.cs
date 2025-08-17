@@ -6,6 +6,7 @@ using MiraAPI.Hud;
 using MiraAPI.Modifiers;
 using MiraAPI.Utilities;
 using MiraAPI.Utilities.Assets;
+using Rewired;
 using UnityEngine;
 
 namespace MiraAPI.Example.Buttons.Freezer;
@@ -19,6 +20,8 @@ public class FreezeButton : CustomActionButton<PlayerControl>
     public override int MaxUses => (int)OptionGroupSingleton<FreezerRoleSettings>.Instance.FreezeUses;
 
     public override LoadableAsset<Sprite> Sprite => ExampleAssets.ExampleButton;
+    public override KeyboardKeyCode Defaultkeybind => KeyboardKeyCode.T;
+    public override ModifierKey Modifier1 => ModifierKey.Control;
 
     protected override void OnClick()
     {

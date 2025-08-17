@@ -10,6 +10,8 @@ using MiraAPI.Networking;
 using MiraAPI.Roles;
 using MiraAPI.Voting;
 using Reactor.Utilities;
+using Rewired;
+using Rewired.Data;
 using TMPro;
 using UnityEngine;
 
@@ -92,7 +94,7 @@ public static class Extensions
     /// <param name="timer">The current timer value.</param>
     /// <param name="maxTimer">The maximum timer value.</param>
     /// <param name="format">The format string to use for the timer text.</param>
-    public static void SetCooldownFormat(this ActionButton button, float timer, float maxTimer, string format="0")
+    public static void SetCooldownFormat(this ActionButton button, float timer, float maxTimer, string format = "0")
     {
         var num = Mathf.Clamp(timer / maxTimer, 0f, 1f);
         button.isCoolingDown = num > 0f;
@@ -113,7 +115,7 @@ public static class Extensions
     /// <param name="timer">The current timer value.</param>
     /// <param name="maxTimer">The maximum timer value.</param>
     /// <param name="format">The format string to use for the timer text.</param>
-    public static void SetFillUpFormat(this ActionButton button, float timer, float maxTimer, string format="0")
+    public static void SetFillUpFormat(this ActionButton button, float timer, float maxTimer, string format = "0")
     {
         var num = Mathf.Clamp(timer / maxTimer, 0f, 1f);
         button.isCoolingDown = num > 0f;
@@ -152,6 +154,24 @@ public static class Extensions
     public static bool IsHost(this PlayerControl playerControl)
     {
         return TutorialManager.InstanceExists || AmongUsClient.Instance.HostId == playerControl.OwnerId;
+    }
+
+    /// <summary>
+    /// Used to convert a System.Collections.Generic.List to Il2cppSystem.
+    /// </summary>
+    /// <param name="systemList">The list.</param>
+    /// <typeparam name="T">The type in the list.</typeparam>
+    /// <returns>The converted list.</returns>
+    public static Il2CppSystem.Collections.Generic.List<T> ToIl2CppList<T>(this List<T> systemList)
+    {
+        var il2cppList = new Il2CppSystem.Collections.Generic.List<T>();
+
+        foreach (var item in systemList)
+        {
+            il2cppList.Add(item);
+        }
+
+        return il2cppList;
     }
 
     /// <summary>
@@ -495,6 +515,7 @@ public static class Extensions
     /// <param name="includeImpostors">Whether impostors should be included in the search.</param>
     /// <param name="distance">The radius to search within.</param>
     /// <param name="ignoreColliders">Whether colliders should be ignored when searching.</param>
+    /// <param name="includeGhosts">Determines if Ghosts are included.</param>
     /// <param name="predicate">Optional predicate to test if the object is valid.</param>
     /// <returns>The closest player if there is one, false otherwise.</returns>
     public static PlayerControl? GetClosestPlayer(
@@ -502,16 +523,16 @@ public static class Extensions
         bool includeImpostors,
         float distance,
         bool ignoreColliders = false,
+        bool includeGhosts = false,
         Predicate<PlayerControl>? predicate = null)
     {
         var filteredPlayers = Helpers.GetClosestPlayers(playerControl, distance, ignoreColliders)
             .Where(
                 playerInfo => !playerInfo.Data.Disconnected &&
                               playerInfo.PlayerId != playerControl.PlayerId &&
-                              !playerInfo.Data.IsDead &&
+                              (includeGhosts || !playerInfo.Data.IsDead) &&
                               (includeImpostors || !playerInfo.Data.Role.IsImpostor))
             .ToList();
-
         return predicate != null ? filteredPlayers.Find(predicate) : filteredPlayers.FirstOrDefault();
     }
 
@@ -525,5 +546,50 @@ public static class Extensions
         renderer.material.SetFloat(ShaderID.Outline, color.HasValue ? 1 : 0);
         renderer.material.SetColor(ShaderID.OutlineColor, color ?? Color.clear);
         renderer.material.SetColor(ShaderID.AddColor, color ?? Color.clear);
+    }
+
+    // Inspired by: https://github.com/eDonnes124/Town-Of-Us-R/blob/master/source/Patches/Keybinds.cs#L29
+
+    /// <summary>
+    /// Registers a new mod keybind as a user-assignable button action in Rewired.
+    /// </summary>
+    /// <param name="userData">The Rewired user data to add the action to.</param>
+    /// <param name="actionName">The internal name of the action.</param>
+    /// <param name="description">Text shown in the rebinding UI.</param>
+    /// <param name="key">The default key to assign to this action.</param>
+    /// <param name="category">Category ID to group actions in Rewired (default is 0).</param>
+    /// <param name="elementIdentifierId">The element identifier ID (default is -1, meaning none specified).</param>
+    /// <param name="type">The <see cref="InputActionType"/> for this action (default is Button).</param>
+    /// <param name="modifier1">The first optional modifier key (e.g., <c>Control</c>, <c>Shift</c>, <c>Alt</c>) that must be held together with the main key.</param>
+    /// <param name="modifier2">The second optional modifier key. Set to <see cref="ModifierKey.None"/> if not used.</param>
+    /// <param name="modifier3">The third optional modifier key. Set to <see cref="ModifierKey.None"/> if not used.</param>
+    /// <returns>The action ID of the newly registered action.</returns>
+    public static int RegisterModBind(this UserData userData, string actionName, string description, KeyboardKeyCode key, int category = 0, int elementIdentifierId = -1, InputActionType type = InputActionType.Button, ModifierKey modifier1 = ModifierKey.None, ModifierKey modifier2 = ModifierKey.None, ModifierKey modifier3 = ModifierKey.None)
+    {
+        userData.AddAction(category);
+
+        var action = userData.GetAction(userData.actions.Count - 1)!;
+
+        action.name = actionName;
+        action.descriptiveName = description;
+        action.categoryId = category;
+        action.type = type;
+        action.userAssignable = true;
+
+        var map = new ActionElementMap
+        {
+            _elementIdentifierId = elementIdentifierId,
+            _actionId = action.id,
+            _elementType = ControllerElementType.Button,
+            _axisContribution = Pole.Positive,
+            _keyboardKeyCode = key,
+            _modifierKey1 = modifier1,
+            _modifierKey2 = modifier2,
+            _modifierKey3 = modifier3,
+        };
+        userData.keyboardMaps[0].actionElementMaps.Add(map);
+        userData.joystickMaps[0].actionElementMaps.Add(map);
+
+        return action.id;
     }
 }

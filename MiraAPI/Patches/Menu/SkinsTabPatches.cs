@@ -76,7 +76,7 @@ public static class SkinsTabPatches
         text.gameObject.transform.localScale = Vector3.one;
         text.GetComponent<TextTranslatorTMP>().Destroy();
         text.EnableStencilMasking();
-        text.text = $"{groupName}\nPress Ctrl or Tab to cycle pages";
+        text.text = $"{groupName} ({currentPage + 1}/{sortedSkins.Count})\nPress Ctrl or Tab to cycle pages";
         text.alignment = TextAlignmentOptions.Center;
         text.fontSize = 3f;
         text.fontSizeMax = 3f;
@@ -94,7 +94,7 @@ public static class SkinsTabPatches
             hatIndex += 1;
         }
 
-        __instance.scroller.ContentYBounds.max = -(__instance.YStart - (hatIndex + 1) / __instance.NumPerRow * __instance.YOffset) - 3f;
+        __instance.SetScrollerBounds();
         __instance.currentSkinIsEquipped = true;
     }
 

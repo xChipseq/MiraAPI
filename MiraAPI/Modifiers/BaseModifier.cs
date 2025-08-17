@@ -65,6 +65,11 @@ public abstract class BaseModifier : IOptionable
     public virtual bool ShowInFreeplay => false;
 
     /// <summary>
+    /// Gets a value indicating the color that should be used for the modifier within freeplay.
+    /// </summary>
+    public virtual Color FreeplayFileColor => Color.gray;
+
+    /// <summary>
     /// Gets a value indicating whether the modifier is unique. If true, the player can only have one instance of this modifier.
     /// </summary>
     public virtual bool Unique => true;

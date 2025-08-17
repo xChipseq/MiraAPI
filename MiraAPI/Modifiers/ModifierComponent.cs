@@ -6,6 +6,7 @@ using System.Linq;
 using Il2CppInterop.Runtime.Attributes;
 using MiraAPI.Modifiers.ModifierDisplay;
 using MiraAPI.Modifiers.Types;
+using MiraAPI.Patches.Roles;
 using Reactor.Utilities;
 using Reactor.Utilities.Attributes;
 using UnityEngine;
@@ -126,7 +127,18 @@ public class ModifierComponent(IntPtr cppPtr) : MonoBehaviour(cppPtr)
 
         if (_player.AmOwner && ModifierDisplay && HudManager.InstanceExists)
         {
-            ModifierDisplay!.gameObject.SetActive(MeetingHud.Instance || HudManager.Instance.TaskPanel.isActiveAndEnabled);
+            var taskPanelOpen = HudManager.Instance.TaskPanel.open;
+            var roleTabOpen = HudManagerPatches.RoleTab != null && HudManagerPatches.RoleTab.open;
+            var leftSideHud = PluginSingleton<MiraApiPlugin>.Instance.MiraConfig!.ModifiersHudLeftSide.Value;
+
+            if (leftSideHud && (taskPanelOpen || roleTabOpen))
+            {
+                ModifierDisplay!.gameObject.SetActive(false);
+            }
+            else
+            {
+                ModifierDisplay!.gameObject.SetActive(MeetingHud.Instance || HudManager.Instance.TaskPanel.isActiveAndEnabled);
+            }
         }
     }
 

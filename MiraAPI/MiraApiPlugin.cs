@@ -30,6 +30,10 @@ public partial class MiraApiPlugin : BasePlugin
     /// </summary>
     public static Color DefaultHeaderColor { get; } = new Color32(77, 77, 77, 255);
 
+    /// <summary>
+    /// Gets the Mira Api Config Handler.
+    /// </summary>
+    public MiraApiConfig? MiraConfig { get; private set; }
     private static MiraPluginManager? PluginManager { get; set; }
     internal Harmony Harmony { get; } = new(Id);
 
@@ -40,6 +44,7 @@ public partial class MiraApiPlugin : BasePlugin
 
         ReactorCredits.Register("Mira API", Version, true, ReactorCredits.AlwaysShow);
 
+        MiraConfig = new MiraApiConfig(Config);
         PluginManager = new MiraPluginManager();
         PluginManager.Initialize();
     }
