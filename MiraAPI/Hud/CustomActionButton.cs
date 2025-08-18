@@ -56,7 +56,7 @@ public abstract class CustomActionButton
     /// <summary>
     /// Gets or sets the current key binding for this button.
     /// </summary>
-    public abstract KeyboardKeyCode Defaultkeybind { get; }
+    public virtual KeyboardKeyCode DefaultKeybind { get; } = KeyboardKeyCode.None;
 
     /// <summary>
     /// The first optional modifier key (e.g., Control, Shift, Alt) that must be held with the main key to activate the button.
