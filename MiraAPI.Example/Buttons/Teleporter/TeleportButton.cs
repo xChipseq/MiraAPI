@@ -22,7 +22,7 @@ public class TeleportButton : CustomActionButton
     public override LoadableAsset<Sprite> Sprite => ExampleAssets.TeleportButton;
     public override Color TextOutlineColor => new Color32(221, 176, 152, 255);
     public static bool IsZoom { get; private set; }
-    public override KeyboardKeyCode DefaultKeybind => KeyboardKeyCode.M;
+    public override KeyboardKeyCode? DefaultKeybind => KeyboardKeyCode.M;
     public override bool Enabled(RoleBehaviour? role)
     {
         return role is TeleporterRole;

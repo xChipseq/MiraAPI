@@ -13,7 +13,7 @@ public class NeutralKillerButton : CustomActionButton
     public override string Name => "Win Game";
     public override float Cooldown => 0f;
     public override LoadableAsset<Sprite> Sprite => ExampleAssets.ExampleButton;
-    public override KeyboardKeyCode DefaultKeybind => KeyboardKeyCode.K;
+    public override KeyboardKeyCode? DefaultKeybind => KeyboardKeyCode.K;
     protected override void OnClick()
     {
         CustomGameOver.Trigger<NeutralKillerGameOver>([PlayerControl.LocalPlayer.Data]);

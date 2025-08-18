@@ -54,23 +54,23 @@ public abstract class CustomActionButton
     public virtual int MaxUses => 0;
 
     /// <summary>
-    /// Gets or sets the current key binding for this button.
+    /// Gets the current key binding for this button. If null, no keybind will be added.
     /// </summary>
-    public virtual KeyboardKeyCode DefaultKeybind { get; } = KeyboardKeyCode.None;
+    public virtual KeyboardKeyCode? DefaultKeybind { get; }
 
     /// <summary>
-    /// The first optional modifier key (e.g., Control, Shift, Alt) that must be held with the main key to activate the button.
+    /// Gets the first optional modifier key (e.g., Control, Shift, Alt) that must be held with the main key to activate the button.
     /// </summary>
     public virtual ModifierKey Modifier1 => ModifierKey.None;
 
     /// <summary>
-    /// The second optional modifier key.
+    /// Gets the second optional modifier key.
     /// Set to <see cref="ModifierKey.None"/> if unused.
     /// </summary>
     public virtual ModifierKey Modifier2 => ModifierKey.None;
 
     /// <summary>
-    /// The third optional modifier key.
+    /// Gets the third optional modifier key.
     /// Set to <see cref="ModifierKey.None"/> if unused.
     /// </summary>
     public virtual ModifierKey Modifier3 => ModifierKey.None;
