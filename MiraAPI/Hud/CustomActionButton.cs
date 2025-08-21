@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Globalization;
+using System.Linq;
 using MiraAPI.Events;
 using MiraAPI.Events.Mira;
+using MiraAPI.Keybinds;
 using MiraAPI.Patches;
 using MiraAPI.Utilities;
 using MiraAPI.Utilities.Assets;
 using Rewired;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -121,6 +124,11 @@ public abstract class CustomActionButton
     public ActionButton? Button { get; set; }
 
     /// <summary>
+    /// Gets the gameObject used for the keybind icon.
+    /// </summary>
+    public GameObject KeybindIcon { get; set; }
+
+    /// <summary>
     /// The method used to create the button.
     /// </summary>
     /// <param name="parent">The parent of the button.</param>
@@ -191,6 +199,13 @@ public abstract class CustomActionButton
                 }
             }
         }));
+
+        KeybindIcon = Object.Instantiate(Button.usesRemainingSprite.gameObject, Button.transform);
+        KeybindIcon.GetComponent<SpriteRenderer>().sprite = MiraAssets.KeybindButton.LoadAsset();
+        KeybindIcon.transform.GetChild(0).GetComponent<TextMeshPro>().text =
+            KeybindManager.GetEntries().First(x => x.Id == $"{Name}_Keybind").Key.ToString();
+        KeybindIcon.name = "KeybindIcon";
+        KeybindIcon.transform.localPosition = new(0.341f, 0.374f, -0.1f);
     }
 
     /// <summary>
