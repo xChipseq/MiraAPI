@@ -18,6 +18,7 @@ using MiraAPI.Roles;
 using MiraAPI.Utilities;
 using Reactor.Networking;
 using Reactor.Utilities;
+using Rewired;
 using UnityEngine;
 
 namespace MiraAPI.PluginLoading;
@@ -137,9 +138,13 @@ public sealed class MiraPluginManager
 
             foreach (var button in CustomButtonManager.Buttons)
             {
-                KeybindManager.Register($"{button.Name}_Keybind", $"Keybind for {button.Name}", button.Defaultkeybind, button.ClickHandler, modifier1: button.Modifier1, modifier2: button.Modifier2, modifier3: button.Modifier3);
+                if (button.DefaultKeybind == null)
+                {
+                    continue;
+                }
+                KeybindManager.Register($"{button.Name}_Keybind", $"Keybind for {button.Name}", (KeyboardKeyCode)button.DefaultKeybind, button.ClickHandler, modifier1: button.Modifier1, modifier2: button.Modifier2, modifier3: button.Modifier3);
 
-                Logger<MiraApiPlugin>.Info($"Registered keybind for button '{button.GetType().Name}' with default key {button.Defaultkeybind}.");
+                Logger<MiraApiPlugin>.Info($"Registered keybind for button '{button.GetType().Name}' with default key {(KeyboardKeyCode)button.DefaultKeybind}.");
             }
         };
     }
