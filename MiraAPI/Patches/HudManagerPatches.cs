@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using HarmonyLib;
 using MiraAPI.Hud;
 using MiraAPI.Keybinds;
+using MiraAPI.Utilities;
 using Reactor.Utilities;
 using Reactor.Utilities.Extensions;
 using Rewired;
+using TMPro;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -21,6 +24,8 @@ public static class HudManagerPatches
     public static GameObject? BottomLeft { get; private set; }
     public static Transform? BottomRight { get; private set; }
     public static Transform? Buttons { get; private set; }
+
+    private static Dictionary<TextMeshPro, int> VanillaKeybindIcons = new();
 
     /*
     /// <summary>
@@ -96,6 +101,26 @@ public static class HudManagerPatches
         gridArrange.ArrangeChilds();
 
         aspectPosition.AdjustPosition();
+
+        var keybindIconPos = new Vector3(-0.4f, 0.4f, -9f);
+        var vanillaButtons = new Dictionary<GameObject, int>
+        {
+            { __instance.KillButton.gameObject, 8 },
+            { __instance.UseButton.gameObject, 6 },
+            { __instance.ReportButton.gameObject, 7 },
+            { __instance.ImpostorVentButton.gameObject, 50 },
+            { __instance.SabotageButton.gameObject, 4 },
+        };
+
+        foreach (var kvp in vanillaButtons)
+        {
+            var buttonObj = kvp.Key;
+            var actionId = kvp.Value;
+
+            var key = Helpers.GetKeybindByActionId(actionId);
+            var icon = Helpers.CreateKeybindIcon(buttonObj, key, keybindIconPos);
+            VanillaKeybindIcons.Add(icon.transform.GetChild(0).GetComponent<TextMeshPro>(), actionId);
+        }
     }
 
     /// <summary>
@@ -132,6 +157,11 @@ public static class HudManagerPatches
     [HarmonyPostfix]
     public static void StartPostfix()
     {
+        foreach (var btnIcon in VanillaKeybindIcons)
+        {
+            btnIcon.Key.text = Helpers.GetKeybindByActionId(btnIcon.Value).ToString();
+        }
+
         foreach (var entry in KeybindManager.GetEntries())
         {
             var player = ReInput.players.GetPlayer(0);

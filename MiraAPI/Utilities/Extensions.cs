@@ -94,7 +94,7 @@ public static class Extensions
     /// <param name="timer">The current timer value.</param>
     /// <param name="maxTimer">The maximum timer value.</param>
     /// <param name="format">The format string to use for the timer text.</param>
-    public static void SetCooldownFormat(this ActionButton button, float timer, float maxTimer, string format = "0")
+    public static void SetCooldownFormat(this ActionButton? button, float timer, float maxTimer, string format = "0")
     {
         var num = Mathf.Clamp(timer / maxTimer, 0f, 1f);
         button.isCoolingDown = num > 0f;

@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Linq;
 using Il2CppSystem.IO;
 using MiraAPI.Keybinds;
+using MiraAPI.Utilities.Assets;
 using Rewired;
 using TMPro;
 using UnityEngine;
@@ -24,6 +25,27 @@ public static class Helpers
     public static List<PlayerControl> GetAlivePlayers()
     {
         return [.. GameData.Instance.AllPlayers.ToArray().Where(x => !x.IsDead && !x.Disconnected && x.Object).Select(x => x.Object)];
+    }
+    internal static GameObject CreateKeybindIcon(GameObject button, KeyboardKeyCode keyCode, Vector3 localPos)
+    {
+        var keybindIcon = Object.Instantiate(HudManager.Instance.AbilityButton.usesRemainingSprite.gameObject, button.transform);
+        keybindIcon.GetComponent<SpriteRenderer>().sprite = MiraAssets.KeybindButton.LoadAsset();
+        keybindIcon.transform.GetChild(0).GetComponent<TextMeshPro>().text = keyCode.ToString();
+        keybindIcon.name = "KeybindIcon";
+        keybindIcon.transform.localPosition = localPos;
+        return keybindIcon;
+    }
+
+    /// <summary>
+    /// Gets the keybind for an action with ReInput.
+    /// </summary>
+    /// <param name="actionId">The action ID.</param>
+    /// <returns>The keyboard key code.</returns>
+    public static KeyboardKeyCode GetKeybindByActionId(int actionId)
+    {
+        var player = ReInput.players.GetPlayer(0);
+        return player.controllers.maps.GetFirstElementMapWithAction(ControllerType.Keyboard, actionId, false)
+            .keyboardKeyCode;
     }
 
     /// <summary>
