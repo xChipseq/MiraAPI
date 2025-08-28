@@ -205,7 +205,8 @@ public abstract class CustomActionButton
         KeybindIcon.transform.GetChild(0).GetComponent<TextMeshPro>().text =
             KeybindManager.GetEntries().First(x => x.Id == $"{Name}_Keybind").Key.ToString();
         KeybindIcon.name = "KeybindIcon";
-        KeybindIcon.transform.localPosition = new(0.341f, 0.374f, -0.1f);
+        KeybindIcon.transform.localPosition = new(0.5f, 0.5f, -0.1f);
+        Button.usesRemainingSprite.transform.localPosition = new(-0.341f, 0.5f, -0.1f);
     }
 
     /// <summary>

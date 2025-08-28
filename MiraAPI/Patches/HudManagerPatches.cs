@@ -132,9 +132,6 @@ public static class HudManagerPatches
     [HarmonyPostfix]
     public static void StartPostfix()
     {
-        if (AmongUsClient.Instance.GameState != InnerNet.InnerNetClient.GameStates.Started) return;
-        if (PlayerControl.LocalPlayer.Data.IsDead) return;
-
         foreach (var entry in KeybindManager.GetEntries())
         {
             var player = ReInput.players.GetPlayer(0);
