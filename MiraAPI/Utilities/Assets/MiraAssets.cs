@@ -94,4 +94,9 @@ public static class MiraAssets
     /// Gets the white CategoryHeader used in the Settings Menu.
     /// </summary>
     public static LoadableResourceAsset CategoryHeader { get; } = new("MiraAPI.Resources.CategoryHeader.png");
+
+    /// <summary>
+    /// Gets the sprite used for the Keybind icons.
+    /// </summary>
+    public static LoadableResourceAsset KeybindButton { get; } = new("MiraAPI.Resources.KeybindButton.png");
 }
