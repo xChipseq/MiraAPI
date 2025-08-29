@@ -37,6 +37,12 @@ public abstract class CustomActionButton
     public abstract float Cooldown { get; }
 
     /// <summary>
+    /// Gets a value indicating whether the timer should stop decreasing when the player is venting.
+    /// Note that both cooldown decrease and effect timer decrease is disabled.
+    /// </summary>
+    public virtual bool PauseTimerInVent => false;
+
+    /// <summary>
     /// Gets the sprite of the button. Use <see cref="LoadableResourceAsset"/> to load a sprite from a resource path. Use <see cref="LoadableBundleAsset{T}"/> to load a sprite from an asset bundle.
     /// </summary>
     public abstract LoadableAsset<Sprite> Sprite { get; }
@@ -504,7 +510,7 @@ public abstract class CustomActionButton
 
         if (Timer >= 0)
         {
-            if (!TimerPaused)
+            if (!TimerPaused && (!PauseTimerInVent || !playerControl.inVent))
             {
                 Timer -= Time.deltaTime;
             }

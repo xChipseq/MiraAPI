@@ -16,6 +16,7 @@ public class FreezeButton : CustomActionButton<PlayerControl>
     public override string Name => "Freeze";
 
     public override float Cooldown => OptionGroupSingleton<FreezerRoleSettings>.Instance.FreezeDuration;
+    public override bool PauseTimerInVent => true;
 
     public override LoadableAsset<Sprite> Sprite => ExampleAssets.ExampleButton;
     public override KeyboardKeyCode? DefaultKeybind => KeyboardKeyCode.T;
