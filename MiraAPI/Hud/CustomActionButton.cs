@@ -47,9 +47,19 @@ public abstract class CustomActionButton
     public virtual string CooldownTimerFormatString => "0";
 
     /// <summary>
-    /// Gets the button's effect duration in seconds. If the button has no effect, set to 0.
+    /// Gets a value indicating whether the button has an effect ability. By default true if <see cref="EffectDuration"/> is greater than 0.
+    /// </summary>
+    public virtual bool HasEffect => EffectDuration > 0;
+
+    /// <summary>
+    /// Gets the button's effect duration in seconds. If 0, the effect needs to be ended manually.
     /// </summary>
     public virtual float EffectDuration => 0;
+
+    /// <summary>
+    /// Gets a value indicating whether the effect can be ended early by the player.
+    /// </summary>
+    public virtual bool EffectCancelable => false;
 
     /// <summary>
     /// Gets the maximum amount of uses the button has. If the button has infinite uses, set to 0.
@@ -87,11 +97,6 @@ public abstract class CustomActionButton
     /// Gets or sets the location of the button on the screen.
     /// </summary>
     public virtual ButtonLocation Location { get; set; } = ButtonLocation.BottomLeft;
-
-    /// <summary>
-    /// Gets a value indicating whether the button has an effect ability.
-    /// </summary>
-    public bool HasEffect => EffectDuration > 0;
 
     /// <summary>
     /// Gets a value indicating whether the button has limited uses.
@@ -416,7 +421,7 @@ public abstract class CustomActionButton
     /// <returns>A value that represents whether the button can be clicked or not.</returns>
     public virtual bool CanClick()
     {
-        return Timer <= 0 && !EffectActive && CanUse();
+        return (EffectActive ? EffectCancelable : Timer <= 0) && CanUse();
     }
 
     /// <summary>
@@ -426,7 +431,7 @@ public abstract class CustomActionButton
     /// <returns>A value that represents whether the button should light up or not.</returns>
     public virtual bool CanUse()
     {
-        return PlayerControl.LocalPlayer.moveable && (!LimitedUses || UsesLeft > 0);
+        return PlayerControl.LocalPlayer.moveable && (EffectActive || !LimitedUses || UsesLeft > 0);
     }
 
     /// <summary>
@@ -448,6 +453,12 @@ public abstract class CustomActionButton
     /// </summary>
     public virtual void ClickHandler()
     {
+        if (EffectActive && EffectCancelable)
+        {
+            ResetCooldownAndOrEffect();
+            return;
+        }
+
         if (!CanClick())
         {
             return;
