@@ -10,6 +10,8 @@ public class ThinkButton : CustomActionButton
     public override float Cooldown => 15f;
     public override float EffectDuration => 10f;
     public override bool EffectCancelable => true;
+    public override int MaxUses => 1;
+    public override ButtonUsesMode UsesMode => ButtonUsesMode.PerRound;
     public override LoadableAsset<Sprite> Sprite => ExampleAssets.ExampleButton;
     protected override void OnClick()
     {

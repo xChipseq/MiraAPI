@@ -67,6 +67,11 @@ public abstract class CustomActionButton
     public virtual int MaxUses => 0;
 
     /// <summary>
+    /// Gets the value indicating uses mode.
+    /// </summary>
+    public virtual ButtonUsesMode UsesMode => ButtonUsesMode.PerGame;
+
+    /// <summary>
     /// Gets the current key binding for this button. If null, no keybind will be added.
     /// </summary>
     public virtual KeyboardKeyCode? DefaultKeybind { get; }
