@@ -431,7 +431,8 @@ public abstract class CustomActionButton
     /// <returns>A value that represents whether the button should light up or not.</returns>
     public virtual bool CanUse()
     {
-        return PlayerControl.LocalPlayer.moveable && (EffectActive || !LimitedUses || UsesLeft > 0);
+        return PlayerControl.LocalPlayer.moveable &&
+               ((EffectActive && EffectCancelable) || (!EffectActive && (!LimitedUses || UsesLeft > 0)));
     }
 
     /// <summary>
@@ -503,7 +504,7 @@ public abstract class CustomActionButton
                 Timer -= Time.deltaTime;
             }
         }
-        else if (HasEffect && EffectActive)
+        else if (HasEffect && EffectActive && EffectDuration > 0)
         {
             EffectActive = false;
             Timer = Cooldown;
@@ -521,7 +522,7 @@ public abstract class CustomActionButton
                 Button!.SetDisabled();
             }
 
-            if (EffectActive)
+            if (EffectActive && EffectDuration > 0)
             {
                 Button.SetFillUp(Timer, EffectDuration);
 
